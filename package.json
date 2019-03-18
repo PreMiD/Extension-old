@@ -1,0 +1,22 @@
+{
+	"name": "pmd_extension",
+	"version": "1.0.0",
+	"description": "",
+	"main": "package.js",
+	"scripts": {
+		"start": "node pkg.js"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/Timeraa/PMD_Extension.git"
+	},
+	"author": "",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/Timeraa/PMD_Extension/issues"
+	},
+	"homepage": "https://github.com/Timeraa/PMD_Extension#readme",
+	"dependencies": {
+		"fs-extra": "^7.0.1"
+	}
+}
