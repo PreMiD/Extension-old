@@ -1,0 +1,26 @@
+{
+	"name": "PreMiD",
+	"author": "Timeraa",
+	"description": "__MSG_description__",
+	"default_locale": "en",
+	"version": "2.0",
+	"manifest_version": 2,
+	"web_accessible_resources": [ "icon.png", "languages/*.json" ],
+	"background": {
+		"scripts": [
+			"js/lib/socket.io_2.2.0.js",
+			"js/util/debug.js",
+			"js/background/presenceDev.js",
+			"js/background/background.js",
+			"js/background/socketConnector.js"
+		]
+	},
+	"permissions": [ "tabs", "storage", "webRequest", "<all_urls>" ],
+	"content_security_policy": "script-src 'self' https://*.premid.app/*; object-src 'self'",
+	"applications": {
+		"gecko": {
+			"id": "support@premid.app",
+			"strict_min_version": "52.0"
+		}
+	}
+}
