@@ -27,6 +27,8 @@ function tabPriority() {
 	chrome.tabs.query({ active: true }, function(tabs) {
 		//* Load all presences
 		chrome.storage.local.get([ 'presences' ], function(result) {
+			if (!result.presences) return;
+
 			//* Keep only enabled ones
 			var presences = result.presences.filter((f) => f.enabled);
 			//TODO clear array if PreMiD == disabled
@@ -43,11 +45,11 @@ function tabPriority() {
 					//* Loop through presences
 					for (var i = 0; presences.length > i; i++) {
 						//* active tab url contains presence url
-						if (tabs[0].url.indexOf(presences[i].url) > -1) {
+						if (getHost(tabs[0].url).indexOf(getHost(presences[i].url)) > -1) {
 							//* Update priorityTab when 5 seconds passed else increase count
 							if (tabPriorityLock >= 4) {
 								//* Send tab message to stop its intervals
-								chrome.tabs.sendMessage(priorityTab, { tabPriority: false });
+								if (priorityTab) chrome.tabs.sendMessage(priorityTab, { tabPriority: false });
 
 								priorityTab = tabs[0].id;
 							} else tabPriorityLock++;
@@ -63,3 +65,71 @@ function tabPriority() {
 		chrome.tabs.sendMessage(priorityTab, { tabPriority: true });
 	}
 }
+
+chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
+	if (changeInfo.status == 'complete') {
+		chrome.storage.local.get([ 'presences' ], function(data) {
+			var presences = data.presences;
+			if (!presences) return;
+
+			//* Only keep enabled ones
+			presences = presences.filter((f) => f.enabled);
+
+			//* Only keep presence that we need for url
+			presences = presences.filter((f) => getHost(tab.url) == f.url);
+
+			if (presences.length == 0) return;
+
+			var presence = presences[0];
+
+			chrome.tabs.executeScript(tabId, { code: `try{PreMiD_Presence}catch(e){false}` }, function(result) {
+				if (result[0]) return;
+				injectPresence(tabId, presence);
+			});
+		});
+	}
+});
+
+function getHost(url) {
+	var hostname;
+
+	//* Remove protocol if there is one
+	if (url.indexOf('//') > -1) {
+		hostname = url.split('/')[2];
+	} else {
+		hostname = url.split('/')[0];
+	}
+
+	//* Remove port
+	hostname = hostname.split(':')[0];
+	//* Remove query string
+	hostname = hostname.split('?')[0];
+
+	return hostname;
+}
+
+async function injectPresence(tabId, presence) {
+	if (presence.hasOwnProperty('tmp'))
+		chrome.tabs.executeScript(tabId, {
+			file: '/presenceDev/presence.js'
+		});
+	else
+		chrome.tabs.executeScript(tabId, {
+			code: await fetch(`${presence.source}presence.js`).then(async (res) => res.text())
+		});
+
+	PMD_info(`${presence.service} injected.`);
+}
+
+//* Forward the presence data received from Presence script to application
+chrome.runtime.onMessage.addListener(function(data, sender) {
+	if (data.presence != undefined) {
+		PMD_info('Sending Presence Data to Application');
+		socket.emit('updateData', data.presence);
+	}
+
+	if (data.iframe_video != undefined && priorityTabId != null) {
+		PMD_info('Sending iFrame video data to presence');
+		chrome.tabs.sendMessage(priorityTabId, data);
+	}
+});

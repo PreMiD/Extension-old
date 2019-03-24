@@ -15,7 +15,13 @@
 			"js/background/socketConnector.js"
 		]
 	},
-	"permissions": [ "tabs", "storage", "webRequest", "<all_urls>" ],
+	"content_scripts": [
+		{
+			"matches": [ "<all_urls>" ],
+			"js": [ "js/presenceHandler.js" ]
+		}
+	],
+	"permissions": [ "tabs", "storage", "webRequest", "<all_urls>", "http://localhost/" ],
 	"content_security_policy": "script-src 'self' https://*.premid.app/*; object-src 'self'",
 	"applications": {
 		"gecko": {

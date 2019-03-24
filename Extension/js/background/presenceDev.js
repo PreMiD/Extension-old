@@ -32,11 +32,12 @@ chrome.runtime.getPackageDirectoryEntry(function(root) {
 	});
 });
 
+var validateErrors = [];
 function validateMetaData(json, files) {
 	if (json.hasOwnProperty('author')) {
-		if (!json.author.hasOwnProperty('name')) PMD_error('Missing property: author.name');
-		if (!json.author.hasOwnProperty('id')) PMD_error('Missing property: author.id');
-	} else PMD_error('Missing property: author');
+		if (!json.author.hasOwnProperty('name')) validateErrors.push('Missing property: author.name');
+		if (!json.author.hasOwnProperty('id')) validateErrors.push('Missing property: author.id');
+	} else validateErrors.push('Missing property: author');
 
 	checkProperty(json, 'service');
 	checkProperty(json, 'description');
@@ -47,9 +48,43 @@ function validateMetaData(json, files) {
 	checkProperty(json, 'tags');
 
 	if (files.find((f) => f.name == 'iframe.js') && !json.hasOwnProperty('iframe'))
-		PMD_error('Found iframe.js but property not found in metadata.json');
+		validateErrors.push('Found iframe.js but property not found in metadata.json');
+
+	if (validateErrors.length > 0) {
+		validateErrors.map((error) => PMD_error(error));
+		return;
+	}
+
+	chrome.storage.local.get([ 'presences' ], function(res) {
+		var presences = res.presences,
+			currLocalPresence = 0;
+
+		if (presences) {
+			currLocalPresence = presences.findIndex((presence) => presence.hasOwnProperty('tmp'));
+		} else presences = [];
+
+		if (currLocalPresence > -1) {
+			presences[currLocalPresence] = {
+				service: json.service,
+				color: json.color,
+				url: json.url,
+				enabled: true,
+				tmp: true
+			};
+		} else {
+			presences.push({
+				service: json.service,
+				color: json.color,
+				url: json.url,
+				enabled: true,
+				tmp: true
+			});
+		}
+
+		chrome.storage.local.set({ presences: presences });
+	});
 }
 
 function checkProperty(json, property) {
-	if (!json.hasOwnProperty(property)) PMD_error(`Missing property: ${property}`);
+	if (!json.hasOwnProperty(property)) validateErrors.push(`Missing property: ${property}`);
 }

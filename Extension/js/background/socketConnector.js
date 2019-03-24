@@ -16,4 +16,5 @@ socket.on('disconnect', function() {
 socket.on('mediaKeyHandler', function(data) {
 	//* Media control buttons
 	PMD_info(`Media Control: ${data.playback}`);
+	if (priorityTab != null) chrome.tabs.sendMessage(priorityTab, { mediaKeys: data.playback });
 });
