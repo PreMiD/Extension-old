@@ -65,6 +65,10 @@ function getPageVariables(variables) {
 	return ret;
 }
 
+/**
+ * Get variables from the page
+ * @param {Array} vars Variables to get
+ */
 async function getPageVariables(vars) {
 	return new Promise(function(resolve, reject) {
 		window.addEventListener('PreMiD_EvaledPageVariables', (res) => resolve(res.detail));
