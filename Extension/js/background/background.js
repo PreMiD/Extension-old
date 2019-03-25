@@ -114,7 +114,6 @@ async function injectPresence(tabId, presence) {
 			file: '/presenceDev/presence.js'
 		});
 		if (presence.hasOwnProperty('iframe')) {
-			console.log('IFRAME!');
 			chrome.tabs.executeScript(tabId, {
 				file: '/presenceDev/iframe.js',
 				allFrames: true
