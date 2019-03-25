@@ -6,6 +6,14 @@
 	"version": "2.0",
 	"manifest_version": 2,
 	"web_accessible_resources": [ "icon.png", "languages/*.json" ],
+	"icons": {
+		"16": "assets/images/icon16px.png",
+		"48": "assets/images/icon48px.png",
+		"124": "assets/images/icon124px.png"
+	},
+	"browser_action": {
+		"default_popup": "assets/html/popup.html"
+	},
 	"background": {
 		"scripts": [
 			"js/lib/socket.io_2.2.0.js",
