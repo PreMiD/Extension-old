@@ -64,7 +64,7 @@ function handleMediaKeys(mediaKey) {
  * Update Data when priorityTab focused
  */
 function updateData() {
-	console.log(iframe_video);
+	console.log(iframeData);
 	if (oldUrl != window.location.href) {
 		oldUrl = window.location.href;
 		watchingSinceTimestamp = Math.floor(Date.now() / 1000);

@@ -1,3 +1,3 @@
 setInterval(() => {
-	chrome.runtime.sendMessage({ iframe_video: 'Hi there!' });
+	chrome.runtime.sendMessage({ iframeData: 'Hi there!' });
 }, 1000);

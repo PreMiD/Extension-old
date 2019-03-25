@@ -1,5 +1,5 @@
 var extensionData = null,
-	iframe_video = null;
+	iframeData = null;
 
 chrome.runtime.onMessage.addListener(function(data) {
 	if (data.tabPriority) {
@@ -16,7 +16,7 @@ chrome.runtime.onMessage.addListener(function(data) {
 		sessionStorage.setItem('tabPriority', false);
 	}
 
-	if (data.iframe_video != undefined) iframe_video = data.iframe_video;
+	if (data.iframeData != undefined) iframeData = data.iframeData;
 });
 
 window.addEventListener('PreMiD_RequestExtensionData', function(data) {
