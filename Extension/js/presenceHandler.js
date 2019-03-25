@@ -1,4 +1,5 @@
-var extensionData = null;
+var extensionData = null,
+	iframe_video = null;
 
 chrome.runtime.onMessage.addListener(function(data) {
 	if (data.tabPriority) {
@@ -71,7 +72,7 @@ function getPageVariables(variables) {
  */
 async function getPageVariables(vars) {
 	return new Promise(function(resolve, reject) {
-		window.addEventListener('PreMiD_EvaledPageVariables', (res) => resolve(res.detail));
+		window.addEventListener('PreMiD_EvaledPageVariables', (res) => resolve(res.detail), { once: true });
 		var event = new CustomEvent('PreMiD_PageVariables', { detail: vars });
 		window.dispatchEvent(event);
 		setTimeout(reject, 1 * 1000);

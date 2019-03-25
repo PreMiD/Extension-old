@@ -109,14 +109,27 @@ function getHost(url) {
 }
 
 async function injectPresence(tabId, presence) {
-	if (presence.hasOwnProperty('tmp'))
+	if (presence.hasOwnProperty('tmp')) {
 		chrome.tabs.executeScript(tabId, {
 			file: '/presenceDev/presence.js'
 		});
-	else
+		if (presence.hasOwnProperty('iframe')) {
+			console.log('IFRAME!');
+			chrome.tabs.executeScript(tabId, {
+				file: '/presenceDev/iframe.js',
+				allFrames: true
+			});
+		}
+	} else {
 		chrome.tabs.executeScript(tabId, {
 			code: await fetch(`${presence.source}presence.js`).then(async (res) => res.text())
 		});
+		if (presence.hasOwnProperty('iframe'))
+			chrome.tabs.executeScript(tabId, {
+				code: await fetch(`${presence.source}iframe.js`).then(async (res) => res.text()),
+				allFrames: true
+			});
+	}
 
 	PMD_info(`${presence.service} injected.`);
 }
@@ -128,8 +141,8 @@ chrome.runtime.onMessage.addListener(function(data, sender) {
 		socket.emit('updateData', data.presence);
 	}
 
-	if (data.iframe_video != undefined && priorityTabId != null) {
+	if (data.iframe_video != undefined && priorityTab != null) {
 		PMD_info('Sending iFrame video data to presence');
-		chrome.tabs.sendMessage(priorityTabId, data);
+		chrome.tabs.sendMessage(priorityTab, data);
 	}
 });

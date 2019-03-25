@@ -47,8 +47,11 @@ function validateMetaData(json, files) {
 	checkProperty(json, 'color');
 	checkProperty(json, 'tags');
 
-	if (files.find((f) => f.name == 'iframe.js') && !json.hasOwnProperty('iframe'))
+	if (files.find((f) => f.name == 'iframe.js') != undefined && !json.hasOwnProperty('iframe'))
 		validateErrors.push('Found iframe.js but property not found in metadata.json');
+
+	if (files.find((f) => f.name == 'iframe.js') == undefined && json.hasOwnProperty('iframe'))
+		validateErrors.push('Found iframe property in metadata.json but not iframe.js');
 
 	if (validateErrors.length > 0) {
 		validateErrors.map((error) => PMD_error(error));
@@ -63,13 +66,16 @@ function validateMetaData(json, files) {
 			currLocalPresence = presences.findIndex((presence) => presence.hasOwnProperty('tmp'));
 		} else presences = [];
 
+		const iframe = json.hasOwnProperty('iframe') ? true : null;
+
 		if (currLocalPresence > -1) {
 			presences[currLocalPresence] = {
 				service: json.service,
 				color: json.color,
 				url: json.url,
 				enabled: true,
-				tmp: true
+				tmp: true,
+				iframe
 			};
 		} else {
 			presences.push({
@@ -77,7 +83,8 @@ function validateMetaData(json, files) {
 				color: json.color,
 				url: json.url,
 				enabled: true,
-				tmp: true
+				tmp: true,
+				iframe
 			});
 		}
 
