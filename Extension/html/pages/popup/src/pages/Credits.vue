@@ -62,13 +62,13 @@ export default {
 
 <style lang="less" scoped>
 @import "./../stylesheets/colors.less";
-@cwidth: 8rem;
-@cheight: 11.7rem;
+@cwidth: 8.3rem;
+@cheight: 12rem;
 
 
 .main {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(@cwidth, ((@cwidth + .5rem))));
+  grid-template-columns: repeat(auto-fill, minmax(((@cwidth + 1rem)), ((@cwidth + .5rem))));
   justify-content: center;
   padding: 1.5rem;
   overflow: scroll;
@@ -108,6 +108,9 @@ export default {
         margin-left @transition-time ease, 
         width @transition-time ease, 
         height @transition-time ease;
+      img {
+        border-radius: .3rem;
+      }
     }
   }
   .picture {

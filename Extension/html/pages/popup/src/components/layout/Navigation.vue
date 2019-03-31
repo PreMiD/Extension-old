@@ -11,7 +11,7 @@
           v-bind:key="category"
           class="category"
         >
-          <span class="category_title">{{ category.title }}</span>
+          <span class="category_title" :style="'width: ' + category.title.length + 'ch;'">{{ category.title }}</span>
         </router-link>
       </div>
     </center>
@@ -27,10 +27,6 @@ export default {
         {
           route: "Settings",
           title: "SETTINGS"
-        },
-        {
-          route: "Share",
-          title: "SHARE"
         },
         {
           route: "Credits",
@@ -65,29 +61,42 @@ export default {
   color: lightgray;
   .category_title {
     font-family: Inter;
-    margin-left: .8rem;
-    margin-right: .8rem;
+    margin-right: 1.2rem;
   }
-  &::after {
+  span::after {
     content: '';
-    width: 0px;
-    height: 2px;
+    display: block;
+    width: 0;
+    height: .125rem;
     background: white;
-    transition: width .3s; // someone can figure out why this animation isn't working if they want to
+    transition: all 0.1s ease;
+    margin-top: .15rem;
+    transform: translate(0%, 0); /*Add this*/
+  }
+  &:hover {
+    color: white;
+    transition: all 0.1s ease;
+    span::after {
+      width: 80%;
+    }
   }
   &.router-link-active {
     color: white;
-    transition: width .3s;
-    border-bottom: 2px solid white;
-    &::after {
-      transition: width .3s;
-      width: 5px;
+    transition: all 0.1s ease;
+    span::after {
+      width: 80%;
     }
   }
 }
 
 .categories {
-  margin-top: .2rem;
+  height: 1.8rem;
+  display: grid;
+  margin-top: 0.2rem;
   margin-bottom: 2px;
+  grid-template-columns: min-content min-content;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
 }
 </style>
