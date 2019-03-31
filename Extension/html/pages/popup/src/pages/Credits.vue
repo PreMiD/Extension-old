@@ -1,7 +1,23 @@
 <template>
   <div class="main">
-    <div v-for="(contributor, index) of contributors" v-bind:key="contributor" :style="'color: ' + contributor.roleColor + ';'" v-on:mouseover="animate(index)" v-on:mouseout="de_animate(index)" :onmouseover="'this.style.background=\'' + contributor.roleColor + '\'; this.style.color=\'#23272A\''" :onmouseout="'this.style.background=\'' + '\'; this.style.color=\'' + contributor.roleColor + '\''" class="contributor">
-      <div class="picture"><img src="foo" width="100%" height="100%"></div>
+    <div
+      v-for="(contributor, index) of contributors"
+      v-bind:key="contributor"
+      :style="'color: ' + contributor.roleColor + ';'"
+      v-on:mouseover="animate(index)"
+      v-on:mouseout="de_animate(index)"
+      :onmouseover="'this.style.background=\'' + contributor.roleColor + '\'; this.style.color=\'#23272A\''"
+      :onmouseout="'this.style.background=\'' + '\'; this.style.color=\'' + contributor.roleColor + '\''"
+      class="contributor"
+    >
+      <div class="picture">
+        <img
+          src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTk1IiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5NSAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTEgMTcuNVYzMCIgc3Ryb2tlPSJibGFjayIgc3Ryb2tlLW9wYWNpdHk9IjAuMDEiLz48L3N2Zz4="
+          width="100%"
+          height="100%"
+          :onload="'let avatar = `' + contributor.avatar.split('?')[0] + '`; if (!this.still) { this.src = avatar; this.still = ` `; if (avatar.includes(`.gif`)) { this.src = avatar.replace(`.gif`, `.png`); this.still = avatar.replace(`.gif`, `.png`); } }'"
+        >
+      </div>
       <span>{{ contributor.role.toUpperCase() }}</span>
       <br>
       <span class="name">{{ contributor.name.toUpperCase() }}</span>
@@ -27,24 +43,7 @@ export default {
       let data = JSON.parse(dat);
       data.sort((a, b) => b.rolePosition - a.rolePosition);
       this.$data.contributors = data;
-      console.log("foo")
-      setTimeout(() => { 
-        
-        for(let index in this.$data.contributors) {
-          // this.$data.contributors[index].avatar
-
-          if (this.$data.contributors[index].avatar.split(".")[this.$data.contributors[index].avatar.split(".").length - 1] == "gif") {
-            console.log(this.$data.contributors[index].avatar)
-            gif_frames({ url: this.$data.contributors[index].avatar, frames: 0, outputType: 'canvas' }).then(function (frameData) {
-              let src = document.body.getElementsByClassName("contributor")[index].children[0].children[0].src = frameData[0].getImage().toDataURL("image/png");
-              let store = document.body.getElementsByClassName("contributor")[index].children[0].children[0].still = frameData[0].getImage().toDataURL("image/png");
-            }); 
-          } else {
-            let src = document.body.getElementsByClassName("contributor")[index].children[0].children[0].src = this.$data.contributors[index].avatar;
-          }
-        }
-      }, 1000);
-    })
+    });
   },
   methods: {
     animate(index) {
