@@ -1,9 +1,12 @@
 //* Extension installed/updated
 chrome.runtime.onInstalled.addListener(function(details) {
+	//* Update language strings
+	updateLanguages();
+
 	switch (details.reason) {
 		case 'update':
 			//* Load last saved version string
-			chrome.storage.local.get([ 'lastVersion' ], function(result) {
+			chrome.storage.local.get('lastVersion', function(result) {
 				//* Check if it is a new version or not
 				if (result.lastVersion != details.previousVersion) {
 					//* Save new version to prevent errors
@@ -68,7 +71,7 @@ function tabPriority() {
 
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 	if (changeInfo.status == 'complete') {
-		chrome.storage.local.get([ 'presences' ], function(data) {
+		chrome.storage.local.get('presences', function(data) {
 			var presences = data.presences;
 			if (!presences) return;
 
@@ -123,11 +126,12 @@ async function injectPresence(tabId, presence) {
 		chrome.tabs.executeScript(tabId, {
 			code: await fetch(`${presence.source}presence.js`).then(async (res) => res.text())
 		});
-		if (presence.hasOwnProperty('iframe'))
+		if (presence.hasOwnProperty('iframe')) {
 			chrome.tabs.executeScript(tabId, {
 				code: await fetch(`${presence.source}iframe.js`).then(async (res) => res.text()),
 				allFrames: true
 			});
+		}
 	}
 
 	PMD_info(`${presence.service} injected.`);
