@@ -20,7 +20,20 @@ chrome.runtime.onMessage.addListener(function(data) {
 });
 
 window.addEventListener('PreMiD_RequestExtensionData', function(data) {
+	if (data.detail.strings != undefined) {
+		var translations = [];
+		for (var i = 0; i < Object.keys(data.detail.strings).length; i++) {
+			translations.push(getString(Object.values(data.detail.strings)[i]));
+		}
+		Promise.all(translations).then((completed) => {
+			for (var i = 0; i < Object.keys(data.detail.strings).length; i++) {
+				data.detail.strings[Object.keys(data.detail.strings)[i]] = completed[i];
+			}
+		});
+	}
+
 	if (data.detail.version) data.detail.version = eval(data.detail.version);
+
 	var event = new CustomEvent('PreMiD_ReceiveExtensionData', { detail: data.detail });
 	window.dispatchEvent(event);
 });
