@@ -66,26 +66,20 @@ function validateMetaData(json, files) {
 			currLocalPresence = presences.findIndex((presence) => presence.hasOwnProperty('tmp'));
 		} else presences = [];
 
-		const iframe = json.hasOwnProperty('iframe') ? true : null;
+		var presenceNew = {
+			service: json.service,
+			color: json.color,
+			url: json.url,
+			enabled: true,
+			tmp: true
+		};
+
+		if (json.hasOwnProperty('iframe')) presenceNew.iframe = true;
 
 		if (currLocalPresence > -1) {
-			presences[currLocalPresence] = {
-				service: json.service,
-				color: json.color,
-				url: json.url,
-				enabled: true,
-				tmp: true,
-				iframe
-			};
+			presences[currLocalPresence] = presenceNew;
 		} else {
-			presences.push({
-				service: json.service,
-				color: json.color,
-				url: json.url,
-				enabled: true,
-				tmp: true,
-				iframe
-			});
+			presences.push(presenceNew);
 		}
 
 		chrome.storage.local.set({ presences: presences });
