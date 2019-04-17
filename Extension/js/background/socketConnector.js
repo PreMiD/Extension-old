@@ -5,6 +5,16 @@ var socket = io.connect('http://localhost:3020/'),
 //* When connected start PreMiD functions
 socket.on('connect', function() {
 	PMD_info('Connected to Application');
+	chrome.storage.local.get('settingsAppUpdated', (res) => {
+		if (res.settingsAppUpdated != undefined && !res.settingsAppUpdated) {
+			PMD_info('Sending settings to application...');
+			chrome.storage.sync.get('settings', (res) => {
+				socket.emit('optionUpdate', res.settings);
+				chrome.storage.local.remove('settingsAppUpdated');
+			});
+		}
+	});
+
 	tabPriorityInterval = setInterval(tabPriority, 1 * 1000);
 });
 
