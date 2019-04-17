@@ -12,25 +12,29 @@
 		"124": "assets/images/icon124px.png"
 	},
 	"browser_action": {
-		"default_popup": "assets/html/popup.html"
+		"default_popup": "html/popup.html"
 	},
 	"background": {
 		"scripts": [
+			"js/util/functions.js",
 			"js/lib/socket.io_2.2.0.js",
 			"js/util/debug.js",
 			"js/background/presenceDev.js",
+			"js/util/langManager.js",
 			"js/background/background.js",
-			"js/background/socketConnector.js"
+			"js/background/socketConnector.js",
+			"js/background/settingsManager.js",
+			"js/util/presenceManager.js"
 		]
 	},
 	"content_scripts": [
 		{
 			"matches": [ "<all_urls>" ],
-			"js": [ "js/presenceHandler.js" ]
+			"js": [ "js/util/debug.js", "js/util/functions.js", "js/util/langManager.js", "js/presenceHandler.js" ]
 		}
 	],
 	"permissions": [ "tabs", "storage", "webRequest", "<all_urls>", "http://localhost/" ],
-	"content_security_policy": "script-src 'self' https://*.premid.app/*; object-src 'self'",
+	"content_security_policy": "script-src 'self' https://api.premid.app/*; object-src 'self'",
 	"applications": {
 		"gecko": {
 			"id": "support@premid.app",
