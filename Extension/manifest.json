@@ -20,10 +20,10 @@
 			"js/lib/socket.io_2.2.0.js",
 			"js/util/debug.js",
 			"js/background/presenceDev.js",
+			"js/background/settingsManager.js",
 			"js/util/langManager.js",
 			"js/background/background.js",
 			"js/background/socketConnector.js",
-			"js/background/settingsManager.js",
 			"js/util/presenceManager.js"
 		]
 	},

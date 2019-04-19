@@ -9,7 +9,11 @@ socket.on('connect', function() {
 		if (res.settingsAppUpdated != undefined && !res.settingsAppUpdated) {
 			PMD_info('Sending settings to application...');
 			chrome.storage.sync.get('settings', (res) => {
-				socket.emit('optionUpdate', res.settings);
+				var newSettings = res.settings;
+				Object.keys(res.settings).map((key, index) => {
+					newSettings[key] = res.settings[key].value;
+				});
+				socket.emit('optionUpdate', newSettings);
 				chrome.storage.local.remove('settingsAppUpdated');
 			});
 		}
