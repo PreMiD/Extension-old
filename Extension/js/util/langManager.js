@@ -23,7 +23,10 @@ function updateLanguages() {
 		var result = await fetchJSON(`https://api.premid.app/langFile/${res.settings.language.toLowerCase()}`);
 
 		if (result.error != undefined) {
-			PMD_error(`Failed to fetch language file by code: ${res.settings.language.toLowerCase()}`);
+			PMD_error(
+				`Failed to fetch language file by code: ${res.settings.language.toLowerCase()}, using default language instead`
+			);
+			currLanguage = defaultLanguage;
 			return;
 		} else currLanguage = result;
 
