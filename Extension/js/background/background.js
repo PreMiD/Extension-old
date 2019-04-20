@@ -11,13 +11,13 @@ chrome.runtime.onInstalled.addListener(function(details) {
 				if (result.lastVersion != details.previousVersion) {
 					//* Save new version to prevent errors
 					chrome.storage.local.set({ lastVersion: details.previousVersion });
-					//TODO Open updated tab & settings init
+					//TODO Open updated tab
 				}
 			});
 			break;
 		case 'install':
 			//* Create Options
-			//TODO Open installed tab & settings init
+			//TODO Open installed tab
 			break;
 	}
 });
@@ -34,32 +34,43 @@ function tabPriority() {
 
 			//* Keep only enabled ones
 			var presences = result.presences.filter((f) => f.enabled);
-			//TODO clear array if PreMiD == disabled
-			//* If there are any proceed
-			if (presences.length > 0) {
-				//* If priorityTab == current tab reset priorityLock
-				if (priorityTab != tabs[0].id) {
-					//* If tab change reset tabPriorityLock
-					if (lastTab != tabs[0].id) {
-						tabPriorityLock = 0;
-						lastTab = tabs[0].id;
+			chrome.storage.sync.get('settings', function(result) {
+				var settings = result.settings;
+
+				if (settings.enabled.value == false) {
+					if (priorityTab) {
+						chrome.tabs.sendMessage(priorityTab, { tabPriority: false });
+						priorityTab = null;
 					}
+					return;
+				}
 
-					//* Loop through presences
-					for (var i = 0; presences.length > i; i++) {
-						//* active tab url contains presence url
-						if (getHost(tabs[0].url).indexOf(getHost(presences[i].url)) > -1) {
-							//* Update priorityTab when 5 seconds passed else increase count
-							if (tabPriorityLock >= 4) {
-								//* Send tab message to stop its intervals
-								if (priorityTab) chrome.tabs.sendMessage(priorityTab, { tabPriority: false });
-
-								priorityTab = tabs[0].id;
-							} else tabPriorityLock++;
+				//* If there are any proceed
+				if (presences.length > 0) {
+					//* If priorityTab == current tab reset priorityLock
+					if (priorityTab != tabs[0].id) {
+						//* If tab change reset tabPriorityLock
+						if (lastTab != tabs[0].id) {
+							tabPriorityLock = 0;
+							lastTab = tabs[0].id;
 						}
-					}
-				} else tabPriorityLock = 0;
-			}
+
+						//* Loop through presences
+						for (var i = 0; presences.length > i; i++) {
+							//* active tab url contains presence url
+							if (getHost(tabs[0].url).indexOf(getHost(presences[i].url)) > -1) {
+								//* Update priorityTab when 5 seconds passed else increase count
+								if (tabPriorityLock >= 4) {
+									//* Send tab message to stop its intervals
+									if (priorityTab) chrome.tabs.sendMessage(priorityTab, { tabPriority: false });
+
+									priorityTab = tabs[0].id;
+								} else tabPriorityLock++;
+							}
+						}
+					} else tabPriorityLock = 0;
+				}
+			});
 		});
 	});
 

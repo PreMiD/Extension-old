@@ -3,6 +3,9 @@ var settings = null;
 function updateSetting(setting, value) {
 	chrome.storage.sync.get('settings', function(result) {
 		settings = result.settings;
+
+		settings[setting].value = value;
+		chrome.storage.sync.set({ settings: settings });
 	});
 }
 //* Retrieve options if set
