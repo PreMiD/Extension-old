@@ -105,7 +105,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 			//* Only keep presence that we need for url
 			presences = presences.filter((f) => getHost(tab.url) == f.url);
 
-			if (presences.length == 0) {
+			if (tabId == priorityTab && presences.length == 0) {
 				if (socket.connected)
 					socket.emit('updateData', {
 						trayTitle: '',
@@ -113,6 +113,8 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 					});
 				return;
 			}
+
+			if (presences.length == 0) return;
 
 			var presence = presences[0];
 
