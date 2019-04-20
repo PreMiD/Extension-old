@@ -69,6 +69,19 @@ function tabPriority() {
 	}
 }
 
+chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
+	chrome.storage.local.get('presences', function(data) {
+		if (priorityTab == tabId) {
+			if (socket.connected)
+				socket.emit('updateData', {
+					trayTitle: '',
+					hidden: true
+				});
+			return;
+		}
+	});
+});
+
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 	if (changeInfo.status == 'complete') {
 		chrome.storage.local.get('presences', function(data) {
