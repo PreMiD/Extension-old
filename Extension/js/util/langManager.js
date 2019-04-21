@@ -4,16 +4,22 @@ var defaultLanguage = null,
 //* Load languages if set
 loadLanguages();
 
-function loadLanguages() {
-	chrome.storage.sync.get('settings', function(res) {
-		if (res.settings == undefined) return;
+async function loadLanguages() {
+	return new Promise(function(resolve, reject) {
+		chrome.storage.sync.get('settings', function(res) {
+			if (res.settings == undefined) return;
 
-		chrome.storage.local.get('languages', function(res1) {
-			if (res1.languages == undefined) return;
-			PMD_info('Loaded translations');
+			chrome.storage.local.get('languages', function(res1) {
+				if (res1.languages == undefined) {
+					reject();
+					return;
+				}
+				PMD_info('Loaded translations');
 
-			defaultLanguage = res1.languages.default;
-			currLanguage = res1.languages[res.settings.language.value];
+				resolve();
+				defaultLanguage = res1.languages.default;
+				currLanguage = res1.languages[res.settings.language.value];
+			});
 		});
 	});
 }
@@ -43,7 +49,8 @@ function updateLanguages() {
 	});
 }
 
-function getString(string) {
+async function getString(string) {
+	await loadLanguages();
 	if (currLanguage[string] != undefined) return currLanguage[string];
 	if (currLanguage[string] == undefined && defaultLanguage[string] != undefined) return defaultLanguage[string];
 	if (currLanguage[string] == undefined && defaultLanguage[string] == undefined) {

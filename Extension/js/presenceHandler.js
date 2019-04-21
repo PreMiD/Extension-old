@@ -19,11 +19,11 @@ chrome.runtime.onMessage.addListener(function(data) {
 	if (data.iframeData != undefined) iframeData = data.iframeData;
 });
 
-window.addEventListener('PreMiD_RequestExtensionData', function(data) {
+window.addEventListener('PreMiD_RequestExtensionData', async function(data) {
 	if (data.detail.strings != undefined) {
 		var translations = [];
 		for (var i = 0; i < Object.keys(data.detail.strings).length; i++) {
-			translations.push(getString(Object.values(data.detail.strings)[i]));
+			translations.push(await getString(Object.values(data.detail.strings)[i]));
 		}
 		Promise.all(translations).then((completed) => {
 			for (var i = 0; i < Object.keys(data.detail.strings).length; i++) {
