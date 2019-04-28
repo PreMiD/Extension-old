@@ -31,10 +31,14 @@
 		{
 			"matches": [ "<all_urls>" ],
 			"js": [ "js/util/debug.js", "js/util/functions.js", "js/util/langManager.js", "js/presenceHandler.js" ]
+		},
+		{
+			"matches": [ "*://*.premid.app/*" ],
+			"js": [ "js/util/presenceManager.js" ]
 		}
 	],
 	"permissions": [ "tabs", "storage", "webRequest", "<all_urls>", "http://localhost/" ],
-	"content_security_policy": "script-src 'self' https://api.premid.app/*; object-src 'self'",
+	"content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
 	"applications": {
 		"gecko": {
 			"id": "support@premid.app",

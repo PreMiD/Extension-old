@@ -1,3 +1,16 @@
+window.addEventListener('PreMiD_AddPresence', function(data) {
+	addPresence(data.detail);
+});
+
+window.addEventListener('PreMiD_RemovePresence', function(data) {
+	removePresence(data.detail);
+});
+
+chrome.storage.local.get('presences', (result) => {
+	var event = new CustomEvent('PreMiD_ListPresences', { detail: result.presences.map((p) => p.service) });
+	window.dispatchEvent(event);
+});
+
 function addPresence(name) {
 	chrome.storage.local.get('presences', async function(presences) {
 		presences = presences.presences;
