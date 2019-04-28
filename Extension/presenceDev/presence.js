@@ -64,13 +64,15 @@ function handleMediaKeys(mediaKey) {
  * Update Data when priorityTab focused
  */
 function updateData() {
-	console.log(iframeData);
 	if (oldUrl != window.location.href) {
 		oldUrl = window.location.href;
 		watchingSinceTimestamp = Math.floor(Date.now() / 1000);
 	}
 
-	if (window.location.pathname.includes('/watch')) {
+	if (
+		document.querySelector('.video-stream') != null &&
+		document.querySelectorAll('h1.title.ytd-video-primary-info-renderer')[0].innerText != ''
+	) {
 		videoStream = document.querySelector('.video-stream');
 		if (isNaN(videoStream.duration)) return;
 
