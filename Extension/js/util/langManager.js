@@ -6,21 +6,23 @@ loadLanguages();
 
 async function loadLanguages() {
 	return new Promise(function(resolve, reject) {
-		chrome.storage.sync.get('settings', function(res) {
-			if (res.settings == undefined) return;
+		if (defaultLanguage == null) {
+			chrome.storage.sync.get('settings', function(res) {
+				if (res.settings == undefined) return;
 
-			chrome.storage.local.get('languages', function(res1) {
-				if (res1.languages == undefined) {
-					reject();
-					return;
-				}
-				PMD_info('Loaded translations');
+				chrome.storage.local.get('languages', function(res1) {
+					if (res1.languages == undefined) {
+						reject();
+						return;
+					}
+					PMD_info('Loaded translations');
 
-				resolve();
-				defaultLanguage = res1.languages.default;
-				currLanguage = res1.languages[res.settings.language.value];
+					resolve();
+					defaultLanguage = res1.languages.default;
+					currLanguage = res1.languages[res.settings.language.value];
+				});
 			});
-		});
+		} else resolve();
 	});
 }
 

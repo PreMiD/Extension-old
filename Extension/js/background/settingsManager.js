@@ -16,27 +16,23 @@ chrome.storage.sync.get('settings', function(result) {
 		PMD_info('Creating default settings...');
 		settings = {
 			enabled: {
-				string: 'popup.settings.enabled',
-				value: true
-			},
-			autoUpdate: {
-				string: 'popup.settings.autoUpdate',
-				value: true
-			},
-			autoLaunch: {
-				string: 'popup.settings.autoLaunch',
+				string: 'popup.setting.enabled',
 				value: true
 			},
 			mediaKeys: {
-				string: 'popup.settings.mediaKeys',
+				string: 'popup.setting.mediaControl',
 				value: true
 			},
 			titleMenubar: {
-				string: 'popup.settings.titleMenubar',
+				string: 'popup.setting.titleMenubar',
+				value: true
+			},
+			autoLaunch: {
+				string: 'popup.setting.autoLaunch',
 				value: true
 			},
 			language: {
-				string: 'popup.settings.language',
+				string: 'popup.setting.language',
 				value: chrome.i18n.getUILanguage(),
 				show: false
 			}
@@ -51,12 +47,11 @@ chrome.storage.sync.get('settings', function(result) {
 		return;
 	}
 
-	initSetting('enabled', 'popup.settings.enabled');
-	initSetting('autoUpdate', 'popup.settings.autoUpdate');
-	initSetting('autoLaunch', 'popup.settings.autoLaunch');
-	initSetting('mediaKeys', 'popup.settings.mediaKeys');
-	initSetting('titleMenubar', 'popup.settings.titleMenubar');
-	initSetting('language', chrome.i18n.getUILanguage(), 'popup.settings.language', false);
+	initSetting('enabled', 'popup.setting.enabled');
+	initSetting('autoLaunch', 'popup.setting.autoLaunch');
+	initSetting('mediaKeys', 'popup.setting.mediaKeys');
+	initSetting('titleMenubar', 'popup.setting.titleMenubar');
+	initSetting('language', chrome.i18n.getUILanguage(), 'popup.setting.language', false);
 });
 
 function initSetting(setting, string, option = true, show = true) {
