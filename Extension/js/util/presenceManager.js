@@ -6,9 +6,15 @@ window.addEventListener('PreMiD_RemovePresence', function(data) {
 	removePresence(data.detail);
 });
 
-chrome.storage.local.get('presences', (result) => {
-	var event = new CustomEvent('PreMiD_ListPresences', { detail: result.presences.map((p) => p.service) });
-	window.dispatchEvent(event);
+window.addEventListener('PreMiD_GetPresenceList', function() {
+
+	chrome.storage.local.get('presences', (result) => {
+
+		var event = new CustomEvent('PreMiD_GetWebisteFallback', { detail: result.presences.map((p) => p.service) });
+		window.dispatchEvent(event);
+		
+		return;
+	})
 });
 
 function addPresence(name) {
@@ -24,7 +30,7 @@ function addPresence(name) {
 
 		if (json.error) {
 			PMD_error(`Presence ${name} not found.`);
-			return;
+			return false;
 		}
 
 		var presenceMeta = await fetchJSON(json.url + 'metadata.json');
@@ -42,6 +48,7 @@ function addPresence(name) {
 		presences.push(presenceToAdd);
 
 		chrome.storage.local.set({ presences: presences });
+		PMD_info(`Presence ${name} was installed successfuly.`);
 	});
 }
 
@@ -53,9 +60,10 @@ function removePresence(name) {
 
 		if (presenceToRemove == undefined) {
 			PMD_error('Presence not found');
-			return;
+			return false;
 		}
 
 		chrome.storage.local.set({ presences: presences.filter((p) => p.service != name) });
+		PMD_info(`Presence ${name} was removed successfuly.`);
 	});
 }
