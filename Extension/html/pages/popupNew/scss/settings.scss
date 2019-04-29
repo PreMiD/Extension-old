@@ -1,0 +1,56 @@
+@import 'reset';
+
+#settingsView {
+	color: #fff;
+
+	.panel {
+		width: 90%;
+		margin: 5%;
+		background-color: $notQuiteBlack;
+		border-radius: 5px;
+
+		h1 {
+			font-size: 20px;
+			font-weight: 700;
+			margin: 0 5%;
+			color: $blurple;
+			line-height: 35px;
+		}
+
+		div:not(.switch) {
+			height: 30px;
+			margin: 0 5%;
+			display: flex;
+
+			h3 {
+				width: 85%;
+				font-size: 17px;
+				font-weight: 500;
+				color: $greyple;
+				margin: 0;
+			}
+		}
+
+		.switch {
+			margin-top: 4px;
+			left: 5px;
+
+			input[type=checkbox]:not(:checked) + .lever {
+				background-color: $darkButNotQuiteBlack !important;
+			}
+
+			.lever {
+				margin: 0;
+				background-color: $blurple;
+
+				&:before {
+					background-color: #fff;
+					opacity: 0.1;
+				}
+				&:after {
+					background-color: #fff;
+				}
+			}
+		}
+	}
+}

@@ -12,7 +12,7 @@
 		"124": "assets/images/icon124px.png"
 	},
 	"browser_action": {
-		"default_popup": "html/popup.html"
+		"default_popup": "html/pages/popupNew/index.html"
 	},
 	"background": {
 		"scripts": [

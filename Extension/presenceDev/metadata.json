@@ -9,6 +9,5 @@
 	"version": "2.0",
 	"logo": "https://i.imgur.com/C9ZEmge.png",
 	"color": "#E40813",
-	"tags": [ "video", "media" ],
-	"iframe": true
+	"tags": [ "video", "media" ]
 }
