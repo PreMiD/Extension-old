@@ -15,7 +15,7 @@ async function loadLanguages() {
 						reject();
 						return;
 					}
-					PMD_info('Loaded translations');
+					PMD_info('Translations has been loaded.');
 
 					resolve();
 					defaultLanguage = res1.languages.default;
