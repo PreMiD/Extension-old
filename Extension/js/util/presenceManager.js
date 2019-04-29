@@ -8,6 +8,7 @@ window.addEventListener('PreMiD_RemovePresence', function(data) {
 
 window.addEventListener('PreMiD_GetPresenceList', function() {
 
+	console.log('%cPreMiD%c ' + 'Extension event call detected, sending data back...', 'color: #ffffff; font-weight: 900; padding: 3px; margin: 3px; background: #596cae;', 'color: #0000ff;');
 	chrome.storage.local.get('presences', (result) => {
 
 		var event = new CustomEvent('PreMiD_GetWebisteFallback', { detail: result.presences.map((p) => p.service) });
