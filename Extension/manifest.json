@@ -34,7 +34,8 @@
 		},
 		{
 			"matches": [ "*://*.premid.app/*" ],
-			"js": [ "js/util/presenceManager.js" ]
+			"js": [ "js/util/presenceManager.js" ],
+			"run_at": "document_start"
 		}
 	],
 	"permissions": [ "tabs", "storage", "webRequest", "<all_urls>", "http://localhost/" ],
