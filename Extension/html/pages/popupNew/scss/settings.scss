@@ -3,52 +3,49 @@
 #settingsView {
 	color: #fff;
 
-	.panel {
+	.container {
 		width: 90%;
 		margin: 5%;
 		background-color: $notQuiteBlack;
 		border-radius: 5px;
+		padding: 10px;
 
-		h1 {
-			font-size: 20px;
-			font-weight: 700;
-			margin: 0 5%;
+		h3 {
 			color: $blurple;
-			line-height: 35px;
+			padding: 0;
+			margin: 0;
+			margin-bottom: 5px;
+			font-size: 25px;
+			font-weight: 700;
 		}
 
-		div:not(.switch) {
-			height: 30px;
-			margin: 0 5%;
-			display: flex;
+		.flex {
+			height: 35px;
 
-			h3 {
-				width: 85%;
-				font-size: 17px;
-				font-weight: 500;
-				color: $greyple;
+			h6 {
+				display: inline-block;
 				margin: 0;
-			}
-		}
+				padding: 0;
 
-		.switch {
-			margin-top: 4px;
-			left: 5px;
-
-			input[type=checkbox]:not(:checked) + .lever {
-				background-color: $darkButNotQuiteBlack !important;
-			}
-
-			.lever {
-				margin: 0;
-				background-color: $blurple;
-
-				&:before {
-					background-color: #fff;
-					opacity: 0.1;
+				p {
+					position: relative;
+					top: -1px;
+					font-size: 11px;
+					font-weight: 700;
+					text-transform: uppercase;
+					display: inline-block;
+					background-color: #ff2525;
+					border-radius: 5px;
+					padding: 2px 2px;
 				}
-				&:after {
-					background-color: #fff;
+			}
+
+			.v-input {
+				margin: 0;
+				margin-top: -2px;
+
+				.v-input--switch .v-input--selection-controls__input {
+					margin-right: 0;
 				}
 			}
 		}
