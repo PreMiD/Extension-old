@@ -7,22 +7,26 @@ window.addEventListener('PreMiD_RemovePresence', function(data) {
 });
 
 window.addEventListener('PreMiD_GetPresenceList', function() {
-
-	console.log('%cPreMiD%c ' + 'Extension event call detected, sending data back...', 'color: #ffffff; font-weight: 900; padding: 3px; margin: 3px; background: #596cae;', 'color: #0000ff;');
+	console.log(
+		'%cPreMiD%c ' + 'Extension event call detected, sending data back...',
+		'color: #ffffff; font-weight: 900; padding: 3px; margin: 3px; background: #596cae;',
+		'color: #0000ff;'
+	);
 	chrome.storage.local.get('presences', (result) => {
-
-		var event = new CustomEvent('PreMiD_GetWebisteFallback', { detail: result.presences.map((p) => p.service) });
+		var event = new CustomEvent('PreMiD_GetWebisteFallback', {
+			detail: result.presences.filter((p) => p.tmp == undefined).map((p) => p.service)
+		});
 		window.dispatchEvent(event);
-		
+
 		return;
-	})
+	});
 });
 
 function addPresence(name) {
 	chrome.storage.local.get('presences', async function(presences) {
 		presences = presences.presences;
 
-		if (presences.find((p) => p.service == name) != undefined) {
+		if (presences.find((p) => p.service == name && p.tmp == undefined) != undefined) {
 			PMD_error('Presence already added');
 			return;
 		}
@@ -57,14 +61,14 @@ function removePresence(name) {
 	chrome.storage.local.get('presences', async function(presences) {
 		presences = presences.presences;
 
-		var presenceToRemove = presences.find((p) => p.service == name);
+		var presenceToRemove = presences.find((p) => p.service == name || p.tmp == undefined);
 
 		if (presenceToRemove == undefined) {
 			PMD_error('Presence not found');
 			return false;
 		}
 
-		chrome.storage.local.set({ presences: presences.filter((p) => p.service != name) });
+		chrome.storage.local.set({ presences: presences.filter((p) => p.service != name || p.tmp != undefined) });
 		PMD_info(`Presence ${name} was removed successfuly.`);
 	});
 }
