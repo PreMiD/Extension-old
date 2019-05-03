@@ -4,7 +4,13 @@
 	"description": "",
 	"main": "package.js",
 	"scripts": {
-		"start": "node pkg.js"
+		"start": "node pkg.js",
+		"dev": "npm run development",
+		"development": "cross-env NODE_ENV=development node_modules/webpack/bin/webpack.js --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js",
+		"watch": "cross-env NODE_ENV=production node_modules/webpack/bin/webpack.js --watch --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js",
+		"hot": "cross-env NODE_ENV=development webpack-dev-server --inline --hot --config=node_modules/laravel-mix/setup/webpack.config.js",
+		"prod": "npm run production",
+		"production": "cross-env NODE_ENV=production node_modules/webpack/bin/webpack.js --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js"
 	},
 	"repository": {
 		"type": "git",
@@ -18,5 +24,12 @@
 	"homepage": "https://github.com/Timeraa/PMD_Extension#readme",
 	"dependencies": {
 		"fs-extra": "^7.0.1"
+	},
+	"devDependencies": {
+		"laravel-mix": "^4.0.15",
+		"purify-css": "^1.2.5",
+		"purifycss-webpack": "^0.7.0",
+		"sass": "^1.19.0",
+		"sass-loader": "^7.1.0"
 	}
 }
