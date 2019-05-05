@@ -1,51 +1,127 @@
-#settingsView {
-	color: #fff;
+.pmd_settings {
 
-	.container {
-		width: 90%;
-		margin: 5%;
-		background-color: $notQuiteBlack;
+	display: flex;
+	position: relative;
+
+	justify-content: center;
+	align-items: center;
+	flex-wrap: wrap;
+
+	.settings__container {
+
+		user-select: none;
+		background: $darkButNotQuiteBlack;
+		padding: 16px;
+		width: 100%;
 		border-radius: 5px;
-		padding: 10px;
+		margin: .9em .9em 0;
 
-		h3 {
-			color: $blurple;
-			padding: 0;
+		* {
 			margin: 0;
-			margin-bottom: 5px;
-			font-size: 25px;
-			font-weight: 700;
+			padding: 0;
+
+			color: white;
 		}
 
-		.flex {
-			height: 35px;
+		.container__setting {
+			display: flex;
 
-			h6 {
-				display: inline-block;
-				margin: 0;
-				padding: 0;
+			justify-content: space-between;
+			align-items: center;
 
-				p {
-					position: relative;
-					top: -1px;
-					font-size: 11px;
-					font-weight: 700;
-					text-transform: uppercase;
-					display: inline-block;
-					background-color: #ff2525;
-					border-radius: 5px;
-					padding: 2px 2px;
-				}
+			.setting__title {
+				font-size: 16px;
+				font-weight: 500;
 			}
+			.setting__description {
 
-			.v-input {
-				margin: 0;
-				margin-top: -2px;
-
-				.v-input--switch .v-input--selection-controls__input {
-					margin-right: 0;
-				}
 			}
+			.setting__switcher {
+
+			}
+		}
+
+		h2.container__title {
+
+			color: $blurple;
+
+			font-size: 18px;
+			font-weight: 700;
+			margin-bottom: 0.7em;
+		}
+
+		> p {
+			font-size: 14px;
+			font-weight: 500;
+			margin: 4px 0;
+		}
+	}
+
+}
+
+.pmd_checkbox {
+
+	cursor: pointer;
+	transition: all .15s ease;
+	
+	
+	input[type=checkbox] {
+		opacity: 1;
+		width: 0;
+		height: 0;
+	}
+
+	[type="checkbox"]:not(:checked), [type="checkbox"]:checked {
+		position: absolute;
+		opacity: 0;
+		pointer-events: none;
+	}
+
+	input[type="checkbox"]:checked+.checkbox-container {
+		background-color: $blurple;
+		&:after {
+			left: 21px;
+		}
+		&:active {
+			&:after {
+				width: 26px;
+				left: 13px;
+			}
+		}
+	}
+
+	.checkbox-container:active {
+		&:after {
+			width: 26px;
+		}
+	}
+
+	.checkbox-container {
+		display: inline-block;
+		position: relative;
+		width: 42px;
+		height: 24px;
+		background-color: #72767d;
+		border-radius: 14px;
+
+		overflow: hidden;
+
+		cursor: pointer;
+
+		margin: 4px 0;
+		&:after {
+			content: "";
+			position: absolute;
+			display: inline-block;
+			background: white;
+			width: 18px;
+			height: 18px;
+			left: 3px;
+			top: 3px;
+			border-radius: 14px;
+			box-shadow: 0 2px 4px rgba(0,0,0,.3);
+
+			transition: all .15s ease;
 		}
 	}
 }
