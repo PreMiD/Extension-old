@@ -3,7 +3,7 @@ Vue.component('navigation', {
 	data: function() {
 		return {
 			settings: null,
-			credits: 'null'
+			credits: null
 		};
 	},
 	created: async function() {
