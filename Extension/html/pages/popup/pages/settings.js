@@ -42,7 +42,6 @@ Vue.component('settingsView', {
 	methods: {
 		updateSetting(key, { target }) {
 			chrome.storage.sync.get('settings', function(result) {
-				console.log(result.settings[key].value, target.checked, key);
 				result.settings[key].value = target.checked;
 
 				chrome.storage.sync.set(result);
@@ -60,7 +59,7 @@ Vue.component('settingsView', {
 
 	<div class="pmd_settings">
 		<div class="settings__container">
-			<h2 class="container__title">Test title</h2>
+			<h2 class="container__title">{{strings.general}}</h2>
 			<div class="container__setting" v-for="(value, key) in settings">
 				<div class="setting__title">
 					<p>{{value.string}}</p>
@@ -76,7 +75,7 @@ Vue.component('settingsView', {
 			</div>
 		</div>
 		<div class="settings__container">
-			<h2 class="container__title">Test title</h2>
+			<h2 class="container__title">{{strings.presences}}</h2>
 			<div class="container__setting" v-for="(value, key) in presences">
 				<div class="setting__title">
 					<p>{{value.service}} <span class="badge badge-red" v-if="value.tmp">tmp</span></p>
@@ -84,8 +83,8 @@ Vue.component('settingsView', {
 				<div class="setting__switcher">
 				<div class="pmd_checkbox">
 					<label>
-					<input v-model="presences[key].enabled" ref="switch" @change="updatePresence(value.service, $event)" type="checkbox" :checked="value.enabled == true" />
-					<span v-bind:style="[presences[key].enabled == true ? {'background-color': value.color} : {}]" ref="checkbox" class="checkbox-container"></span>
+					<input v-model="presences[key].enabled" @change="updatePresence(value.service, $event)" type="checkbox" :checked="value.enabled" />
+					<span v-bind:style="[presences[key].enabled ? {'background-color': value.color} : {}]" ref="checkbox" class="checkbox-container"></span>
 					</label>
 				</div>
 				</div>
