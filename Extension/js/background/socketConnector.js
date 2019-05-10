@@ -4,6 +4,7 @@ var socket = io.connect('http://localhost:3020/'),
 
 //* When connected start PreMiD functions
 socket.on('connect', function() {
+	chrome.storage.local.set({ connected: true });
 	PMD_info('Connected to Application');
 	chrome.storage.local.get('settingsAppUpdated', (res) => {
 		if (res.settingsAppUpdated != undefined && !res.settingsAppUpdated) {
@@ -25,6 +26,7 @@ socket.on('connect', function() {
 socket.on('disconnect', function() {
 	PMD_error('Disconnected from Application');
 	clearInterval(tabPriorityInterval);
+	chrome.storage.local.set({ connected: false });
 });
 
 socket.on('mediaKeyHandler', function(data) {

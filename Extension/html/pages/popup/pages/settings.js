@@ -8,7 +8,7 @@ Vue.component('settingsView', {
 			},
 			settings: {},
 			presences: [],
-			thing: {}
+			connected: false
 		};
 	},
 	created: async function() {
@@ -16,6 +16,13 @@ Vue.component('settingsView', {
 			general: await getString('popup.headings.general'),
 			presences: await getString('popup.headings.presences')
 		};
+
+		setInterval(async () => {
+			var self = this;
+			self.connected = (await new Promise(function(resolve, reject) {
+				chrome.storage.local.get('connected', resolve);
+			})).connected;
+		}, 100);
 
 		//* Get settings, filter language option for now, save in object
 		this.settings = await new Promise(function(resolve, reject) {
@@ -57,12 +64,12 @@ Vue.component('settingsView', {
 	},
 	template: /* html */ `
 
-	<div class="pmd_settings">
-		<div class="settings__container">
-			<h2 class="container__title">{{strings.general}}</h2>
-			<div class="container__setting" v-for="(value, key) in settings">
-				<div class="setting__title">
-					<p>{{value.string}}</p>
+<div class="pmd_settings">
+	<div class="settings__container">
+		<h2 class="container__title">{{strings.general}}</h2>
+		<div class="container__setting" v-for="(value, key) in settings">
+			<div class="setting__title">
+				<p>{{value.string}}</p>
 				</div>
 				<div class="setting__switcher">
 				<div class="pmd_checkbox">

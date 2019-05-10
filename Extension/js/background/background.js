@@ -2,6 +2,8 @@
 chrome.runtime.onInstalled.addListener(function(details) {
 	//* Update language strings
 	updateLanguages();
+	//* Set connection to false
+	chrome.storage.local.set({ connected: false });
 
 	switch (details.reason) {
 		case 'update':
