@@ -1,6 +1,6 @@
 //* Settings View
 Vue.component('settingsView', {
-	data: function () {
+	data: function() {
 		return {
 			strings: {
 				general: '',
@@ -11,16 +11,15 @@ Vue.component('settingsView', {
 			thing: {}
 		};
 	},
-	created: async function () {
-
+	created: async function() {
 		this.strings = {
 			general: await getString('popup.headings.general'),
 			presences: await getString('popup.headings.presences')
 		};
 
 		//* Get settings, filter language option for now, save in object
-		this.settings = await new Promise(function (resolve, reject) {
-			chrome.storage.sync.get('settings', function (result) {
+		this.settings = await new Promise(function(resolve, reject) {
+			chrome.storage.sync.get('settings', function(result) {
 				Promise.all(
 					Object.keys(result.settings).map(async (key, index) => {
 						if (result.settings[key].show != undefined) return;
@@ -34,8 +33,8 @@ Vue.component('settingsView', {
 		});
 
 		//* Get presences, save in array
-		this.presences = await new Promise(function (resolve, reject) {
-			chrome.storage.local.get('presences', function (result) {
+		this.presences = await new Promise(function(resolve, reject) {
+			chrome.storage.local.get('presences', function(result) {
 				resolve(result.presences);
 			});
 		});
@@ -47,37 +46,37 @@ Vue.component('settingsView', {
 
 			this.$refs.checkbox.forEach(function(element) {
 				element.onclick = function() {
-					if(element.style.backgroundColor == '') {
-						console.log("checked " + element);
-					element.style.backgroundColor = element.getAttribute('checkbox-color');
+					if (element.style.backgroundColor == '') {
+						console.log('checked ' + element);
+						element.style.backgroundColor = element.getAttribute('checkbox-color');
 					} else {
-						console.log("checked " + element);
+						console.log('checked ' + element);
 						element.style.backgroundColor = '';
 					}
 				};
 
 				self.$refs.switch.forEach(function(element2) {
-					if(element2.checked) {
+					if (element2.checked) {
 						element.style.backgroundColor = element.getAttribute('checkbox-color');
 					} else {
 						element.style.backgroundColor = '';
 					}
 				});
 			});
-
-		}, 100);
+		}, 300);
 	},
 	methods: {
-		updateSetting(key, value) {
-			chrome.storage.sync.get('settings', function (result) {
-				result.settings[key].value = value;
+		updateSetting(key, { target }) {
+			chrome.storage.sync.get('settings', function(result) {
+				console.log(result.settings[key].value, target.checked, key);
+				result.settings[key].value = target.checked;
 
 				chrome.storage.sync.set(result);
 			});
 		},
-		updatePresence(key, value) {
-			chrome.storage.local.get('presences', function (result) {
-				result.presences.find((p) => p.service == key).enabled = value;
+		updatePresence(key, { target }) {
+			chrome.storage.local.get('presences', function(result) {
+				result.presences.find((p) => p.service == key).enabled = target.checked;
 
 				chrome.storage.local.set(result);
 			});
@@ -95,7 +94,7 @@ Vue.component('settingsView', {
 				<div class="setting__switcher">
 				<div class="pmd_checkbox">
 					<label>
-					<input @change="updateSetting(key, $event)" type="checkbox" />
+					<input @change="updateSetting(key, $event)" type="checkbox" :checked="value.value" />
 					<span class="checkbox-container"></span>
 					</label>
 				</div>
