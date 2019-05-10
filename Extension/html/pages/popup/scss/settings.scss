@@ -1,5 +1,4 @@
 .pmd_settings {
-
 	display: flex;
 	position: relative;
 
@@ -8,7 +7,6 @@
 	flex-wrap: wrap;
 
 	.settings__container {
-
 		user-select: none;
 		background: $darkButNotQuiteBlack;
 		padding: 16px;
@@ -34,15 +32,12 @@
 				font-weight: 500;
 			}
 			.setting__description {
-
 			}
 			.setting__switcher {
-
 			}
 		}
 
 		h2.container__title {
-
 			color: $blurple;
 
 			font-size: 18px;
@@ -56,28 +51,30 @@
 			margin: 4px 0;
 		}
 	}
-
 }
 
 .pmd_checkbox {
+	span {
+		transition: all .15s ease-out;
+	}
 
 	cursor: pointer;
 	transition: all .15s ease;
-	
-	
+
 	input[type=checkbox] {
 		opacity: 1;
 		width: 0;
 		height: 0;
 	}
 
-	[type="checkbox"]:not(:checked), [type="checkbox"]:checked {
+	[type="checkbox"]:not(:checked),
+	[type="checkbox"]:checked {
 		position: absolute;
 		opacity: 0;
 		pointer-events: none;
 	}
 
-	input[type="checkbox"]:checked+.checkbox-container {
+	input[type="checkbox"]:checked + .checkbox-container {
 		background-color: $blurple;
 		&:after {
 			left: 21px;
@@ -119,7 +116,7 @@
 			left: 3px;
 			top: 3px;
 			border-radius: 14px;
-			box-shadow: 0 2px 4px rgba(0,0,0,.3);
+			box-shadow: 0 2px 4px rgba(0, 0, 0, .3);
 
 			transition: all .15s ease;
 		}

@@ -39,32 +39,6 @@ Vue.component('settingsView', {
 			});
 		});
 	},
-	mounted() {
-		// TODO: Find a way to get $refs without setTimeout()
-		setTimeout(() => {
-			var self = this;
-
-			this.$refs.checkbox.forEach(function(element) {
-				element.onclick = function() {
-					if (element.style.backgroundColor == '') {
-						console.log('checked ' + element);
-						element.style.backgroundColor = element.getAttribute('checkbox-color');
-					} else {
-						console.log('checked ' + element);
-						element.style.backgroundColor = '';
-					}
-				};
-
-				self.$refs.switch.forEach(function(element2) {
-					if (element2.checked) {
-						element.style.backgroundColor = element.getAttribute('checkbox-color');
-					} else {
-						element.style.backgroundColor = '';
-					}
-				});
-			});
-		}, 300);
-	},
 	methods: {
 		updateSetting(key, { target }) {
 			chrome.storage.sync.get('settings', function(result) {
@@ -110,8 +84,8 @@ Vue.component('settingsView', {
 				<div class="setting__switcher">
 				<div class="pmd_checkbox">
 					<label>
-					<input ref="switch" @change="updatePresence(value.service, $event)" type="checkbox" :checked="value.enabled == true"  />
-					<span :checkbox-color="value.color" ref="checkbox" class="checkbox-container"></span>
+					<input v-model="presences[key].enabled" ref="switch" @change="updatePresence(value.service, $event)" type="checkbox" :checked="value.enabled == true" />
+					<span v-bind:style="[presences[key].enabled == true ? {'background-color': value.color} : {}]" ref="checkbox" class="checkbox-container"></span>
 					</label>
 				</div>
 				</div>
