@@ -1,68 +1,74 @@
 //* Settings View
-Vue.component('settingsView', {
-	data: function() {
-		return {
-			strings: {
-				general: '',
-				presences: ''
-			},
-			settings: {},
-			presences: [],
-			connected: false
-		};
-	},
-	created: async function() {
-		this.strings = {
-			general: await getString('popup.headings.general'),
-			presences: await getString('popup.headings.presences')
-		};
+Vue.component("settingsView", {
+  data: function() {
+    return {
+      strings: {
+        general: "",
+        presences: ""
+      },
+      settings: {},
+      presences: [],
+      connected: false
+    };
+  },
+  created: async function() {
+    this.strings = {
+      general: await getString("popup.headings.general"),
+      presences: await getString("popup.headings.presences")
+    };
 
-		setInterval(async () => {
-			var self = this;
-			self.connected = (await new Promise(function(resolve, reject) {
-				chrome.storage.local.get('connected', resolve);
-			})).connected;
-		}, 100);
+    setInterval(async () => {
+      var self = this;
+      self.connected = (await new Promise(function(resolve, reject) {
+        chrome.storage.local.get("connected", resolve);
+      })).connected;
+    }, 100);
 
-		//* Get settings, filter language option for now, save in object
-		this.settings = await new Promise(function(resolve, reject) {
-			chrome.storage.sync.get('settings', function(result) {
-				Promise.all(
-					Object.keys(result.settings).map(async (key, index) => {
-						if (result.settings[key].show != undefined) return;
-						result.settings[key].string = await getString(result.settings[key].string);
-					})
-				).then((res) => {
-					delete result.settings.language;
-					resolve(result.settings);
-				});
-			});
-		});
+    //* Get settings, filter language option for now, save in object
+    this.settings = await new Promise(function(resolve, reject) {
+      chrome.storage.sync.get("settings", function(result) {
+        Promise.all(
+          Object.keys(result.settings).map(async (key, index) => {
+            if (result.settings[key].show != undefined) return;
+            result.settings[key].string = await getString(
+              result.settings[key].string
+            );
+          })
+        ).then(res => {
+          chrome.runtime.getPlatformInfo(function(info) {
+            if (!info.os == "mac") delete result.settings.titleMenubar;
+            delete result.settings.language;
+            resolve(result.settings);
+          });
+        });
+      });
+    });
 
-		//* Get presences, save in array
-		this.presences = await new Promise(function(resolve, reject) {
-			chrome.storage.local.get('presences', function(result) {
-				resolve(result.presences);
-			});
-		});
-	},
-	methods: {
-		updateSetting(key, { target }) {
-			chrome.storage.sync.get('settings', function(result) {
-				result.settings[key].value = target.checked;
+    //* Get presences, save in array
+    this.presences = await new Promise(function(resolve, reject) {
+      chrome.storage.local.get("presences", function(result) {
+        resolve(result.presences);
+      });
+    });
+  },
+  methods: {
+    updateSetting(key, { target }) {
+      chrome.storage.sync.get("settings", function(result) {
+        result.settings[key].value = target.checked;
+        chrome.storage.local.set({ settingsAppUpdated: false });
 
-				chrome.storage.sync.set(result);
-			});
-		},
-		updatePresence(key, { target }) {
-			chrome.storage.local.get('presences', function(result) {
-				result.presences.find((p) => p.service == key).enabled = target.checked;
+        chrome.storage.sync.set(result);
+      });
+    },
+    updatePresence(key, { target }) {
+      chrome.storage.local.get("presences", function(result) {
+        result.presences.find(p => p.service == key).enabled = target.checked;
 
-				chrome.storage.local.set(result);
-			});
-		}
-	},
-	template: /* html */ `
+        chrome.storage.local.set(result);
+      });
+    }
+  },
+  template: /* html */ `
 
 <div class="pmd_settings">
 	<div class="settings__container">
