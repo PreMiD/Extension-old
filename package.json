@@ -18,6 +18,7 @@
 	},
 	"homepage": "https://github.com/Timeraa/PMD_Extension#readme",
 	"dependencies": {
+		"@types/fs-extra": "^7.0.0",
 		"fs-extra": "^7.0.1"
 	},
 	"devDependencies": {
