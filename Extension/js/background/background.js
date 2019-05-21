@@ -40,6 +40,12 @@ var priorityTab,
 function tabPriority() {
   //* Get all active tabs
   chrome.tabs.query({ active: true }, function(tabs) {
+    //* Only use tabPriority on websites
+    if (
+      !tabs[0].url.startsWith("http://") &&
+      !tabs[0].url.startsWith("https://")
+    )
+      return;
     //* Check if meta tag presence is found and retrieve name and inject presence
     chrome.tabs.executeScript(
       tabs[0].id,
@@ -47,7 +53,7 @@ function tabPriority() {
         code: `document.querySelector('meta[name="PreMiD_Presence"]').content`
       },
       async function(result) {
-        if (result.length == 0 || result[0] == null) return;
+        if (!result || result.length == 0 || result[0] == null) return;
         chrome.tabs.executeScript(
           tabs[0].id,
           { code: `try{PreMiD_Presence}catch(e){false}` },
@@ -126,6 +132,7 @@ function tabPriority() {
   }
 }
 
+//* Clear presence if tab closed
 chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
   chrome.storage.local.get("presences", function(data) {
     if (priorityTab == tabId) {
@@ -141,6 +148,7 @@ chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
 
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
   if (changeInfo.status == "complete") {
+    //* Clear presence if tab url changed to non Presence
     chrome.storage.local.get("presences", function(data) {
       var presences = data.presences;
       if (!presences) return;
@@ -195,7 +203,6 @@ function getHost(url) {
 }
 
 async function injectPresence(tabId, presence) {
-  console.log(tabId, presence);
   if (presence.hasOwnProperty("tmp")) {
     chrome.tabs.executeScript(tabId, {
       file: "/presenceDev/presence.js"
