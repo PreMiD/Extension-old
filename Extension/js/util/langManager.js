@@ -41,7 +41,7 @@ function updateLanguages() {
 
     if (result.error != undefined) {
       PMD_error(
-        `Failed to fetch language file by code: ${res.settings.language.value.toLowerCase()}, using default language instead`
+        `No language file found by code "${res.settings.language.value.toLowerCase()}", using default one instead`
       );
       currLanguage = defaultLanguage;
     } else currLanguage = result;

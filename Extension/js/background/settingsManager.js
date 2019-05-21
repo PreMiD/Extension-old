@@ -33,7 +33,7 @@ chrome.storage.sync.get("settings", function(result) {
       },
       language: {
         string: "popup.setting.language",
-        value: chrome.i18n.getUILanguage(),
+        value: convertLangCode(chrome.i18n.getUILanguage()),
         show: false
       }
     };
@@ -53,7 +53,7 @@ chrome.storage.sync.get("settings", function(result) {
   initSetting("titleMenubar", "popup.setting.titleMenubar");
   initSetting(
     "language",
-    chrome.i18n.getUILanguage(),
+    convertLangCode(chrome.i18n.getUILanguage()),
     "popup.setting.language",
     false
   );
@@ -106,4 +106,20 @@ function saveSettings() {
       chrome.storage.local.set({ settingsAppUpdated: false });
     }
   });
+}
+
+//TODO Move this to langManager.js
+/**
+ * Convert language code to the one used by POEditor
+ * @param {String} langCode Language code
+ */
+function convertLangCode(langCode) {
+  langCode = langCode.toLocaleLowerCase().replace("_", "-");
+  switch (langCode) {
+    case "pt-pt":
+      langCode = "pt";
+      break;
+  }
+
+  return langCode;
 }
