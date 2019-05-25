@@ -59,7 +59,6 @@ async function getString(string) {
   if (currLanguage[string] != undefined) return currLanguage[string];
   if (currLanguage[string] == undefined && defaultLanguage[string] != undefined)
     return;
-  console.log(defaultLanguage);
   if (
     currLanguage[string] == undefined &&
     defaultLanguage[string] == undefined
