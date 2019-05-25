@@ -1,0 +1,49 @@
+@import "variables";
+
+#header {
+  color: white;
+
+  #left {
+    position: absolute;
+    left: 15px;
+    top: 15px;
+
+    h1,
+    h2 {
+      font-family: Discord;
+      margin: 0;
+      padding: 0;
+    }
+
+    h1 {
+      font-size: 30px;
+    }
+
+    h2 {
+      font-size: 20px;
+    }
+
+    #version {
+      color: $greyple;
+    }
+  }
+
+  #right {
+    position: absolute;
+    right: 15px;
+    top: 15px;
+    text-align: right;
+
+    a {
+      transition: 0.15s color ease-out;
+      color: white;
+      font-size: 17px;
+      display: block;
+      margin-bottom: 3px;
+
+      &:hover {
+        color: $blurple;
+      }
+    }
+  }
+}

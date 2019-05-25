@@ -1,49 +1,60 @@
 {
-	"name": "PreMiD",
-	"author": "Timeraa & Fruxh",
-	"description": "__MSG_description__",
-	"default_locale": "en",
-	"version": "2.0",
-	"manifest_version": 2,
-	"web_accessible_resources": [ "icon.png", "languages/*.json" ],
-	"icons": {
-		"16": "assets/images/icon16px.png",
-		"48": "assets/images/icon48px.png",
-		"124": "assets/images/icon124px.png"
-	},
-	"browser_action": {
-		"default_popup": "html/pages/popup/index.html"
-	},
-	"background": {
-		"scripts": [
-			"js/util/functions.js",
-			"js/lib/socket.io_2.2.0.js",
-			"js/util/debug.js",
-			"js/background/presenceDev.js",
-			"js/background/settingsManager.js",
-			"js/util/langManager.js",
-			"js/background/background.js",
-			"js/background/socketConnector.js",
-			"js/util/presenceManager.js"
-		]
-	},
-	"content_scripts": [
-		{
-			"matches": [ "<all_urls>" ],
-			"js": [ "js/util/debug.js", "js/util/functions.js", "js/util/langManager.js", "js/presenceHandler.js" ]
-		},
-		{
-			"matches": [ "*://*.premid.app/*" ],
-			"js": [ "js/util/presenceManager.js" ],
-			"run_at": "document_start"
-		}
-	],
-	"permissions": [ "tabs", "storage", "webRequest", "<all_urls>", "http://localhost/" ],
-	"content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
-	"applications": {
-		"gecko": {
-			"id": "support@premid.app",
-			"strict_min_version": "52.0"
-		}
-	}
+  "name": "PreMiD",
+  "author": "Timeraa & Fruxh",
+  "description": "__MSG_description__",
+  "default_locale": "en",
+  "version": "2.0",
+  "manifest_version": 2,
+  "web_accessible_resources": ["icon.png", "languages/*.json"],
+  "icons": {
+    "16": "assets/images/icon16px.png",
+    "48": "assets/images/icon48px.png",
+    "124": "assets/images/icon124px.png"
+  },
+  "browser_action": {
+    "default_popup": "html/popup/index.html"
+  },
+  "background": {
+    "scripts": [
+      "js/util/functions.js",
+      "js/lib/socket.io_2.2.0.js",
+      "js/util/debug.js",
+      "js/background/presenceDev.js",
+      "js/background/settingsManager.js",
+      "js/util/langManager.js",
+      "js/background/background.js",
+      "js/background/socketConnector.js",
+      "js/util/presenceManager.js"
+    ]
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": [
+        "js/util/debug.js",
+        "js/util/functions.js",
+        "js/util/langManager.js",
+        "js/presenceHandler.js"
+      ]
+    },
+    {
+      "matches": ["*://*.premid.app/*"],
+      "js": ["js/util/presenceManager.js"],
+      "run_at": "document_start"
+    }
+  ],
+  "permissions": [
+    "tabs",
+    "storage",
+    "webRequest",
+    "<all_urls>",
+    "http://localhost/"
+  ],
+  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
+  "applications": {
+    "gecko": {
+      "id": "support@premid.app",
+      "strict_min_version": "52.0"
+    }
+  }
 }

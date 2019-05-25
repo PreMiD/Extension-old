@@ -1,4 +1,4 @@
-let mix = require('laravel-mix');
+let mix = require("laravel-mix");
 
 /*
  |--------------------------------------------------------------------------
@@ -12,13 +12,24 @@ let mix = require('laravel-mix');
  */
 
 mix.options({
-    processCssUrls: false, // Process/optimize relative stylesheet url()'s. Set to false, if you don't want them touched.
-    // purifyCss: true, // Remove unused CSS selectors.
-    // terser: {}, // Terser-specific options. https://github.com/webpack-contrib/terser-webpack-plugin#options
-    // postCss: [] // Post-CSS options: https://github.com/postcss/postcss/blob/master/docs/plugins.md
+  processCssUrls: false // Process/optimize relative stylesheet url()'s. Set to false, if you don't want them touched.
+  // purifyCss: true, // Remove unused CSS selectors.
+  // terser: {}, // Terser-specific options. https://github.com/webpack-contrib/terser-webpack-plugin#options
+  // postCss: [] // Post-CSS options: https://github.com/postcss/postcss/blob/master/docs/plugins.md
 });
 
-mix.sass('./Extension/html/pages/popup/scss/app.scss', './Extension/html/pages/popup/css/app.css').version();
+mix
+  .sass(
+    "./Extension/html/popup/scss/app.scss",
+    "./Extension/html/popup/css/app.css"
+  )
+  .version();
+mix
+  .sass(
+    "./Extension/html/tabs/scss/app.scss",
+    "./Extension/html/tabs/css/app.css"
+  )
+  .version();
 
 // Full API
 // mix.js(src, output);
@@ -48,4 +59,3 @@ mix.sass('./Extension/html/pages/popup/scss/app.scss', './Extension/html/pages/p
 // mix.then(function () {}) <-- Will be triggered each time Webpack finishes building.
 // mix.dump(); <-- Dump the generated webpack config object t the console.
 // mix.extend(name, handler) <-- Extend Mix's API with your own components.
-

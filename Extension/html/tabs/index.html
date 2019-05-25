@@ -1,0 +1,48 @@
+<html>
+  <head>
+    <!-- 
+      * Vue & Vue Router
+    -->
+    <script src="../../../js/lib/vue.min.js"></script>
+    <script src="../../../js/lib/vue-router.js"></script>
+
+    <!--
+      * LangManager & debug
+    -->
+    <script src="../../../js/util/langManager.js"></script>
+    <script src="../../../js/util/functions.js"></script>
+    <script src="../../../js/util/debug.js"></script>
+    
+    <!--
+      * Materialize
+    -->
+
+    <link rel="stylesheet" href="css/app.css"></link>
+
+    <link href="https://rsms.me/inter/inter.css" rel="stylesheet">
+    <link href="../../assets/css/fontawesome.5.8.2.css" rel="stylesheet">
+  </head>
+  <body>
+    
+    <div id="app">
+      <heading></heading>
+      <router-view></router-view>
+    </div>
+    
+    <!--
+      * Vue Router pages
+    -->
+    <script src="pages/installed.js"></script>
+    <script src="pages/credits.js"></script>
+
+    <!--
+      * Vue components
+    -->
+    <script src="components/header.js"></script>
+    <script src="components/main.js"></script>
+    <!--
+      * Vue app init
+    -->
+    <script src="app.js"></script>
+  </body>
+</html>
