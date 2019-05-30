@@ -16,15 +16,15 @@
   },
   "background": {
     "scripts": [
+      "js/util/debug.js",
       "js/util/functions.js",
       "js/lib/socket.io_2.2.0.js",
-      "js/util/debug.js",
       "js/background/presenceDev.js",
       "js/background/settingsManager.js",
+      "js/util/presenceManager.js",
       "js/util/langManager.js",
       "js/background/background.js",
-      "js/background/socketConnector.js",
-      "js/util/presenceManager.js"
+      "js/background/socketConnector.js"
     ]
   },
   "content_scripts": [
@@ -43,13 +43,7 @@
       "run_at": "document_start"
     }
   ],
-  "permissions": [
-    "tabs",
-    "storage",
-    "webRequest",
-    "<all_urls>",
-    "http://localhost/"
-  ],
+  "permissions": ["tabs", "storage", "webRequest", "<all_urls>"],
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
   "applications": {
     "gecko": {

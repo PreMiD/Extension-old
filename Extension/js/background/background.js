@@ -1,3 +1,5 @@
+var pagePresenceUrl = null;
+
 function updateAppSettings() {
   chrome.storage.local.get("settingsAppUpdated", function(result) {
     if (!result.settingsAppUpdated) {
@@ -11,27 +13,36 @@ setInterval(updateAppSettings, 1000);
 //* Extension installed/updated
 chrome.runtime.onInstalled.addListener(function(details) {
   //* Update language strings
-  updateLanguages();
+  initSettings().then(
+    updateLanguages().then(() => {
+      switch (details.reason) {
+        case "update":
+          //* Load last saved version string
+          chrome.storage.local.get("lastVersion", function(result) {
+            //* Check if it is a new version or not
+            if (result.lastVersion != details.previousVersion) {
+              //* Save new version to prevent errors
+              chrome.storage.local.set({
+                lastVersion: details.previousVersion
+              });
+              //TODO Open updated tab
+              //TODO Auto add default presences
+            }
+          });
+          break;
+        case "install":
+          //* Create Options
+          chrome.tabs.create({
+            url: chrome.runtime.getURL("/html/tabs/index.html#/installed"),
+            active: true
+          });
+          //TODO Auto add default presences
+          break;
+      }
+    })
+  );
   //* Set connection to false
   chrome.storage.local.set({ connected: false });
-
-  switch (details.reason) {
-    case "update":
-      //* Load last saved version string
-      chrome.storage.local.get("lastVersion", function(result) {
-        //* Check if it is a new version or not
-        if (result.lastVersion != details.previousVersion) {
-          //* Save new version to prevent errors
-          chrome.storage.local.set({ lastVersion: details.previousVersion });
-          //TODO Open updated tab
-        }
-      });
-      break;
-    case "install":
-      //* Create Options
-      //TODO Open installed tab
-      break;
-  }
 });
 
 var priorityTab,
@@ -70,6 +81,7 @@ function tabPriority() {
             metadata.service = res.name;
 
             injectPresence(tabs[0].id, metadata);
+            pagePresenceUrl = metadata.url;
           }
         );
       }
@@ -77,10 +89,23 @@ function tabPriority() {
 
     //* Load all presences
     chrome.storage.local.get(["presences"], function(result) {
+      var presences = [];
+      //* Add page presence if available to presences array
+      if (
+        pagePresenceUrl != null &&
+        presences.findIndex(p => p.url == pagePresenceUrl) == -1
+      ) {
+        presences.push({
+          url: pagePresenceUrl,
+          enabled: true
+        });
+        if (!result.presences)
+          result.presences = [{ url: pagePresenceUrl, enabled: true }];
+      }
       if (!result.presences) return;
 
       //* Keep only enabled ones
-      var presences = result.presences.filter(f => f.enabled);
+      presences = result.presences.filter(f => f.enabled);
       chrome.storage.sync.get("settings", function(result) {
         var settings = result.settings;
 
@@ -136,6 +161,7 @@ function tabPriority() {
 chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
   chrome.storage.local.get("presences", function(data) {
     if (priorityTab == tabId) {
+      pagePresenceUrl = null;
       if (socket.connected)
         socket.emit("updateData", {
           trayTitle: "",
@@ -160,6 +186,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
       presences = presences.filter(f => getHost(tab.url) == f.url);
 
       if (tabId == priorityTab && presences.length == 0) {
+        pagePresenceUrl = null;
         if (socket.connected)
           socket.emit("updateData", {
             trayTitle: "",

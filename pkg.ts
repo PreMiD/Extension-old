@@ -3,10 +3,13 @@ import {
   copySync,
   removeSync,
   readJSONSync,
-  writeJsonSync
+  writeJsonSync,
+  createReadStream,
+  createWriteStream
 } from "fs-extra";
 import chalk from "chalk";
 import { get } from "request-promise-native";
+import archiver from "archiver";
 
 var distFolder = "./dist";
 
@@ -40,27 +43,33 @@ var files = [
 
   console.log(chalk.yellow("Fetching language descriptions..."));
 
-  JSON.parse(await get("https://api.premid.app/langFile/list")).map(
-    async (l: String) => {
-      var eDesc: String = JSON.parse(
-        await get(`https://api.premid.app/langFile/${l}`)
-      )["extension.description"];
+  await Promise.all(
+    JSON.parse(await get("https://api.premid.app/langFile/list")).map(
+      async (l: String) => {
+        var eDesc: String = JSON.parse(
+          await get(`https://api.premid.app/langFile/${l}`)
+        )["extension.description"];
 
-      if (eDesc == undefined) return;
-      await ensureDirSync(
-        `${distFolder}/chrome/_locales/${convertLangCode(l)}`
-      );
-      writeJsonSync(
-        `${distFolder}/chrome/_locales/${convertLangCode(l)}/messages.json`,
-        {
-          description: {
-            message: eDesc
+        if (eDesc == undefined) return;
+        await ensureDirSync(
+          `${distFolder}/chrome/_locales/${convertLangCode(l)}`
+        );
+        writeJsonSync(
+          `${distFolder}/chrome/_locales/${convertLangCode(l)}/messages.json`,
+          {
+            description: {
+              message: eDesc
+            }
           }
-        }
-      );
-    }
+        );
+      }
+    )
   );
 
+  var archive = archiver("zip");
+  archive.pipe(createWriteStream(`${distFolder}/chrome.zip`));
+  archive.directory(`${distFolder}/chrome/`, false);
+  archive.finalize();
   console.log(chalk.green("Done!"));
 })();
 

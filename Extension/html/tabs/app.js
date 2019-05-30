@@ -1,7 +1,7 @@
 //* Vue Router routes
 const routes = [
   { path: "/installed", component: Vue.component("installedView") },
-  { path: "/credits", component: Vue.component("creditsView") }
+  { path: "/updated", component: Vue.component("updatedView") }
 ];
 
 //* Vue Router
