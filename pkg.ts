@@ -4,7 +4,6 @@ import {
   removeSync,
   readJSONSync,
   writeJsonSync,
-  createReadStream,
   createWriteStream
 } from "fs-extra";
 import chalk from "chalk";
