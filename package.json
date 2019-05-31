@@ -1,35 +1,34 @@
 {
-	"name": "pmd_extension",
-	"version": "1.0.0",
-	"description": "",
-	"main": "package.js",
-	"scripts": {
-		"start": "node pkg.js",
-		"watch": "NODE_ENV=production node node_modules/webpack/bin/webpack.js --watch --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js"
-	},
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/Timeraa/PMD_Extension.git"
-	},
-	"author": "Timeraa",
-	"license": "MIT",
-	"bugs": {
-		"url": "https://github.com/Timeraa/PMD_Extension/issues"
-	},
-	"homepage": "https://github.com/Timeraa/PMD_Extension#readme",
-	"dependencies": {
-		"@types/archiver": "^3.0.0",
-		"@types/fs-extra": "^7.0.0",
-		"archiver": "^3.0.0",
-		"fs-extra": "^7.0.1"
-	},
-	"devDependencies": {
-		"@types/request-promise-native": "^1.0.16",
-		"laravel-mix": "^4.0.15",
-		"purify-css": "^1.2.5",
-		"purifycss-webpack": "^0.7.0",
-		"request-promise-native": "^1.0.7",
-		"sass": "^1.19.0",
-		"sass-loader": "^7.1.0"
-	}
+  "name": "pmd_extension",
+  "version": "1.0.0",
+  "description": "",
+  "main": "pkg.js",
+  "scripts": {
+    "start": "node pkg.js",
+    "watch": "NODE_ENV=production node node_modules/webpack/bin/webpack.js --watch --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Timeraa/PMD_Extension.git"
+  },
+  "author": "Timeraa",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Timeraa/PMD_Extension/issues"
+  },
+  "homepage": "https://github.com/Timeraa/PMD_Extension#readme",
+  "devDependencies": {
+    "@types/archiver": "^3.0.0",
+    "@types/fs-extra": "^7.0.0",
+    "@types/request-promise-native": "^1.0.16",
+    "archiver": "^3.0.0",
+    "fs-extra": "^7.0.1",
+    "laravel-mix": "^4.0.15",
+    "ora": "^3.4.0",
+    "purify-css": "^1.2.5",
+    "purifycss-webpack": "^0.7.0",
+    "request-promise-native": "^1.0.7",
+    "sass": "^1.19.0",
+    "sass-loader": "^7.1.0"
+  }
 }
