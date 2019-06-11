@@ -1,274 +1,274 @@
 [
-	{
-		"term": "extension.description",
-		"definition": "PreMiD adds Discord Rich Presence integration, media controls and much more to your beloved services.",
-		"context": "Title of the tab which opens when you install PreMiD for the first time",
-		"term_plural": "",
-		"reference": "",
-		"comment": ""
-	},
-	{
-		"term": "tab.installed.heading",
-		"definition": "Thank you",
-		"context": "Title of the tab which opens when you install PreMiD for the first time",
-		"term_plural": "",
-		"reference": "",
-		"comment": ""
-	},
-	{
-		"term": "tab.installed.subHeading",
-		"definition": "for installing {0}",
-		"context": "{0} is a variable and should not be translated; Subtitle of the tab which opens when you install PreMiD for the first time",
-		"term_plural": "",
-		"reference": "",
-		"comment": ""
-	},
-	{
-		"term": "tab.installed.start",
-		"definition": "Start using {0}",
-		"context": "{0} is a variable and should not be translated; Button (redirects you to a promotional video) of the tab which opens when you install PreMiD for the first time",
-		"term_plural": "",
-		"reference": "",
-		"comment": ""
-	},
-	{
-		"term": "donate",
-		"definition": "Donate",
-		"context": "Donate button of the tab which opens when you install PreMiD for the first time",
-		"term_plural": "",
-		"reference": "",
-		"comment": ""
-	},
-	{
-		"term": "tab.installed.error",
-		"definition": "**Oh no!** We couldn't connect to the application... Is it already installed?",
-		"context": "Error message of the tab which opens when you install PreMiD for the first time",
-		"term_plural": "",
-		"reference": "",
-		"comment": ""
-	},
-	{
-		"term": "tab.installed.link.troubleshooting",
-		"definition": "Troubleshooting",
-		"context": "Troubleshooting button (redirects to wiki) of the tab which opens when you install PreMiD for the first time",
-		"term_plural": "",
-		"reference": "",
-		"comment": ""
-	},
-	{
-		"term": "tab.installed.link.installApplication",
-		"definition": "Install application",
-		"context": "Download button (redirects to premid.app) of the tab which opens when you install PreMiD for the first time",
-		"term_plural": "",
-		"reference": "",
-		"comment": ""
-	},
-	{
-		"term": "changelog",
-		"definition": "Changelog",
-		"context": "Changelog button (redirects to GitHub) of the tab which opens when you install PreMiD for the first time",
-		"term_plural": "",
-		"reference": "",
-		"comment": ""
-	},
-	{
-		"term": "tab.updated.heading",
-		"definition": "Level up!",
-		"context": "Title of the tab which opens when PreMiD was updated",
-		"term_plural": "",
-		"reference": "",
-		"comment": ""
-	},
-	{
-		"term": "tab.updated.subHeading",
-		"definition": "{0} has been updated!",
-		"context": "{0} is a variable and should not be translated; Subtitle of the tab which opens when PreMiD was updated",
-		"term_plural": "",
-		"reference": "",
-		"comment": ""
-	},
-	{
-		"term": "tab.updated.new",
-		"definition": "New",
-		"context": "Title of the 'new features' section of the tab which opens when PreMiD was updated",
-		"term_plural": "",
-		"reference": "",
-		"comment": ""
-	},
-	{
-		"term": "tab.updated.changed",
-		"definition": "Changed",
-		"context": "Title of the 'changes' section of the tab which opens when PreMiD was updated",
-		"term_plural": "",
-		"reference": "",
-		"comment": ""
-	},
-	{
-		"term": "popup.navigation.settings",
-		"definition": "Settings",
-		"context": "Title of the 'settings' section at the navigation in the popup",
-		"term_plural": "",
-		"reference": "",
-		"comment": ""
-	},
-	{
-		"term": "popup.navigation.credits",
-		"definition": "Credits",
-		"context": "Title of the 'credits' section at the navigation in the popup",
-		"term_plural": "",
-		"reference": "",
-		"comment": ""
-	},
-	{
-		"term": "popup.headings.general",
-		"definition": "General",
-		"context": "Title of the 'general' area of the 'settings' section in the popup",
-		"term_plural": "",
-		"reference": "",
-		"comment": ""
-	},
-	{
-		"term": "popup.setting.enabled",
-		"definition": "Enabled",
-		"context": "Enable/Disables PreMiD (located at the 'general' area of the 'settings' section in the popup)",
-		"term_plural": "",
-		"reference": "",
-		"comment": ""
-	},
-	{
-		"term": "popup.setting.mediaControl",
-		"definition": "Media Controls",
-		"context": "Enable/Disable media keys (located at the 'general' area of the 'settings' section in the popup)",
-		"term_plural": "",
-		"reference": "",
-		"comment": ""
-	},
-	{
-		"term": "popup.setting.titleMenubar",
-		"definition": "Title Menubar",
-		"context": "Enable/Disable the indicator in the menu bar (located at the 'general' area of the 'settings' section in the popup)",
-		"term_plural": "",
-		"reference": "",
-		"comment": ""
-	},
-	{
-		"term": "popup.setting.autoLaunch",
-		"definition": "Auto launch",
-		"context": "Enable/Disable auto startup of the application (located at the 'general' area of the 'settings' section in the popup)",
-		"term_plural": "",
-		"reference": "",
-		"comment": ""
-	},
-	{
-		"term": "popup.headings.presences",
-		"definition": "Presences",
-		"context": "Title of the 'presences' area of the 'settings' section in the popup",
-		"term_plural": "",
-		"reference": "",
-		"comment": ""
-	},
-	{
-		"term": "popup.presences.manage",
-		"definition": "Manage",
-		"context": "Button which enables the opportunity to manage installed presences (located at the 'presences' area of the 'settings' section in the popup)",
-		"term_plural": "",
-		"reference": "",
-		"comment": ""
-	},
-	{
-		"term": "popup.presences.noPresences",
-		"definition": "No Presences added",
-		"context": "Warning message when no presences are installed (located at the 'presences' area of the 'settings' section in the popup)",
-		"term_plural": "",
-		"reference": "",
-		"comment": ""
-	},
-	{
-		"term": "popup.buttons.presenceStore",
-		"definition": "Presence Store",
-		"context": "Warning message when no presences are installed (located at the 'presences' area of the 'settings' section in the popup)",
-		"term_plural": "",
-		"reference": "",
-		"comment": ""
-	},
-	{
-		"term": "popup.buttons.help",
-		"definition": "Need Help?",
-		"context": "Help button (redirects to Wiki/troubleschooting) (located under the 'presences' area in the popup)",
-		"term_plural": "",
-		"reference": "",
-		"comment": ""
-	},
-	{
-		"term": "popup.credits.error.heading",
-		"definition": "Oh noes!",
-		"context": "Oh noes!",
-		"term_plural": "Title of the error message (located at the 'credits' tab in the popup)",
-		"reference": "",
-		"comment": ""
-	},
-	{
-		"term": "popup.credits.error.message",
-		"definition": "Error while loading credits",
-		"context": "Error message when the credits can't be loaded (located at the 'credits' tab in the popup)",
-		"term_plural": "",
-		"reference": "",
-		"comment": ""
-	},
-	{
-		"term": "popup.info.connected",
-		"definition": "Connected",
-		"context": "Shows when the extension is connected to the application (located at the bottom in the popup)",
-		"term_plural": "",
-		"reference": "",
-		"comment": ""
-	},
-	{
-		"term": "popup.info.disconnected",
-		"definition": "Not connected",
-		"context": "Shows when the extension can't connect to the application (located at the bottom in the popup)",
-		"term_plural": "",
-		"reference": "",
-		"comment": ""
-	},
-	{
-		"term": "presence.playback.playing",
-		"definition": "Playing back",
-		"context": "Shows when you hover over the little play icon at your Discord Rich Presence",
-		"term_plural": "",
-		"reference": "",
-		"comment": ""
-	},
-	{
-		"term": "presence.playback.paused",
-		"definition": "Playback paused",
-		"context": "Shows when you hover over the little paused icon at your Discord Rich Presence",
-		"term_plural": "",
-		"reference": "",
-		"comment": ""
-	},
-	{
-		"term": "presence.activity.browsing",
-		"definition": "Browsing...",
-		"context": "Shows when you hover over the little magnifying glass icon at your Discord Rich Presence",
-		"term_plural": "",
-		"reference": "",
-		"comment": ""
-	},
-	{
-		"term": "presence.activity.live",
-		"definition": "Live",
-		"context": "Shows when you hover over the little red circle icon at your Discord Rich Presence",
-		"term_plural": "",
-		"reference": "",
-		"comment": ""
-	},
-	{
-		"term": "presence.media.info.episode",
-		"definition": "Episode {0}",
-		"context": "Shows the current episode at your Discord Rich Presence",
-		"term_plural": "",
-		"reference": "",
-		"comment": ""
-	}
+  {
+    "term": "extension.description",
+    "definition": "PreMiD adds Discord Rich Presence integration, media controls and much more to your beloved services.",
+    "context": "Title of the tab which opens when you install PreMiD for the first time",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "tab.installed.heading",
+    "definition": "Thank you",
+    "context": "Title of the tab which opens when you install PreMiD for the first time",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "tab.installed.subHeading",
+    "definition": "for installing {0}",
+    "context": "{0} is a variable and should not be translated; Subtitle of the tab which opens when you install PreMiD for the first time",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "tab.installed.start",
+    "definition": "Start using {0}",
+    "context": "{0} is a variable and should not be translated; Button (redirects you to a promotional video) of the tab which opens when you install PreMiD for the first time",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "donate",
+    "definition": "Donate",
+    "context": "Donate button of the tab which opens when you install PreMiD for the first time",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "tab.installed.error",
+    "definition": "**Oh no!** We couldn't connect to the application... Is it already installed?",
+    "context": "Error message of the tab which opens when you install PreMiD for the first time",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "tab.installed.link.troubleshooting",
+    "definition": "Troubleshooting",
+    "context": "Troubleshooting button (redirects to wiki) of the tab which opens when you install PreMiD for the first time",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "tab.installed.link.installApplication",
+    "definition": "Install application",
+    "context": "Download button (redirects to premid.app) of the tab which opens when you install PreMiD for the first time",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "changelog",
+    "definition": "Changelog",
+    "context": "Changelog button (redirects to GitHub) of the tab which opens when you install PreMiD for the first time",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "tab.updated.heading",
+    "definition": "Level up!",
+    "context": "Title of the tab which opens when PreMiD was updated",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "tab.updated.subHeading",
+    "definition": "{0} has been updated!",
+    "context": "{0} is a variable and should not be translated; Subtitle of the tab which opens when PreMiD was updated",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "tab.updated.new",
+    "definition": "New",
+    "context": "Title of the 'new features' section of the tab which opens when PreMiD was updated",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "tab.updated.changed",
+    "definition": "Changed",
+    "context": "Title of the 'changes' section of the tab which opens when PreMiD was updated",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "popup.navigation.settings",
+    "definition": "Settings",
+    "context": "Title of the 'settings' section at the navigation in the popup",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "popup.navigation.credits",
+    "definition": "Credits",
+    "context": "Title of the 'credits' section at the navigation in the popup",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "popup.headings.general",
+    "definition": "General",
+    "context": "Title of the 'general' area of the 'settings' section in the popup",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "popup.setting.enabled",
+    "definition": "Enabled",
+    "context": "Enable/Disables PreMiD (located at the 'general' area of the 'settings' section in the popup)",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "popup.setting.mediaControl",
+    "definition": "Media Controls",
+    "context": "Enable/Disable media keys (located at the 'general' area of the 'settings' section in the popup)",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "popup.setting.titleMenubar",
+    "definition": "Title Menubar",
+    "context": "Enable/Disable the indicator in the menu bar (located at the 'general' area of the 'settings' section in the popup)",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "popup.setting.autoLaunch",
+    "definition": "Auto launch",
+    "context": "Enable/Disable auto startup of the application (located at the 'general' area of the 'settings' section in the popup)",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "popup.headings.presences",
+    "definition": "Presences",
+    "context": "Title of the 'presences' area of the 'settings' section in the popup",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "popup.presences.manage",
+    "definition": "Manage",
+    "context": "Button which enables the opportunity to manage installed presences (located at the 'presences' area of the 'settings' section in the popup)",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "popup.presences.noPresences",
+    "definition": "No Presences added",
+    "context": "Warning message when no presences are installed (located at the 'presences' area of the 'settings' section in the popup)",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "popup.buttons.presenceStore",
+    "definition": "Presence Store",
+    "context": "Warning message when no presences are installed (located at the 'presences' area of the 'settings' section in the popup)",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "popup.buttons.help",
+    "definition": "Need Help?",
+    "context": "Help button (redirects to Wiki/troubleschooting) (located under the 'presences' area in the popup)",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "popup.credits.error.heading",
+    "definition": "Oh noes!",
+    "context": "Oh noes!",
+    "term_plural": "Title of the error message (located at the 'credits' tab in the popup)",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "popup.credits.error.message",
+    "definition": "Error while loading credits",
+    "context": "Error message when the credits can't be loaded (located at the 'credits' tab in the popup)",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "popup.info.connected",
+    "definition": "Connected",
+    "context": "Shows when the extension is connected to the application (located at the bottom in the popup)",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "popup.info.disconnected",
+    "definition": "Not connected",
+    "context": "Shows when the extension can't connect to the application (located at the bottom in the popup)",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "presence.playback.playing",
+    "definition": "Playing back",
+    "context": "Shows when you hover over the little play icon at your Discord Rich Presence",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "presence.playback.paused",
+    "definition": "Playback paused",
+    "context": "Shows when you hover over the little paused icon at your Discord Rich Presence",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "presence.activity.browsing",
+    "definition": "Browsing...",
+    "context": "Shows when you hover over the little magnifying glass icon at your Discord Rich Presence",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "presence.activity.live",
+    "definition": "Live",
+    "context": "Shows when you hover over the little red circle icon at your Discord Rich Presence",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "presence.media.info.episode",
+    "definition": "Episode {0}",
+    "context": "Shows the current episode at your Discord Rich Presence",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  }
 ]

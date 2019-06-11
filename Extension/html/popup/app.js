@@ -1,8 +1,8 @@
 //* Vue Router routes
 const routes = [
   { path: "*", redirect: "/settings" },
-  { path: "/settings", component: Vue.component("settingsView") },
-  { path: "/credits", component: Vue.component("creditsView") }
+  { path: "/settings", component: Vue.component("settingsView") }
+  //{ path: "/credits", component: Vue.component("creditsView") }
 ];
 
 //* Vue Router

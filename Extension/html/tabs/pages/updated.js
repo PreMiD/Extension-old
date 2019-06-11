@@ -32,7 +32,11 @@ Vue.component("updatedView", {
       <a draggable="false" class="button discord" target="_blank" href="https://discord.premid.app"><i class="fab fa-discord"></i> Discord</a>
     </div>
 
-    <a draggable="false" class="button start" target="_blank" href="https://discord.premid.app" v-html="this.strings.start"></a>
+    <div id="updates">
+      <change type="new">Users now can install presences. <a href="s">Install them now!</a></change>
+      <change type="new">Revamped popup and tabs layout.</change>
+      <change type="fixed">Fixed <a href="github.com">#304</a> bug, things should work fine.</change>
+    </div>
   </mainBody>
   `
 });
