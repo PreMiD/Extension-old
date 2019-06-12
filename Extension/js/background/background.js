@@ -97,7 +97,6 @@ function tabPriority() {
         pagePresenceUrl != null &&
         presences.findIndex(p => p.url == pagePresenceUrl) == -1
       ) {
-        console.log(pagePresenceUrl);
         result.presences.push({
           url: pagePresenceUrl,
           enabled: true
@@ -106,7 +105,6 @@ function tabPriority() {
           result.presences = [{ url: pagePresenceUrl, enabled: true }];
       }
       if (!result.presences) return;
-      console.log(result.presences);
 
       //* Keep only enabled ones
       presences = result.presences.filter(f => f.enabled);
