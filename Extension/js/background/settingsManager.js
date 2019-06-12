@@ -96,7 +96,6 @@ function cOption(setting, string, option, show) {
 
 function saveSettings() {
   chrome.storage.sync.get("settings", function(res) {
-    console.log(res.settings);
     settings = res.settings;
     var settingsSave = settings;
     settingsSave = Object.assign(
