@@ -67,15 +67,15 @@ function tabPriority() {
       },
       async function(result) {
         if (!result || result.length == 0 || result[0] == null) return;
+        var presenceMeta = result[0];
         chrome.tabs.executeScript(
           currTab.id,
           { code: `try{PreMiD_Presence}catch(e){false}` },
           async function(result) {
             if (result[0]) return;
 
-            //TODO Change this to non static
             var res = await fetchJSON(
-              `https://api.premid.app/presences/Arena of Kings`
+              `https://api.premid.app/presences/${presenceMeta}`
             );
             if (res.error != undefined) return;
             var metadata = await fetchJSON(`${res.url}metadata.json`);
@@ -97,7 +97,8 @@ function tabPriority() {
         pagePresenceUrl != null &&
         presences.findIndex(p => p.url == pagePresenceUrl) == -1
       ) {
-        presences.push({
+        console.log(pagePresenceUrl);
+        result.presences.push({
           url: pagePresenceUrl,
           enabled: true
         });
@@ -105,6 +106,7 @@ function tabPriority() {
           result.presences = [{ url: pagePresenceUrl, enabled: true }];
       }
       if (!result.presences) return;
+      console.log(result.presences);
 
       //* Keep only enabled ones
       presences = result.presences.filter(f => f.enabled);
