@@ -43,8 +43,13 @@ Vue.component("settingsView", {
         });
       });
     });
-    this.settings = Object.values(this.settings).sort(
-      (a, b) => a.position - b.position
+
+    this.settings = Object.assign(
+      ...Object.keys(this.settings)
+        .sort((a, b) => this.settings[a].position - this.settings[b].position)
+        .map(s => {
+          return { [s]: this.settings[s] };
+        })
     );
 
     //* Get presences, save in array
@@ -56,6 +61,7 @@ Vue.component("settingsView", {
   },
   methods: {
     updateSetting(key, { target }) {
+      console.log(key, target);
       chrome.storage.sync.get("settings", function(result) {
         result.settings[key].value = target.checked;
         chrome.storage.local.set({ settingsAppUpdated: false });
