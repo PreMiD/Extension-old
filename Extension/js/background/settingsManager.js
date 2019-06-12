@@ -19,24 +19,29 @@ async function initSettings() {
         settings = {
           enabled: {
             string: "popup.setting.enabled",
-            value: true
+            value: true,
+            position: 0
           },
           mediaKeys: {
             string: "popup.setting.mediaControl",
-            value: true
+            value: true,
+            position: 1
           },
           titleMenubar: {
             string: "popup.setting.titleMenubar",
-            value: true
+            value: true,
+            position: 2
           },
           autoLaunch: {
             string: "popup.setting.autoLaunch",
-            value: true
+            value: true,
+            position: 3
           },
           language: {
             string: "popup.setting.language",
             value: convertLangCode(chrome.i18n.getUILanguage()),
-            show: false
+            show: false,
+            position: 4
           }
         };
 
@@ -50,13 +55,14 @@ async function initSettings() {
         return;
       }
 
-      initSetting("enabled", "popup.setting.enabled");
-      initSetting("autoLaunch", "popup.setting.autoLaunch");
-      initSetting("mediaKeys", "popup.setting.mediaKeys");
-      initSetting("titleMenubar", "popup.setting.titleMenubar");
+      initSetting("enabled", "popup.setting.enabled", 0);
+      initSetting("autoLaunch", "popup.setting.autoLaunch", 1);
+      initSetting("mediaKeys", "popup.setting.mediaKeys", 2);
+      initSetting("titleMenubar", "popup.setting.titleMenubar", 3);
       initSetting(
         "language",
         convertLangCode(chrome.i18n.getUILanguage()),
+        4,
         "popup.setting.language",
         false
       );
@@ -64,24 +70,25 @@ async function initSettings() {
   });
 }
 
-function initSetting(setting, string, option = true, show = true) {
+function initSetting(setting, string, position, option = true, show = true) {
   if (!settings) {
     chrome.storage.sync.get("settings", function(result) {
       settings = result.settings;
 
       if (settings && !settings[setting])
-        cOption(setting, string, option, show);
+        cOption(setting, string, position, option, show);
     });
   } else if (settings && !settings[setting])
-    cOption(setting, string, option, show);
+    cOption(setting, string, position, option, show);
 }
 
-function cOption(setting, string, option, show) {
+function cOption(setting, string, position, option, show) {
   if (!settings[setting]) {
     PMD_info(`Creating option for ${setting}`);
     settings[setting] = {
       string: string,
-      value: option
+      value: option,
+      position: position
     };
 
     if (show) settings[setting].show = show;

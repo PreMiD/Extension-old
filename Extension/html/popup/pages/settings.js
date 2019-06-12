@@ -43,6 +43,9 @@ Vue.component("settingsView", {
         });
       });
     });
+    this.settings = Object.values(this.settings).sort(
+      (a, b) => a.position - b.position
+    );
 
     //* Get presences, save in array
     this.presences = await new Promise(function(resolve, reject) {
