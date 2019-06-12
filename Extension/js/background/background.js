@@ -50,23 +50,25 @@ var priorityTab,
   tabPriorityLock = 0;
 function tabPriority() {
   //* Get all active tabs
-  chrome.tabs.query({ active: true }, function(tabs) {
+  chrome.windows.getCurrent({ populate: true }, function(window) {
+    var currTab = window.tabs.filter(tab => tab.active)[0];
+
     //* Only use tabPriority on websites
     if (
-      !tabs[0].url.startsWith("http://") &&
-      !tabs[0].url.startsWith("https://")
+      !currTab.url.startsWith("http://") &&
+      !currTab.url.startsWith("https://")
     )
       return;
     //* Check if meta tag presence is found and retrieve name and inject presence
     chrome.tabs.executeScript(
-      tabs[0].id,
+      currTab.id,
       {
         code: `document.querySelector('meta[name="PreMiD_Presence"]').content`
       },
       async function(result) {
         if (!result || result.length == 0 || result[0] == null) return;
         chrome.tabs.executeScript(
-          tabs[0].id,
+          currTab.id,
           { code: `try{PreMiD_Presence}catch(e){false}` },
           async function(result) {
             if (result[0]) return;
@@ -80,7 +82,7 @@ function tabPriority() {
             metadata.source = res.url;
             metadata.service = res.name;
 
-            injectPresence(tabs[0].id, metadata);
+            injectPresence(currTab.id, metadata);
             pagePresenceUrl = metadata.url;
           }
         );
@@ -120,18 +122,18 @@ function tabPriority() {
         //* If there are any proceed
         if (presences.length > 0) {
           //* If priorityTab == current tab reset priorityLock
-          if (priorityTab != tabs[0].id) {
+          if (priorityTab != currTab.id) {
             //* If tab change reset tabPriorityLock
-            if (lastTab != tabs[0].id) {
+            if (lastTab != currTab.id) {
               tabPriorityLock = 0;
-              lastTab = tabs[0].id;
+              lastTab = currTab.id;
             }
 
             //* Loop through presences
             for (var i = 0; presences.length > i; i++) {
               //* active tab url contains presence url
               if (
-                getHost(tabs[0].url).indexOf(getHost(presences[i].url)) > -1
+                getHost(currTab.url).indexOf(getHost(presences[i].url)) > -1
               ) {
                 //* Update priorityTab when 5 seconds passed else increase count
                 if (tabPriorityLock >= 4) {
@@ -141,7 +143,7 @@ function tabPriority() {
                       tabPriority: false
                     });
 
-                  priorityTab = tabs[0].id;
+                  priorityTab = currTab.id;
                 } else tabPriorityLock++;
               }
             }
