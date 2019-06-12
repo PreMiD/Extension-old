@@ -61,7 +61,6 @@ Vue.component("settingsView", {
   },
   methods: {
     updateSetting(key, { target }) {
-      console.log(key, target);
       chrome.storage.sync.get("settings", function(result) {
         result.settings[key].value = target.checked;
         chrome.storage.local.set({ settingsAppUpdated: false });
