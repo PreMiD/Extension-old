@@ -63,7 +63,7 @@ function tabPriority() {
     chrome.tabs.executeScript(
       currTab.id,
       {
-        code: `document.querySelector('meta[name="PreMiD_Presence"]').content`
+        code: `try{document.querySelector('meta[name="PreMiD_Presence"]').content}catch(e){}`
       },
       async function(result) {
         if (!result || result.length == 0 || result[0] == null) return;
