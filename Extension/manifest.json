@@ -3,7 +3,7 @@
   "author": "Timeraa & Fruxh",
   "description": "__MSG_description__",
   "default_locale": "en",
-  "version": "2.0",
+  "version": "2.0.2",
   "manifest_version": 2,
   "web_accessible_resources": ["icon.png", "languages/*.json"],
   "icons": {
@@ -38,7 +38,7 @@
       ]
     },
     {
-      "matches": ["*://*.premid.app/*"],
+      "matches": ["*://*.premid.app/*", "http://localhost:8008/*"],
       "js": ["js/util/presenceManager.js"],
       "run_at": "document_start"
     }
