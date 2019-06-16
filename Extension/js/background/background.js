@@ -12,6 +12,13 @@ setInterval(updateAppSettings, 1000);
 
 //* Extension installed/updated
 chrome.runtime.onInstalled.addListener(function(details) {
+  //* Set presences array if not defined
+  chrome.storage.local.get("presences", res =>
+    typeof res.settings === "undefined"
+      ? chrome.storage.local.set({ presences: [] })
+      : null
+  );
+
   //* Update language strings
   initSettings().then(
     updateLanguages().then(() => {
