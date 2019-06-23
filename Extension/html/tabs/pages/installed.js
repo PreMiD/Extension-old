@@ -48,7 +48,7 @@ Vue.component("installedView", {
     
     <transition name="fade">
       <div v-if="this.connected">
-        <a draggable="false" class="button start" target="_blank" href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" v-html="this.strings.start"></a>
+        <a draggable="false" class="button start" target="_blank" href="https://beta.premid.app" v-html="this.strings.start"></a>
       </div>
     </transition>
     <transition name="fade">
