@@ -264,6 +264,13 @@ async function injectPresence(tabId, presence) {
     }
   }
 
+  if (presence.hasOwnProperty("iframe")) {
+    chrome.tabs.executeScript(tabId, {
+      file: "../util/devHelper.js",
+      allFrames: true
+    });
+  }
+
   chrome.tabs.executeScript(tabId, {
     code:
       'if(typeof PreMiD_Presence === "undefined") var PreMiD_Presence = true;'
