@@ -4,17 +4,22 @@ Vue.component("settingsView", {
     return {
       strings: {
         general: "",
-        presences: ""
+        presences: "",
+        manage: "",
+        cancel: ""
       },
       settings: {},
       presences: [],
-      connected: false
+      connected: false,
+      managePresences: false
     };
   },
   created: async function() {
     this.strings = {
       general: await getString("popup.headings.general"),
-      presences: await getString("popup.headings.presences")
+      presences: await getString("popup.headings.presences"),
+      manage: await getString("popup.presences.manage"),
+      cancel: await getString("popup.presences.cancel")
     };
 
     setInterval(async () => {
@@ -74,6 +79,13 @@ Vue.component("settingsView", {
 
         chrome.storage.local.set(result);
       });
+    },
+    removePresence(key) {
+      this.presences = this.presences.filter(
+        p => p.service != this.presences[key].service
+      );
+
+      chrome.storage.local.set({ presences: this.presences });
     }
   },
   template: /* html */ `
@@ -96,19 +108,29 @@ Vue.component("settingsView", {
 			</div>
 		</div>
 		<div class="settings__container">
-			<h2 class="container__title">{{strings.presences}}</h2>
+      <div class="titleWrapper">
+        <h2 class="container__title">{{strings.presences}}</h2>
+        <a class="manage" v-if="presences.filter(p => !p.tmp).length > 0" v-on:click="managePresences = !managePresences">
+          <p v-if="!managePresences">{{strings.manage}}</p>
+          <p v-else>{{strings.cancel}}</p>
+        </a>
+      </div>
 			<div class="container__setting" v-for="(value, key) in presences">
 				<div class="setting__title">
-					<p>{{value.service}} <span class="badge badge-red" v-if="value.tmp">tmp</span></p>
+          <a v-if="managePresences && !presences[key].tmp" class="removePresence" v-on:click="removePresence(key)">
+            <i class="fas fa-times"></i>
+          </a>
+					<p><span class="tmp" v-if="value.tmp">tmp</span> {{value.service}}</p>
 				</div>
 				<div class="setting__switcher">
-				<div class="pmd_checkbox">
-					<label>
-					<input v-model="presences[key].enabled" @change="updatePresence(value.service, $event)" type="checkbox" :checked="value.enabled" />
-					<span v-bind:style="[presences[key].enabled ? {'background-color': value.color} : {}]" ref="checkbox" class="checkbox-container"></span>
-					</label>
-				</div>
-				</div>
+        <div class="pmd_checkbox">
+          <label>
+            <input v-model="presences[key].enabled" @change="updatePresence(value.service, $event)" type="checkbox" :checked="value.enabled" />
+
+            <span v-bind:style="[presences[key].enabled ? {'background-color': value.color} : {}]" ref="checkbox" class="checkbox-container"></span>
+          </label>
+          </div>
+        </div>
 			</div>
 		</div>
 	</div>

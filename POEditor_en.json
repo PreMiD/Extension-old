@@ -176,6 +176,14 @@
     "comment": ""
   },
   {
+    "term": "popup.presences.cancel",
+    "definition": "Cancel",
+    "context": "Button which disables the opportunity to manage installed presences (located at the 'presences' area of the 'settings' section in the popup)",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
     "term": "popup.presences.noPresences",
     "definition": "No Presences added",
     "context": "Warning message when no presences are installed (located at the 'presences' area of the 'settings' section in the popup)",
