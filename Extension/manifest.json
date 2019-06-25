@@ -34,8 +34,10 @@
         "js/util/debug.js",
         "js/util/functions.js",
         "js/util/langManager.js",
+        "js/util/devHelper.js",
         "js/presenceHandler.js"
-      ]
+      ],
+      "run_at": "document_end"
     },
     {
       "matches": ["*://*.premid.app/*", "http://localhost:8008/*"],

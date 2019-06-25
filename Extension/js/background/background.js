@@ -13,11 +13,10 @@ setInterval(updateAppSettings, 1000);
 //* Extension installed/updated
 chrome.runtime.onInstalled.addListener(function(details) {
   //* Set presences array if not defined
-  chrome.storage.local.get("presences", res =>
-    typeof res.settings === "undefined"
-      ? chrome.storage.local.set({ presences: [] })
-      : null
-  );
+  chrome.storage.local.get("presences", res => {
+    if (typeof res.presences === "undefined")
+      chrome.storage.local.set({ presences: [] });
+  });
 
   //* Update language strings
   initSettings().then(
@@ -79,7 +78,7 @@ function tabPriority() {
           currTab.id,
           { code: `try{PreMiD_Presence}catch(e){false}` },
           async function(result) {
-            if (result[0]) return;
+            if (result[0] || currTab.status != "complete") return;
 
             var res = await fetchJSON(
               `https://api.premid.app/presences/${presenceMeta}`
@@ -265,6 +264,11 @@ async function injectPresence(tabId, presence) {
     }
   }
 
+  chrome.tabs.executeScript(tabId, {
+    code:
+      'if(typeof PreMiD_Presence === "undefined") var PreMiD_Presence = true;'
+  });
+
   PMD_info(`${presence.service} injected.`);
 }
 
@@ -272,11 +276,16 @@ async function injectPresence(tabId, presence) {
 chrome.runtime.onMessage.addListener(function(data, sender) {
   if (data.presence != undefined) {
     PMD_info("Sending Presence Data to Application");
+    if (typeof data.presence.presenceData.largeImageKey !== "undefined")
+      data.presence.presenceData.largeImageText =
+        chrome.runtime.getManifest().name +
+        " v" +
+        chrome.runtime.getManifest().version;
     socket.emit("updateData", data.presence);
   }
 
-  if (data.iframe_video != undefined && priorityTab != null) {
-    PMD_info("Sending iFrame video data to presence");
+  if (data.iFrameData != undefined && priorityTab != null) {
+    PMD_info("Sending iFrame data to presence");
     chrome.tabs.sendMessage(priorityTab, data);
   }
 });
