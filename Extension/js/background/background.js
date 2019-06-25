@@ -240,7 +240,7 @@ function getHost(url) {
 async function injectPresence(tabId, presence) {
   if (presence.hasOwnProperty("iframe")) {
     chrome.tabs.executeScript(tabId, {
-      file: "../util/devHelper.js",
+      file: "/js/util/devHelper.js",
       allFrames: true
     });
   }
