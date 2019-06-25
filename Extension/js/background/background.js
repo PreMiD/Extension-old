@@ -238,6 +238,13 @@ function getHost(url) {
 }
 
 async function injectPresence(tabId, presence) {
+  if (presence.hasOwnProperty("iframe")) {
+    chrome.tabs.executeScript(tabId, {
+      file: "../util/devHelper.js",
+      allFrames: true
+    });
+  }
+
   if (presence.hasOwnProperty("tmp")) {
     chrome.tabs.executeScript(tabId, {
       file: "/presenceDev/presence.js"
@@ -262,13 +269,6 @@ async function injectPresence(tabId, presence) {
         allFrames: true
       });
     }
-  }
-
-  if (presence.hasOwnProperty("iframe")) {
-    chrome.tabs.executeScript(tabId, {
-      file: "../util/devHelper.js",
-      allFrames: true
-    });
   }
 
   chrome.tabs.executeScript(tabId, {
