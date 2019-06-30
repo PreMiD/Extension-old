@@ -6,7 +6,8 @@ Vue.component("settingsView", {
         general: "",
         presences: "",
         manage: "",
-        cancel: ""
+        cancel: "",
+        presenceStore: ""
       },
       settings: {},
       presences: [],
@@ -19,7 +20,8 @@ Vue.component("settingsView", {
       general: await getString("popup.headings.general"),
       presences: await getString("popup.headings.presences"),
       manage: await getString("popup.presences.manage"),
-      cancel: await getString("popup.presences.cancel")
+      cancel: await getString("popup.presences.cancel"),
+      presenceStore: await getString("popup.buttons.presenceStore")
     };
 
     setInterval(async () => {
@@ -89,7 +91,6 @@ Vue.component("settingsView", {
     }
   },
   template: /* html */ `
-
 <div class="pmd_settings">
 	<div class="settings__container">
 		<h2 class="container__title">{{strings.general}}</h2>
@@ -129,35 +130,10 @@ Vue.component("settingsView", {
 
             <span v-bind:style="[presences[key].enabled ? {'background-color': value.color} : {}]" ref="checkbox" class="checkbox-container"></span>
           </label>
-          </div>
         </div>
-			</div>
-		</div>
-	</div>
-
-  <!-- <div class="settingsView">
-		<v-container grid-list-md class="panel">
-			<h3>{{strings.general}}</h3>
-			<v-layout row wrap v-for="(value, key) in settings">
-				<v-flex xs17>
-					<h6>{{value.string}}</h6>
-				</v-flex>
-				<v-flex xs3>
-					<v-switch :input-value="value.value" color="#7289da" @change="updateSetting(key, $event)"></v-switch>
-				</v-flex>
-			</v-layout>
-		</v-container>
-
-		<v-container grid-list-md class="panel">
-			<h3>{{strings.presences}}</h3>
-			<v-layout row wrap v-for="(value, key) in presences">
-				<v-flex xs17>
-					<h6>{{value.service}} <p v-if="value.tmp">tmp</p></h6>
-				</v-flex>
-				<v-flex xs3>
-					<v-switch :input-value="value.enabled" :color="value.color" @change="updatePresence(value.service, $event)"></v-switch>
-				</v-flex>
-			</v-layout>
-		</v-container>
-	</div> -->`
+      </div>
+    </div>
+    <a href="https://premid.app/store" target="_blank" class="presenceStore" v-if="presences.length === 0" v-html="strings.presenceStore"/>
+  </div>
+</div>`
 });

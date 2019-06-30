@@ -76,14 +76,11 @@ async function updateLanguages() {
 
 async function getString(string) {
   await loadLanguages();
-  if (currLanguage[string] != undefined) return currLanguage[string];
-  if (currLanguage[string] == undefined && defaultLanguage[string] != undefined)
-    return;
+  if (typeof currLanguage[string] === "string") return currLanguage[string];
   if (
-    currLanguage[string] == undefined &&
-    defaultLanguage[string] == undefined
-  ) {
-    PMD_error(`No translation found for ${string}`);
-    return null;
-  }
+    typeof currLanguage[string] === "undefined" &&
+    typeof defaultLanguage[string] === "string"
+  )
+    return defaultLanguage[string];
+  PMD_error(`No translation found for ${string}`);
 }

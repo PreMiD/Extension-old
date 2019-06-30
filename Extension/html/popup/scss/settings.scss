@@ -27,6 +27,27 @@
 			color: white;
 		}
 
+		.presenceStore {
+			transition: .15s all ease-out;
+
+			position: relative;
+			display: inline-block;
+			margin-top: 10px;
+			left: 50%;
+			transform: translateX(-50%);
+			text-align: center;
+			background-color: #7289da;
+			border-radius: 10px;
+			padding: 3px 5px;
+			font-size: 1rem;
+			font-weight: 500;
+			width: 80%;
+
+			&:hover {
+				background-color: lighten($blurple, 5%);
+			}
+		}
+
 		.container__setting {
 			display: flex;
 			justify-content: space-between;

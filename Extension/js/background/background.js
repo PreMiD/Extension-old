@@ -238,6 +238,29 @@ function getHost(url) {
 }
 
 async function injectPresence(tabId, presence) {
+  chrome.tabs.executeScript(tabId, {
+    code: `
+    var head = document.getElementsByTagName('head')[0];
+    var script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.onload = function() {
+        callFunctionFromScript();
+    }
+    script.src = 'path/to/your-script.js';
+    script.id = "customScript";
+    head.appendChild(script);
+    setTimeout(() => {document.getElementById('customScript').remove()}, 5*1000);
+    `
+  });
+  /*
+  var head = document.getElementsByTagName('head')[0];
+    var script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.innerText = 'console.log("MEEM")';
+    script.id = "customScript";
+    head.appendChild(script);
+    setTimeout(() => {document.getElementById('customScript').remove()}, 5*1000);*/
+
   if (presence.hasOwnProperty("iframe")) {
     chrome.tabs.executeScript(tabId, {
       file: "/js/util/devHelper.js",
