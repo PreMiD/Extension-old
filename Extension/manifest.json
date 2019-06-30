@@ -40,8 +40,11 @@
       "run_at": "document_end"
     },
     {
-      "matches": ["*://*.premid.app/*", "http://localhost:8008/*"],
-      "js": ["js/util/presenceManager.js"],
+      "matches": ["*://beta.premid.app/*", "http://localhost/*"],
+      "js": [
+        "js/util/debug.js",
+        "js/util/presenceManager.js"
+      ],
       "run_at": "document_start"
     }
   ],
