@@ -1,4 +1,9 @@
 if (location.pathname !== "/_generated_background_page.html") {
+  // This attribute used for Extension detection on our website.
+  document.addEventListener("DOMContentLoaded", () => {
+    document.querySelector("#app").setAttribute("extension-ready", true);
+  });
+
   window.addEventListener("PreMiD_AddPresence", function(data) {
     addPresence(data.detail);
   });
@@ -8,11 +13,7 @@ if (location.pathname !== "/_generated_background_page.html") {
   });
 
   window.addEventListener("PreMiD_GetPresenceList", function() {
-    console.log(
-      "%cPreMiD%c " + "Extension event call detected, sending data back...",
-      "color: #ffffff; font-weight: 900; padding: 3px; margin: 3px; background: #596cae;",
-      "color: #0000ff;"
-    );
+    PMD_info("Extension event call detected, sending data back...");
     chrome.storage.local.get("presences", result => {
       var event = new CustomEvent("PreMiD_GetWebisteFallback", {
         detail: result.presences
