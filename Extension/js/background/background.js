@@ -31,8 +31,10 @@ chrome.runtime.onInstalled.addListener(function(details) {
               chrome.storage.local.set({
                 lastVersion: details.previousVersion
               });
-              //TODO Open updated tab
-              //TODO Auto add default presences
+              chrome.tabs.create({
+                active: true,
+                url: chrome.runtime.getURL("html/tabs/index.html#updated")
+              });
             }
           });
           break;
@@ -139,7 +141,11 @@ function tabPriority() {
             for (var i = 0; presences.length > i; i++) {
               //* active tab url contains presence url
               if (
-                getHost(currTab.url).indexOf(getHost(presences[i].url)) > -1
+                presences.filter(f =>
+                  typeof f.url === "string"
+                    ? getHost(currTab.url) === f.url
+                    : f.url.includes(getHost(currTab.url))
+                ).length > 0
               ) {
                 //* Update priorityTab when 5 seconds passed else increase count
                 if (tabPriorityLock >= 4) {
@@ -191,7 +197,11 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
       presences = presences.filter(f => f.enabled);
 
       //* Only keep presence that we need for url
-      presences = presences.filter(f => getHost(tab.url) == f.url);
+      presences = presences.filter(f =>
+        typeof f.url === "string"
+          ? getHost(tab.url) === f.url
+          : f.url.includes(getHost(tab.url))
+      );
 
       if (tabId == priorityTab && presences.length == 0) {
         pagePresenceUrl = null;
@@ -262,7 +272,7 @@ async function injectPresence(tabId, presence) {
       code: new String(
         "var PreMiD_Presence=true;" +
           (await fetch(`${presence.source}presence.js`).then(async res =>
-        res.text()
+            res.text()
           ))
       ).toString()
     });
