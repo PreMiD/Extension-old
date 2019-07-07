@@ -44,3 +44,13 @@ socket.on("discordUser", async function(user) {
     chrome.management.uninstallSelf();
   }
 });
+
+//TODO Add tests for files
+socket.on("presenceDevFolder", data => {
+  if (priorityTab) chrome.tabs.reload(priorityTab);
+
+  data = data.files;
+
+  var metadata = data.find(f => f.file === "metadata.json");
+  if (metadata) validateMetaData(metadata.contents, data);
+});

@@ -9,6 +9,7 @@ Vue.component("settingsView", {
         cancel: "",
         presenceStore: ""
       },
+      shiftPressed: false,
       settings: {},
       presences: [],
       connected: false,
@@ -65,6 +66,15 @@ Vue.component("settingsView", {
         resolve(result.presences);
       });
     });
+
+    //* Presence dev stuff
+    window.addEventListener("keydown", e => {
+      this.shiftPressed = event.shiftKey;
+    });
+
+    window.addEventListener("keyup", e => {
+      this.shiftPressed = event.shiftKey;
+    });
   },
   methods: {
     updateSetting(key, { target }) {
@@ -88,6 +98,9 @@ Vue.component("settingsView", {
       );
 
       chrome.storage.local.set({ presences: this.presences });
+    },
+    loadLocalPresence() {
+      chrome.runtime.sendMessage({ loadPresence: true });
     }
   },
   template: /* html */ `
@@ -111,9 +124,12 @@ Vue.component("settingsView", {
 		<div class="settings__container">
       <div class="titleWrapper">
         <h2 class="container__title">{{strings.presences}}</h2>
-        <a class="manage" v-if="presences.filter(p => !p.tmp).length > 0" v-on:click="managePresences = !managePresences">
+        <a class="manage" v-if="presences.filter(p => !p.tmp).length > 0 && !shiftPressed" v-on:click="managePresences = !managePresences">
           <p v-if="!managePresences">{{strings.manage}}</p>
           <p v-else>{{strings.cancel}}</p>
+        </a>
+        <a class="manage" v-if="shiftPressed" v-on:click="loadLocalPresence">
+          <p>Load Presence</p>
         </a>
       </div>
 			<div class="container__setting" v-for="(value, key) in presences">
@@ -127,7 +143,6 @@ Vue.component("settingsView", {
         <div class="pmd_checkbox">
           <label>
             <input v-model="presences[key].enabled" @change="updatePresence(value.service, $event)" type="checkbox" :checked="value.enabled" />
-
             <span v-bind:style="[presences[key].enabled ? {'background-color': value.color} : {}]" ref="checkbox" class="checkbox-container"></span>
           </label>
         </div>
