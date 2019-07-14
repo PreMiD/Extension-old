@@ -1,11 +1,11 @@
-var genericStyle = "font-weight: 800; padding: 2px 5px;";
+var genericStyle = "font-weight: 800; padding: 2px 5px; color: white;";
 
 function PMD_info(message) {
   console.log(
     "%cPreMiD%cINFO%c " + message,
     genericStyle + "border-radius: 25px 0 0 25px; background: #596cae;",
     genericStyle + "border-radius: 0 25px 25px 0; background: #5050ff;",
-    "color: white;"
+    "color: unset;"
   );
 }
 
@@ -14,7 +14,7 @@ function PMD_error(message) {
     "%cPreMiD%cERROR%c " + message,
     genericStyle + "border-radius: 25px 0 0 25px; background: #596cae;",
     genericStyle + "border-radius: 0 25px 25px 0; background: #ff5050;",
-    "color: white;"
+    "color: unset;"
   );
 }
 
@@ -24,6 +24,6 @@ function PMD_success(message) {
     genericStyle + "border-radius: 25px 0 0 25px; background: #596cae;",
     genericStyle +
       "border-radius: 0 25px 25px 0; background: #50ff50; color: black;",
-    "color: white;"
+    "color: unset;"
   );
 }
