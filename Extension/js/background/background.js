@@ -1,3 +1,46 @@
+var betaBuild = true,
+  credentials = null;
+
+//* Beta stuffs
+chrome.webRequest.onBeforeRequest.addListener(
+  body => {
+    chrome.tabs.remove(body.tabId);
+    credentials = Object.assign(
+      ...body.url
+        .slice(17, body.url.length)
+        .split("&")
+        .map(param => {
+          return { [param.split("=")[0]]: param.split("=")[1] };
+        })
+    );
+
+    fetch(`https://discordapp.com/api/users/@me`, {
+      method: "GET",
+      headers: new Headers({
+        Authorization: `${credentials.token_type} ${credentials.access_token}`
+      })
+    })
+      .catch(_ => {})
+      .then(res => res.json())
+      .then(body => {
+        fetch(`https://api.premid.app/betaAccess/${body.id}`)
+          .catch(_ => {})
+          .then(res => res.json())
+          .then(res => {
+            if (res.access) {
+              chrome.storage.local.set({ discordId: body.id });
+              //* Create Options
+              chrome.tabs.create({
+                url: chrome.runtime.getURL("/html/tabs/index.html#/installed"),
+                active: true
+              });
+            } else chrome.management.uninstallSelf();
+          });
+      });
+  },
+  { urls: ["http://PMD.BETA/*"] }
+);
+
 var pagePresenceUrl = null;
 
 function updateAppSettings() {
@@ -39,6 +82,29 @@ chrome.runtime.onInstalled.addListener(function(details) {
           });
           break;
         case "install":
+          if (betaBuild) {
+            chrome.windows.create(
+              {
+                focused: true,
+                url:
+                  "https://discordapp.com/api/oauth2/authorize?response_type=token&client_id=503557087041683458&scope=identify",
+                type: "popup",
+                width: 400,
+                height: 500,
+                left: screen.width / 2 - 400 / 2,
+                top: screen.height / 2 - 500 / 2
+              },
+              window => {
+                chrome.windows.onRemoved.addListener(window1 => {
+                  if (window.id === window1) {
+                    if (!credentials) chrome.management.uninstallSelf();
+                  }
+                });
+              }
+            );
+
+            return;
+          }
           //* Create Options
           chrome.tabs.create({
             url: chrome.runtime.getURL("/html/tabs/index.html#/installed"),
