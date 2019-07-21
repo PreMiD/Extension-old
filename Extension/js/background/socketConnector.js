@@ -1,12 +1,16 @@
-var socket = io("http://localhost:3020/", { autoConnect: false }),
+var socket = io.connect("http://localhost:3020/"),
   tabPriorityInterval;
 
 //* Create socket connection
 var interval = setInterval(() => {
   chrome.storage.local.get("discordId", result => {
-    if (typeof result.discordId === "undefined") return;
+    if (typeof result.discordId === "undefined") {
+      if (socket.connected) socket.disconnect();
+      return;
+    }
 
-    socket.io.connect();
+    if (socket.disconnect) socket.connect();
+
     clearInterval(interval);
   });
 }, 1000);
