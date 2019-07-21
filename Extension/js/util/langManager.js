@@ -58,7 +58,7 @@ async function updateLanguages() {
         `https://api.premid.app/v2/langFile/extension/${browsLang}`
       ).catch(_ => {});
 
-      if (result.error != undefined) {
+      if (typeof result === "undefined") {
         PMD_error(
           `No language file found by code "${browsLang}", using default one instead`
         );
