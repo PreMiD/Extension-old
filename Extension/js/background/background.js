@@ -1,5 +1,6 @@
 var betaBuild = true,
-  credentials = null;
+  credentials = null,
+  urlToOpenAfterValidate = null;
 
 //* Beta stuffs
 chrome.webRequest.onBeforeRequest.addListener(
@@ -31,7 +32,7 @@ chrome.webRequest.onBeforeRequest.addListener(
               chrome.storage.local.set({ discordId: body.id });
               //* Create Options
               chrome.tabs.create({
-                url: chrome.runtime.getURL("/html/tabs/index.html#/installed"),
+                url: chrome.runtime.getURL(urlToOpenAfterValidate),
                 active: true
               });
             } else chrome.management.uninstallSelf();
@@ -69,47 +70,36 @@ chrome.runtime.onInstalled.addListener(function(details) {
           //* Load last saved version string
           chrome.storage.local.get("lastVersion", function(result) {
             //* Check if it is a new version or not
-            if (result.lastVersion != details.previousVersion) {
+            if (result.lastVersion != chrome.runtime.getManifest().version) {
               //* Save new version to prevent errors
               chrome.storage.local.set({
-                lastVersion: details.previousVersion
+                lastVersion: chrome.runtime.getManifest().version
               });
-              chrome.tabs.create({
-                active: true,
-                url: chrome.runtime.getURL("html/tabs/index.html#updated")
+
+              chrome.storage.local.get("discordId", result => {
+                if (typeof result.discordId === "undefined") {
+                  checkBeta("/html/tabs/index.html#updated");
+                } else
+                  chrome.tabs.create({
+                    active: true,
+                    url: chrome.runtime.getURL("html/tabs/index.html#updated")
+                  });
               });
             }
           });
           break;
         case "install":
-          if (betaBuild) {
-            chrome.windows.create(
-              {
-                focused: true,
-                url:
-                  "https://discordapp.com/api/oauth2/authorize?response_type=token&client_id=503557087041683458&scope=identify",
-                type: "popup",
-                width: 400,
-                height: 500,
-                left: screen.width / 2 - 400 / 2,
-                top: screen.height / 2 - 500 / 2
-              },
-              window => {
-                chrome.windows.onRemoved.addListener(window1 => {
-                  if (window.id === window1) {
-                    if (!credentials) chrome.management.uninstallSelf();
-                  }
-                });
-              }
-            );
-
-            return;
-          }
-          //* Create Options
-          chrome.tabs.create({
-            url: chrome.runtime.getURL("/html/tabs/index.html#/installed"),
-            active: true
+          chrome.storage.local.set({
+            lastVersion: chrome.runtime.getManifest().version
           });
+          checkBeta("/html/tabs/index.html#/installed");
+
+          //* Create Options
+          if (!betaBuild)
+            chrome.tabs.create({
+              url: chrome.runtime.getURL("/html/tabs/index.html#installed"),
+              active: true
+            });
           //TODO Auto add default presences
           break;
       }
@@ -118,6 +108,33 @@ chrome.runtime.onInstalled.addListener(function(details) {
   //* Set connection to false
   chrome.storage.local.set({ connected: false });
 });
+
+async function checkBeta(url) {
+  urlToOpenAfterValidate = url;
+  if (betaBuild) {
+    chrome.windows.create(
+      {
+        focused: true,
+        url:
+          "https://discordapp.com/api/oauth2/authorize?response_type=token&client_id=503557087041683458&scope=identify",
+        type: "popup",
+        width: 400,
+        height: 500,
+        left: screen.width / 2 - 400 / 2,
+        top: screen.height / 2 - 500 / 2
+      },
+      window => {
+        chrome.windows.onRemoved.addListener(window1 => {
+          if (window.id === window1) {
+            if (!credentials) chrome.management.uninstallSelf();
+          }
+        });
+      }
+    );
+
+    return;
+  }
+}
 
 var priorityTab,
   lastTab,
