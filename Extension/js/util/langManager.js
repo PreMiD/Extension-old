@@ -56,7 +56,7 @@ async function updateLanguages() {
       );
       var result = await fetchJSON(
         `https://api.premid.app/v2/langFile/extension/${browsLang}`
-      );
+      ).catch(_ => {});
 
       if (result.error != undefined) {
         PMD_error(
