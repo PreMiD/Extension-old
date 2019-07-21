@@ -51,9 +51,11 @@ async function updateLanguages() {
         browsLang = res.settings.language.value.toLowerCase();
 
       PMD_info(`Updating translations for en && ${browsLang}`);
-      defaultLanguage = await fetchJSON(`https://api.premid.app/langFile/en`);
+      defaultLanguage = await fetchJSON(
+        `https://api.premid.app/v2/langFile/extension/en`
+      );
       var result = await fetchJSON(
-        `https://api.premid.app/langFile/${browsLang}`
+        `https://api.premid.app/v2/langFile/extension/${browsLang}`
       );
 
       if (result.error != undefined) {

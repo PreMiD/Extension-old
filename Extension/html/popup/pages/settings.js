@@ -6,6 +6,7 @@ Vue.component("settingsView", {
         general: "",
         presences: "",
         manage: "",
+        load: "",
         cancel: "",
         presenceStore: ""
       },
@@ -21,6 +22,7 @@ Vue.component("settingsView", {
       general: await getString("popup.headings.general"),
       presences: await getString("popup.headings.presences"),
       manage: await getString("popup.presences.manage"),
+      load: await getString("popup.presences.load"),
       cancel: await getString("popup.presences.cancel"),
       presenceStore: await getString("popup.buttons.presenceStore")
     };
@@ -94,7 +96,7 @@ Vue.component("settingsView", {
     },
     removePresence(key) {
       this.presences = this.presences.filter(
-        p => p.service != this.presences[key].service
+        p => p.service != this.presences[key].service || p.tmp
       );
 
       chrome.storage.local.set({ presences: this.presences });
@@ -129,7 +131,7 @@ Vue.component("settingsView", {
           <p v-else>{{strings.cancel}}</p>
         </a>
         <a class="manage" v-if="shiftPressed" v-on:click="loadLocalPresence">
-          <p>Load Presence</p>
+          <p>{{strings.load}}</p>
         </a>
       </div>
 			<div class="container__setting" v-for="(value, key) in presences">

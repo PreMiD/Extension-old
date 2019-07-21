@@ -41,10 +41,7 @@
     },
     {
       "matches": ["*://beta.premid.app/*", "http://localhost/*"],
-      "js": [
-        "js/util/debug.js",
-        "js/util/presenceManager.js"
-      ],
+      "js": ["js/util/debug.js", "js/util/presenceManager.js"],
       "run_at": "document_start"
     }
   ],

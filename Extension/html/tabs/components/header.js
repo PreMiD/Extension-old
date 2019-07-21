@@ -4,12 +4,16 @@ Vue.component("heading", {
     return {
       settings: null,
       credits: null,
+      changelog: null,
+      wiki: null,
       version: null
     };
   },
   created: async function() {
     this.settings = await getString("popup.navigation.settings");
     this.credits = await getString("popup.navigation.credits");
+    this.wiki = await getString("tab.button.wiki");
+    this.changelog = await getString("tab.button.changelog");
     this.version = await chrome.runtime.getManifest().version;
   },
   template: /*html*/ `
@@ -20,8 +24,8 @@ Vue.component("heading", {
     </div>
     <div id="right">
       <a draggable="false" target="_blank" href="https://github.com/PreMiD/PreMiD"><i class="fab fa-github"></i> GitHub</a>
-      <a draggable="false"><i class="fas fa-history"></i> Changelog</a>
-      <a draggable="false" target="_blank" href="https://wiki.premid.app/"><i class="fas fa-book"></i> Wiki</a>
+      <a draggable="false"><i class="fas fa-history"></i> {{this.changelog}}</a>
+      <a draggable="false" target="_blank" href="https://wiki.premid.app/"><i class="fas fa-book"></i> {{this.wiki}}</a>
     </div>
 	</div>`
 });

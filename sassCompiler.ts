@@ -42,9 +42,12 @@ function compileFile(file: string, outFile: string) {
           }
 
           console.log(
-            chalk.green(
-              `${new Date().toLocaleTimeString()} Compiled ${basename(file)}`
-            )
+            "✅" +
+              chalk.white(
+                `  Compiled ${chalk.green(
+                  basename(file)
+                )} at ${new Date().toLocaleTimeString()}`
+              )
           );
 
           resolve(res);

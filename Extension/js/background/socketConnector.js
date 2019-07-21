@@ -1,6 +1,15 @@
-//* Create socket connection
-var socket = io.connect("http://localhost:3020/"),
+var socket = io("http://localhost:3020/", { autoConnect: false }),
   tabPriorityInterval;
+
+//* Create socket connection
+var interval = setInterval(() => {
+  chrome.storage.local.get("discordId", result => {
+    if (typeof result.discordId === "undefined") return;
+
+    socket.io.connect();
+    clearInterval(interval);
+  });
+}, 1000);
 
 //* When connected start PreMiD functions
 socket.on("connect", function() {
@@ -34,15 +43,6 @@ socket.on("mediaKeyHandler", function(data) {
   PMD_info(`Media Control: ${data.playback}`);
   if (priorityTab != null)
     chrome.tabs.sendMessage(priorityTab, { mediaKeys: data.playback });
-});
-
-socket.on("discordUser", async function(user) {
-  if (
-    !(await fetchJSON(`https://api.premid.app/betaAccess/${user.id}`)).access
-  ) {
-    socket.close();
-    chrome.management.uninstallSelf();
-  }
 });
 
 //TODO Add tests for files

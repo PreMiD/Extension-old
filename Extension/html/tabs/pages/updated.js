@@ -26,7 +26,7 @@ Vue.component("updatedView", {
     }, 100);
   },
   template: /* html */ `
-  <mainBody heading="tab.installed.heading" subHeading="tab.installed.subHeading">
+  <mainBody heading="tab.updated.heading" subHeading="tab.updated.subHeading">
     <div class="inline">
       <a draggable="false" class="button donate" target="_blank" href="https://patreon.com/Timeraa"><i class="fas fa-donate"></i> {{this.strings.donate}}</a>
       <a draggable="false" class="button discord" target="_blank" href="https://discord.premid.app"><i class="fab fa-discord"></i> Discord</a>
@@ -35,7 +35,7 @@ Vue.component("updatedView", {
     <div id="updates">
       <change type="new">Users now can install presences. <a href="s">Install them now!</a></change>
       <change type="new">Revamped popup and tabs layout.</change>
-      <change type="fixed">Fixed <a href="github.com">#304</a> bug, things should work fine.</change>
+      <change type="fix">Fixed <a href="github.com">#304</a> bug, things should work fine.</change>
     </div>
   </mainBody>
   `

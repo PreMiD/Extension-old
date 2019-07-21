@@ -26,7 +26,8 @@ html {
   #badge {
     display: inline-block;
     height: 30px;
-    width: 75px;
+    min-width: 75px;
+    padding: 0 5px;
     border-radius: 50px;
     text-align: center;
     
@@ -38,7 +39,11 @@ html {
       background-color: #12BD60;
     }
     
-    &.fixed {
+    &.fix {
+      background-color: #ff5050;
+    }
+    
+    &.change {
       background-color: $blurple;
     }
   }
