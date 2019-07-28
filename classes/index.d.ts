@@ -1,3 +1,11 @@
+declare class iFrame {
+    /**
+     * Send data from iFrames back to the presence script
+     * @param {*} data Data to send
+     */
+    send(data: any): void;
+}
+declare var iframe: iFrame;
 interface presenceData {
     state?: string;
     details?: string;
@@ -34,6 +42,9 @@ declare class Presence {
      * @param playback Is presence playing
      */
     setActivity(presenceData?: presenceData, playback?: boolean): void;
+    /**
+     * Clears the activity shown in discord as well as the Tray and keybinds
+     */
     clearActivity(): void;
     /**
      * Sets the tray title on the Menubar in Mac OS (Mac OS only)
@@ -44,13 +55,18 @@ declare class Presence {
      * Get translations from the extension
      * @param strings String object with keys being the key for string, keyValue is the string value
      */
-    getStrings(strings: Object): Promise<unknown>;
+    getStrings(strings: Object): Promise<any>;
     /**
      * Get variables from the actual site.
      * @param {Array} variables Array of variable names to get
      * @example var pageVar = getPageVariable('pageVar') -> pageVar -> "Variable content"
      */
-    getPageVariable(variable: string): Promise<unknown>;
+    getPageVariable(variable: string): Promise<any>;
+    /**
+     * Sends data back to application
+     * @param data Data to send back to application
+     */
+    private sendData;
     /**
      * Subscribe to events emitted by the extension
      * @param eventName EventName to subscribe to

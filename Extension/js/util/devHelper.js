@@ -42,6 +42,9 @@ class Presence {
             mediaKeys: this.mediaKeys
         });
     }
+    /**
+     * Clears the activity shown in discord as well as the Tray and keybinds
+     */
     clearActivity() {
         this.internalPresence = {};
         this.trayTitle = "";

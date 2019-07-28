@@ -56,6 +56,9 @@ class Presence {
     });
   }
 
+  /**
+   * Clears the activity shown in discord as well as the Tray and keybinds
+   */
   clearActivity() {
     this.internalPresence = {};
     this.trayTitle = "";
@@ -81,7 +84,7 @@ class Presence {
    * @param strings String object with keys being the key for string, keyValue is the string value
    */
   getStrings(strings: Object) {
-    return new Promise((resolve, reject) => {
+    return new Promise<any>((resolve, reject) => {
       var listener = function(detail: object) {
         window.removeEventListener("PreMiD_ReceiveExtensionData", listener);
 
@@ -112,7 +115,7 @@ class Presence {
    * @example var pageVar = getPageVariable('pageVar') -> pageVar -> "Variable content"
    */
   getPageVariable(variable: string) {
-    return new Promise((resolve, reject) => {
+    return new Promise<any>((resolve, reject) => {
       var script = document.createElement("script");
 
       window.addEventListener("PreMiD_PageVariable", data => {
