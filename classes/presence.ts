@@ -45,19 +45,27 @@ class Presence {
   setActivity(presenceData: presenceData = {}, playback: boolean = true) {
     this.internalPresence = presenceData;
     this.playback = playback;
+
+    //* Senddata
+    this.sendData({
+      clientID: this.clientId,
+      presenceData: this.internalPresence,
+      trayTitle: this.trayTitle,
+      playback: this.playback,
+      mediaKeys: this.mediaKeys
+    });
   }
 
   clearActivity() {
     this.internalPresence = {};
+    this.trayTitle = "";
 
-    var event = new CustomEvent("PreMiD_UpdatePresence", {
-      detail: {
-        clientID: this.clientId,
-        trayTitle: null,
-        hidden: true
-      }
+    //* Send data to app
+    this.sendData({
+      presenceData: {},
+      playback: false,
+      hidden: true
     });
-    window.dispatchEvent(event);
   }
 
   /**
@@ -126,6 +134,18 @@ class Presence {
       );
     });
   }
+  /**
+   * Sends data back to application
+   * @param data Data to send back to application
+   */
+  private sendData(data: Object) {
+    //* Send data to app
+    var event = new CustomEvent("PreMiD_UpdatePresence", {
+      detail: data
+    });
+
+    window.dispatchEvent(event);
+  }
 
   /**
    * Subscribe to events emitted by the extension
@@ -140,18 +160,6 @@ class Presence {
         window.addEventListener("PreMiD_UpdateData", () => {
           //* Run callback
           this._events.UpdateData();
-
-          //* Send data to app
-          var event = new CustomEvent("PreMiD_UpdatePresence", {
-            detail: {
-              clientID: this.clientId,
-              presenceData: this.internalPresence,
-              trayTitle: this.trayTitle,
-              playback: this.playback,
-              mediaKeys: this.mediaKeys
-            }
-          });
-          window.dispatchEvent(event);
         });
         return;
       case "MediaKeys":

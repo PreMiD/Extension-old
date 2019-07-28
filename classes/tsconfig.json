@@ -1,0 +1,7 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "module": "none",
+    "outFile": "../Extension/js/util/devHelper.js"
+  }
+}

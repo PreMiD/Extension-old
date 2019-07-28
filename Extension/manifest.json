@@ -1,6 +1,6 @@
 {
   "name": "PreMiD",
-  "author": "Timeraa & Fruxh",
+  "author": "Timeraa",
   "description": "__MSG_description__",
   "default_locale": "en",
   "version": "2.0.3",
@@ -40,7 +40,7 @@
       "run_at": "document_end"
     },
     {
-      "matches": ["*://beta.premid.app/*", "http://localhost/*"],
+      "matches": ["*://*.premid.app/*"],
       "js": ["js/util/debug.js", "js/util/presenceManager.js"],
       "run_at": "document_start"
     }
@@ -49,7 +49,7 @@
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
   "applications": {
     "gecko": {
-      "id": "support@premid.app",
+      "id": "beta@premid.app",
       "strict_min_version": "52.0"
     }
   }
