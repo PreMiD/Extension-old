@@ -9,7 +9,6 @@
 	flex-wrap: wrap;
 
 	.settings__container {
-		user-select: none;
 		background: $darkButNotQuiteBlack;
 		padding: 16px;
 		width: 100%;
@@ -127,6 +126,13 @@
 			font-weight: 500;
 			margin: 4px 0;
 		}
+	}
+
+	.noPresences {
+		margin: 5px 0;
+		color: $greyple;
+		text-align: center;
+		font-size: 0.9rem;
 	}
 }
 

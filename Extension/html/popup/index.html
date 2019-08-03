@@ -26,7 +26,9 @@
           <img src="../../../../assets/images/icon124px.png" draggable="false">
       </div>
       <navigation></navigation>
-      <router-view></router-view>
+      <transition name="page" mode="out-in">
+        <router-view/>
+      </transition>
     </div>
     
     <!--
@@ -39,6 +41,7 @@
       * Vue components
     -->
     <script src="components/navigation/navigation.js"></script>
+    <script src="components/creditCard.js"></script>
     <!--
       * Vue app init
     -->

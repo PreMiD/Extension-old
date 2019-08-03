@@ -2,33 +2,38 @@
 Vue.component("creditsView", {
   data: function() {
     return {
-      credits: []
+      credits: [],
+      errorLoading: false,
+      strings: {
+        creditsErrorHeading: null,
+        creditsErrorMessage: null
+      }
     };
   },
   created: async function() {
-    this.credits = await fetchJSON("https://api.premid.app/credits");
-  },
-  methods: {
-    updateSetting(key, { target }) {
-      chrome.storage.sync.get("settings", function(result) {
-        result.settings[key].value = target.checked;
-        chrome.storage.local.set({ settingsAppUpdated: false });
+    this.strings.creditsErrorHeading = await getString(
+      "popup.credits.error.heading"
+    );
+    this.strings.creditsErrorMessage = await getString(
+      "popup.credits.error.message"
+    );
 
-        chrome.storage.sync.set(result);
+    fetchJSON("https://api.premid.app/v2/credits")
+      .then(data => {
+        this.credits = data.sort((a, b) => b.rolePosition - a.rolePosition);
+      })
+      .catch(() => {
+        this.errorLoading = true;
       });
-    },
-    updatePresence(key, { target }) {
-      chrome.storage.local.get("presences", function(result) {
-        result.presences.find(p => p.service == key).enabled = target.checked;
-
-        chrome.storage.local.set(result);
-      });
-    }
   },
   template: /* html */ `
-  <div class="pmd_settings">
-    <div class="container__setting" v-for="(value, key) in credits">
-      {{value.name}}
+  <div class="creditsContainer">
+    <div class="creditsError" v-if="errorLoading">
+      <h1 v-text="strings.creditsErrorHeading"></h1>
+      <h2 v-text="strings.creditsErrorMessage"></h2>
     </div>
+    <transition-group v-else name="scaleIn">
+      <creditCard v-for="(value, key) in credits" :user="value" :key="value.name"/>
+    </transition-group>
   </div>`
 });
