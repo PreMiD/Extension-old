@@ -1,11 +1,26 @@
 @import "variables.scss";
 
 @font-face {
-  font-family: Discord;
-  font-style: normal;
-  font-weight: normal;
-  font-display: auto;
-  src: url(../../../assets/fonts/discord.otf) format("opentype");
+  font-family: 'Discord Font';
+  font-weight: 900;
+  src: url("../../../assets/fonts/discord.otf")
+}
+
+@font-face {
+  font-family: Inter;
+  src: url("../../../assets/fonts/Inter/Inter-Regular.otf")
+}
+
+@font-face {
+  font-family: Inter;
+  font-weight: 500;
+  src: url("../../../assets/fonts/Inter/Inter-Medium.otf")
+}
+
+@font-face {
+  font-family: Inter;
+  font-weight: 700;
+  src: url("../../../assets/fonts/Inter/Inter-Bold.otf")
 }
 
 html,
@@ -57,7 +72,7 @@ a {
       color: white;
 
       .pmd {
-        font-family: 'Discord';
+        font-family: 'Discord Font';
         margin: 0;
         display: inline-block;
         color: $blurple;
@@ -110,7 +125,7 @@ a {
     }
 
     .discord {
-      font-family: "Discord";
+      font-family: "Discord Font";
       text-transform: uppercase;
       line-height: 47px;
       background-color: $blurple;
@@ -130,7 +145,7 @@ a {
 
       p {
         display: inline-block;
-        font-family: "Discord";
+        font-family: "Discord Font";
         text-transform: uppercase;
         margin: 0;
       }

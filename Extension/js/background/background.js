@@ -60,6 +60,12 @@ chrome.runtime.onInstalled.addListener(function(details) {
   chrome.storage.local.get("presences", res => {
     if (typeof res.presences === "undefined")
       chrome.storage.local.set({ presences: [] });
+    else
+      chrome.storage.local.get("presences", ({ presences }) => {
+        chrome.storage.local.set({
+          presences: presences.filter(presence => !presence.tmp)
+        });
+      });
   });
 
   //* Update language strings

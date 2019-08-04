@@ -24,7 +24,10 @@ Vue.component("heading", {
     </div>
     <div id="right">
       <a draggable="false" target="_blank" href="https://github.com/PreMiD/PreMiD"><i class="fab fa-github"></i> GitHub</a>
-      <a draggable="false"><i class="fas fa-history"></i> {{this.changelog}}</a>
+      <!--
+        TODO Add changelog on website?  
+        <a draggable="false"><i class="fas fa-history"></i> {{this.changelog}}</a>
+      -->
       <a draggable="false" target="_blank" href="https://wiki.premid.app/"><i class="fas fa-book"></i> {{this.wiki}}</a>
     </div>
 	</div>`

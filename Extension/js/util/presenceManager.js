@@ -60,7 +60,7 @@ function addPresence(name) {
     presences.push(presenceToAdd);
 
     chrome.storage.local.set({ presences: presences });
-    PMD_info(`Presence ${name} was installed successfuly.`);
+    PMD_info(`Presence ${name} added successfuly.`);
   });
 }
 
@@ -80,6 +80,6 @@ function removePresence(name) {
     chrome.storage.local.set({
       presences: presences.filter(p => p.service != name || p.tmp != undefined)
     });
-    PMD_info(`Presence ${name} was removed successfuly.`);
+    PMD_info(`Presence ${name} removed successfuly.`);
   });
 }

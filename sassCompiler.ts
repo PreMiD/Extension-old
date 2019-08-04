@@ -3,16 +3,13 @@ import { writeFile, watchFile } from "fs";
 import chalk from "chalk";
 import { basename } from "path";
 
-//* Clear old output
-console.clear();
-
 var filesToCompile = require("./sassFiles.json");
 
 filesToCompile.map(async (f: any) => {
   var reqFiles = await compileFile(f.file, f.outFile);
 
   reqFiles.stats.includedFiles.map(file =>
-    watchFile(file, () => {
+    watchFile(file, { interval: 250 }, () => {
       console.clear();
       compileFile(f.file, f.outFile);
     })
@@ -41,10 +38,11 @@ function compileFile(file: string, outFile: string) {
             return;
           }
 
+          console.clear();
           console.log(
-            "✅" +
+            "✅  " +
               chalk.white(
-                `  Compiled ${chalk.green(
+                `Compiled ${chalk.green(
                   basename(file)
                 )} at ${new Date().toLocaleTimeString()}`
               )

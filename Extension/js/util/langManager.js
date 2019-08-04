@@ -7,26 +7,23 @@ if (typeof defaultLanguage == "undefined") {
   loadLanguages(true);
 }
 
-async function loadLanguages(initial = false) {
+function loadLanguages(initial = false) {
   return new Promise(function(resolve, reject) {
     if (defaultLanguage == null && initial) {
-      chrome.storage.sync.get("settings", function(res) {
-        if (res.settings == undefined) return;
-
-        chrome.storage.local.get("languages", function(res1) {
-          if (res1.languages == undefined) {
-            reject();
-            return;
-          }
-          loadingLanguages = false;
-          PMD_info("Translations have been loaded.");
-
-          defaultLanguage = res1.languages.default;
-          currLanguage =
-            res1.languages[res.settings.language.value.toLowerCase()];
-          resolve();
+      chrome.storage.local.get("languages", ({ languages }) => {
+        if (languages === undefined) {
+          reject();
           return;
-        });
+        }
+
+        loadingLanguages = false;
+        PMD_info("Translations loaded.");
+
+        defaultLanguage = languages.default;
+        currLanguage = languages.userLang;
+
+        resolve();
+        return;
       });
     }
 
@@ -34,16 +31,17 @@ async function loadLanguages(initial = false) {
       resolve();
       return;
     }
+
     var interval = setInterval(() => {
       if (!loadingLanguages) {
         clearInterval(interval);
         resolve();
       }
-    }, 50);
+    }, 5);
   });
 }
 
-async function updateLanguages() {
+function updateLanguages() {
   return new Promise(function(resolve, reject) {
     chrome.storage.sync.get("settings", async function(res) {
       var browsLang = chrome.i18n.getUILanguage();
@@ -51,12 +49,16 @@ async function updateLanguages() {
         browsLang = res.settings.language.value.toLowerCase();
 
       PMD_info(`Updating translations for en && ${browsLang}`);
-      defaultLanguage = await fetchJSON(
-        `https://api.premid.app/v2/langFile/extension/en`
-      );
-      var result = await fetchJSON(
+      defaultLanguage = fetchJSON(
+        "https://api.premid.app/v2/langFile/extension/en"
+      ).catch(reject);
+
+      var result = fetchJSON(
         `https://api.premid.app/v2/langFile/extension/${browsLang}`
       ).catch(_ => {});
+
+      defaultLanguage = await defaultLanguage;
+      result = await result;
 
       if (typeof result === "undefined") {
         PMD_error(
@@ -65,24 +67,28 @@ async function updateLanguages() {
         currLanguage = defaultLanguage;
       } else currLanguage = result;
 
+      resolve();
+
       chrome.storage.local.set({
         languages: {
           default: defaultLanguage,
-          [browsLang]: currLanguage
+          userLang: currLanguage
         }
       });
-      resolve();
     });
   });
 }
 
 async function getString(string) {
-  await loadLanguages();
-  if (typeof currLanguage[string] === "string") return currLanguage[string];
-  if (
-    typeof currLanguage[string] === "undefined" &&
-    typeof defaultLanguage[string] === "string"
-  )
-    return defaultLanguage[string];
-  PMD_error(`No translation found for ${string}`);
+  return loadLanguages().then(() => {
+    if (typeof currLanguage[string] === "string") return currLanguage[string];
+
+    if (
+      typeof currLanguage[string] === "undefined" &&
+      typeof defaultLanguage[string] === "string"
+    )
+      return defaultLanguage[string];
+
+    PMD_error(`No translation found for ${string}`);
+  });
 }

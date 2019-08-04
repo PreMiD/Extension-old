@@ -1,6 +1,9 @@
 @import 'variables.scss';
 
 .pmd_settings {
+	max-height: 340px;
+	overflow: auto;
+	
 	display: flex;
 	position: relative;
 

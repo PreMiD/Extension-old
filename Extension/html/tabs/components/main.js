@@ -19,7 +19,7 @@ Vue.component("mainBody", {
   template: /*html*/ `
 	<div id="mainWrapper">
     <div id="mainContent">
-      <img draggable="false" src="../../../assets/images/Icon_BlueFill.svg">
+      <img draggable="false" src="../../../assets/images/icon_infill.svg">
       <h1>{{this.strings.heading}}</h1>
       <h2 v-html="this.strings.subHeading"></h2>
       <slot></slot>

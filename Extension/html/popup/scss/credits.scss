@@ -1,7 +1,8 @@
 @import 'variables';
 
 .creditsContainer {
-  margin: 10px 0;
+  max-height: 340px;
+  overflow: auto;
 
   display: flex;
   position: relative;
@@ -10,7 +11,7 @@
   flex-wrap: wrap;
 
 
-  .creditsError {
+  .error {
     background-color: #ff5050;
     border-radius: 5px;
 
@@ -35,6 +36,10 @@
   }
 }
 
+span {
+  margin-left: 14px;
+}
+
 .creditCard {
   margin: 5px;
   position: relative;
@@ -48,6 +53,7 @@
   }
 
   h1 {
+    display: inline-block;
     margin-top: 5px;
     font-size: 1.25rem;
     color: #fff;
@@ -98,19 +104,4 @@
       background: rgb(116, 127, 141);
     }
   }
-}
-
-.scaleIn-enter-active, .scaleIn-leave-active {
-  transition: all .15s ease-out;
-}
-
-.scaleIn-enter, .scaleIn-leave-to {
-	transform: scale(0.9);
-  opacity: 0;
-}
-.page-enter-active, .page-leave-active {
-  transition: opacity 0.25s;
-}
-.page-enter, .page-leave-to {
-  opacity: 0;
 }

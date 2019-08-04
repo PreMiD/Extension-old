@@ -7,7 +7,7 @@ Vue.component("settingsView", {
         presences: "",
         manage: "",
         load: "",
-        cancel: "",
+        done: "",
         presenceStore: "",
         noPresences: ""
       },
@@ -24,7 +24,7 @@ Vue.component("settingsView", {
       presences: await getString("popup.headings.presences"),
       manage: await getString("popup.presences.manage"),
       load: await getString("popup.presences.load"),
-      cancel: await getString("popup.presences.cancel"),
+      done: await getString("popup.presences.done"),
       presenceStore: await getString("popup.buttons.presenceStore"),
       noPresences: await getString("popup.presences.noPresences")
     };
@@ -76,6 +76,15 @@ Vue.component("settingsView", {
       });
     });
 
+    //* On presence change update
+    chrome.storage.onChanged.addListener(key => {
+      if (Object.keys(key)[0] === "presences") {
+        this.presences = key.presences.newValue.sort((a, b) => {
+          return a.service < b.service ? -1 : a.service > b.service ? 1 : 0;
+        });
+      }
+    });
+
     //* Presence dev stuff
     window.addEventListener("keydown", e => {
       this.shiftPressed = event.shiftKey;
@@ -109,6 +118,7 @@ Vue.component("settingsView", {
       chrome.storage.local.set({ presences: this.presences });
     },
     loadLocalPresence() {
+      this.shiftPressed = false;
       chrome.runtime.sendMessage({ loadPresence: true });
     }
   },
@@ -135,11 +145,11 @@ Vue.component("settingsView", {
 		<div class="settings__container">
       <div class="titleWrapper">
         <h2 class="container__title">{{strings.presences}}</h2>
-          <a class="manage" v-if="presences.filter(p => !p.tmp).length > 0 && !shiftPressed" v-on:click="managePresences = !managePresences">
+          <a class="manage" v-if="presences.filter(p => !p.tmp).length > 0 && !shiftPressed || !connected || managePresences" v-on:click="managePresences = !managePresences">
             <p v-if="!managePresences">{{strings.manage}}</p>
-            <p v-else>{{strings.cancel}}</p>
+            <p v-else>{{strings.done}}</p>
           </a>
-          <a class="manage" v-if="shiftPressed" v-on:click="loadLocalPresence">
+          <a class="manage" v-if="!managePresences && shiftPressed && connected" v-on:click="loadLocalPresence">
             <p>{{strings.load}}</p>
           </a>
       </div>

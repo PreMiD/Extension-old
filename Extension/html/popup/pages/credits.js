@@ -28,12 +28,13 @@ Vue.component("creditsView", {
   },
   template: /* html */ `
   <div class="creditsContainer">
-    <div class="creditsError" v-if="errorLoading">
+    <div class="error" v-if="errorLoading">
       <h1 v-text="strings.creditsErrorHeading"></h1>
       <h2 v-text="strings.creditsErrorMessage"></h2>
     </div>
+
     <transition-group v-else name="scaleIn">
-      <creditCard v-for="(value, key) in credits" :user="value" :key="value.name"/>
+      <creditCard v-for="(value, key) in credits" :user="value" :key="value.userId"/>
     </transition-group>
   </div>`
 });

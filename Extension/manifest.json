@@ -7,9 +7,9 @@
   "manifest_version": 2,
   "web_accessible_resources": ["icon.png", "languages/*.json"],
   "icons": {
-    "16": "assets/images/icon16px.png",
-    "48": "assets/images/icon48px.png",
-    "124": "assets/images/icon124px.png"
+    "16": "assets/images/icon_16x16.png",
+    "48": "assets/images/icon_48x48.png",
+    "128": "assets/images/icon_128x128.png"
   },
   "browser_action": {
     "default_popup": "html/popup/index.html"
@@ -18,7 +18,7 @@
     "scripts": [
       "js/util/debug.js",
       "js/util/functions.js",
-      "js/lib/socket.io_2.2.0.js",
+      "js/lib/socket.io.js",
       "js/background/presenceDev.js",
       "js/background/settingsManager.js",
       "js/util/presenceManager.js",

@@ -1,3 +1,27 @@
+@font-face {
+    font-family: 'Discord Font';
+    font-weight: 900;
+    src: url("../../../assets/fonts/discord.otf")
+}
+
+@font-face {
+    font-family: Inter;
+    src: url("../../../assets/fonts/Inter/Inter-Regular.otf")
+}
+
+@font-face {
+    font-family: Inter;
+    font-weight: 500;
+    src: url("../../../assets/fonts/Inter/Inter-Medium.otf")
+}
+
+@font-face {
+    font-family: Inter;
+    font-weight: 700;
+    src: url("../../../assets/fonts/Inter/Inter-Bold.otf")
+}
+
+
 html,
 body {
     user-select: none;
@@ -19,18 +43,6 @@ body {
 
 a {
     text-decoration: none;
-}
-
-.pmd_logo {
-    display: flex;
-    padding: 6px 0;
-    background: $blurple;
-
-    img {
-        margin: 0 auto;
-        height: 50px;
-        text-align: center;
-    }
 }
 
 ::-webkit-scrollbar {
