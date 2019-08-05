@@ -1,6 +1,10 @@
 chrome.runtime.onMessage.addListener(function(data) {
-  if (data.tabPriority) {
-    var event = new CustomEvent("PreMiD_UpdateData");
+  if (typeof data.tabPriority !== "undefined") {
+    if (data.tabPriority) {
+      var event = new CustomEvent("PreMiD_UpdateData");
+    } else {
+      var event = new CustomEvent("PreMiD_TabPriority", { detail: false });
+    }
     window.dispatchEvent(event);
   }
 
@@ -9,10 +13,6 @@ chrome.runtime.onMessage.addListener(function(data) {
       detail: data.mediaKeys
     });
     window.dispatchEvent(event1);
-  }
-
-  if (!data.tabPriority) {
-    sessionStorage.setItem("tabPriority", false);
   }
 
   if (typeof data.iFrameData !== "undefined") {

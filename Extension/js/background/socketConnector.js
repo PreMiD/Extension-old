@@ -38,8 +38,11 @@ socket.on("connect", function() {
 
 socket.on("disconnect", function() {
   PMD_error("Disconnected from Application");
+
   clearInterval(tabPriorityInterval);
+
   chrome.storage.local.set({ connected: false });
+
   //* Remove tmp presence
   chrome.storage.local.get("presences", ({ presences }) => {
     chrome.storage.local.set({

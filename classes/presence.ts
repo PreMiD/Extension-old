@@ -35,6 +35,11 @@ class Presence {
   constructor(presenceOptions: PresenceOptions) {
     this.clientId = presenceOptions.clientId;
     this.mediaKeys = presenceOptions.mediaKeys ? true : false;
+
+    window.addEventListener("PreMiD_TabPriority", data => {
+      //@ts-ignore
+      if (!data.detail) this.clearActivity();
+    });
   }
 
   /**

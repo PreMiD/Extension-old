@@ -145,7 +145,7 @@ Vue.component("settingsView", {
 		<div class="settings__container">
       <div class="titleWrapper">
         <h2 class="container__title">{{strings.presences}}</h2>
-          <a class="manage" v-if="presences.filter(p => !p.tmp).length > 0 && !shiftPressed || !connected || managePresences" v-on:click="managePresences = !managePresences">
+          <a class="manage" v-if="presences.filter(p => !p.tmp).length > 0 && (!shiftPressed || !connected) || managePresences" v-on:click="managePresences = !managePresences">
             <p v-if="!managePresences">{{strings.manage}}</p>
             <p v-else>{{strings.done}}</p>
           </a>

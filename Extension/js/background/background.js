@@ -152,8 +152,9 @@ function tabPriority() {
 
     //* Only use tabPriority on websites
     if (
-      !currTab.url.startsWith("http://") &&
-      !currTab.url.startsWith("https://")
+      typeof currTab.url === "undefined" ||
+      (!currTab.url.startsWith("http://") &&
+        !currTab.url.startsWith("https://"))
     )
       return;
     //* Check if meta tag presence is found and retrieve name and inject presence
@@ -230,11 +231,22 @@ function tabPriority() {
             for (var i = 0; presences.length > i; i++) {
               //* active tab url contains presence url
               if (
-                presences.filter(f =>
-                  typeof f.url === "string"
-                    ? getHost(currTab.url) === f.url
-                    : f.url.includes(getHost(currTab.url))
-                ).length > 0
+                presences.filter(f => {
+                  if (typeof f.regExp === "undefined") {
+                    return typeof f.url === "string"
+                      ? getHost(currTab.url) === getHost(f.url)
+                      : f.url.filter(fp => getHost(currTab.url) === getHost(fp))
+                          .length > 0;
+                  } else
+                    return typeof f.regExp === "string"
+                      ? currTab.url.match(new RegExp(f.regExp, f.patterns)) !==
+                          null
+                      : f.regExp.filter(
+                          fp =>
+                            currTab.url.match(new RegExp(fp, f.patterns)) !==
+                            null
+                        ).length > 0;
+                }).length > 0
               ) {
                 //* Update priorityTab when 5 seconds passed else increase count
                 if (tabPriorityLock >= 4) {
@@ -286,11 +298,18 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
       presences = presences.filter(f => f.enabled);
 
       //* Only keep presence that we need for url
-      presences = presences.filter(f =>
-        typeof f.url === "string"
-          ? getHost(tab.url) === f.url
-          : f.url.includes(getHost(tab.url))
-      );
+      presences = presences.filter(f => {
+        if (typeof f.regExp === "undefined") {
+          return typeof f.url === "string"
+            ? getHost(tab.url) === getHost(f.url)
+            : f.url.filter(fp => getHost(tab.url) === getHost(fp)).length > 0;
+        } else
+          return typeof f.regExp === "string"
+            ? tab.url.match(new RegExp(f.regExp, f.patterns)) !== null
+            : f.regExp.filter(
+                fp => tab.url.match(new RegExp(fp, f.patterns)) !== null
+              ).length > 0;
+      });
 
       if (tabId == priorityTab && presences.length == 0) {
         pagePresenceUrl = null;

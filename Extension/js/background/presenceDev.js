@@ -88,15 +88,18 @@ function validateMetaData(json, files) {
       service: json.service,
       color: json.color,
       url: json.url,
+      regExp: json.regExp,
+      patterns: json.patterns,
       enabled: true,
       presenceJs: files.find(f => f.file === "presence.js").contents,
       tmp: true
     };
 
-    if (json.hasOwnProperty("iframe")) {
-      presenceNew.iframe = true;
-      presenceNew.iframeJs = files.find(f => f.file === "iframe.js").contents;
-    }
+    if (json.hasOwnProperty("patterns"))
+      if (json.hasOwnProperty("iframe")) {
+        presenceNew.iframe = true;
+        presenceNew.iframeJs = files.find(f => f.file === "iframe.js").contents;
+      }
 
     if (currLocalPresence > -1) {
       presences[currLocalPresence] = presenceNew;
