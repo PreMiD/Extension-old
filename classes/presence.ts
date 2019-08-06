@@ -1,3 +1,6 @@
+/**
+ * @link https://docs.premid.app/presence-development/coding/presence-class#getpagevariable-string
+ */
 interface presenceData {
   state?: string;
   details?: string;
@@ -10,11 +13,14 @@ interface presenceData {
 
 interface PresenceOptions {
   /**
-   * Client Id of presence
+   * ClientId of Discord application
+   * @link https://docs.premid.app/presence-development/coding/presence-class#clientid
    */
   clientId: string;
   /**
    * Wether or not this presence supports media keys
+   * @default {mediaKeys: false}
+   * @link https://docs.premid.app/presence-development/coding/presence-class#mediakeys
    */
   mediaKeys?: boolean;
 }
@@ -46,6 +52,7 @@ class Presence {
    *
    * @param presenceData presenceData
    * @param playback Is presence playing
+   * @link https://docs.premid.app/presence-development/coding/presence-class#setactivity-presencedata-boolean
    */
   setActivity(presenceData: presenceData = {}, playback: boolean = true) {
     this.internalPresence = presenceData;
@@ -63,6 +70,7 @@ class Presence {
 
   /**
    * Clears the activity shown in discord as well as the Tray and keybinds
+   * @link https://docs.premid.app/presence-development/coding/presence-class#clearactivity
    */
   clearActivity() {
     this.internalPresence = {};
@@ -79,6 +87,7 @@ class Presence {
   /**
    * Sets the tray title on the Menubar in Mac OS (Mac OS only)
    * @param trayTitle Tray Title
+   * @link https://docs.premid.app/presence-development/coding/presence-class#settraytitle-string
    */
   setTrayTitle(trayTitle: string = "") {
     this.trayTitle = trayTitle;
@@ -87,6 +96,7 @@ class Presence {
   /**
    * Get translations from the extension
    * @param strings String object with keys being the key for string, keyValue is the string value
+   * @link https://docs.premid.app/presence-development/coding/presence-class#getstrings-object
    */
   getStrings(strings: Object) {
     return new Promise<any>((resolve, reject) => {
@@ -117,7 +127,8 @@ class Presence {
   /**
    * Get variables from the actual site.
    * @param {Array} variables Array of variable names to get
-   * @example var pageVar = getPageVariable('pageVar') -> pageVar -> "Variable content"
+   * @example var pageVar = getPageVariable('pageVar') -> "Variable content"
+   * @link https://docs.premid.app/presence-development/coding/presence-class#getpagevariable-string
    */
   getPageVariable(variable: string) {
     return new Promise<any>((resolve, reject) => {
@@ -159,6 +170,7 @@ class Presence {
    * Subscribe to events emitted by the extension
    * @param eventName EventName to subscribe to
    * @param callback Callback function for event
+   * @link https://docs.premid.app/presence-development/coding/presence-class#events
    */
   on(eventName: "UpdateData" | "MediaKeys" | "iFrameData", callback: Function) {
     this._events[eventName] = callback;

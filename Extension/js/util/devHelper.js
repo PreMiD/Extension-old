@@ -2,7 +2,7 @@
 class iFrame {
     /**
      * Send data from iFrames back to the presence script
-     * @param {*} data Data to send
+     * @param data Data to send
      */
     send(data) {
         chrome.runtime.sendMessage({ iFrameData: data });
@@ -34,6 +34,7 @@ class Presence {
      *
      * @param presenceData presenceData
      * @param playback Is presence playing
+     * @link https://docs.premid.app/presence-development/coding/presence-class#setactivity-presencedata-boolean
      */
     setActivity(presenceData = {}, playback = true) {
         this.internalPresence = presenceData;
@@ -49,6 +50,7 @@ class Presence {
     }
     /**
      * Clears the activity shown in discord as well as the Tray and keybinds
+     * @link https://docs.premid.app/presence-development/coding/presence-class#clearactivity
      */
     clearActivity() {
         this.internalPresence = {};
@@ -63,6 +65,7 @@ class Presence {
     /**
      * Sets the tray title on the Menubar in Mac OS (Mac OS only)
      * @param trayTitle Tray Title
+     * @link https://docs.premid.app/presence-development/coding/presence-class#settraytitle-string
      */
     setTrayTitle(trayTitle = "") {
         this.trayTitle = trayTitle;
@@ -70,6 +73,7 @@ class Presence {
     /**
      * Get translations from the extension
      * @param strings String object with keys being the key for string, keyValue is the string value
+     * @link https://docs.premid.app/presence-development/coding/presence-class#getstrings-object
      */
     getStrings(strings) {
         return new Promise((resolve, reject) => {
@@ -94,7 +98,8 @@ class Presence {
     /**
      * Get variables from the actual site.
      * @param {Array} variables Array of variable names to get
-     * @example var pageVar = getPageVariable('pageVar') -> pageVar -> "Variable content"
+     * @example var pageVar = getPageVariable('pageVar') -> "Variable content"
+     * @link https://docs.premid.app/presence-development/coding/presence-class#getpagevariable-string
      */
     getPageVariable(variable) {
         return new Promise((resolve, reject) => {
@@ -127,6 +132,7 @@ class Presence {
      * Subscribe to events emitted by the extension
      * @param eventName EventName to subscribe to
      * @param callback Callback function for event
+     * @link https://docs.premid.app/presence-development/coding/presence-class#events
      */
     on(eventName, callback) {
         this._events[eventName] = callback;
