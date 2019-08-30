@@ -1,0 +1,54 @@
+{
+  "manifest_version": 2,
+
+  "name": "PreMiD",
+  "version": "2.0",
+  "version_name": "2.1",
+
+  "icons": {
+    "16": "assets/images/icon_16x16.png",
+    "48": "assets/images/icon_48x48.png",
+    "128": "assets/images/icon_128x128.png"
+  },
+
+  "web_accessible_resources": ["html/test.html", "js/devHelper.js"],
+
+  "browser_action": {
+    "default_popup": "html/popup/index.html"
+  },
+
+  "background": {
+    "scripts": ["js/vendor.js", "js/background.js"]
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["js/vendor.js", "js/contentScript.js", "js/devHelper.js"],
+      "run_at": "document_start"
+    },
+    {
+      "matches": ["*://*.premid.app/*"],
+      "js": ["js/presenceManager.js"],
+      "run_at": "document_start"
+    },
+    {
+      "matches": ["<all_urls>"],
+      "all_frames": true,
+      "js": ["js/iFrameHandler.js", "js/devHelper.js"]
+    }
+  ],
+
+  "key": "ojdmokcochjinppbaghfackgaobicigl",
+
+  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
+
+  "permissions": ["<all_urls>", "identity", "storage", "management", "tabs"],
+
+  "applications": {
+    "gecko": {
+      "id": "beta@premid.app",
+      "strict_min_version": "52.0"
+    }
+  }
+}

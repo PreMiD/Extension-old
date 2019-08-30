@@ -1,0 +1,76 @@
+@import "variables";
+
+html {
+  overflow-x: hidden;
+}
+
+#updates {
+  margin-left: 50%;
+  margin-bottom: 15px;
+  transform: translateX(-50%);
+  max-width: 90%;
+  text-align: left;
+}
+
+#changeItem {
+  margin: 5px;
+
+  p {
+    margin: 0;
+    padding: 0;
+    display: inline-block;
+    color: white;
+    font-size: 17px;
+    line-height: 30px;
+  }
+
+  #badge {
+    display: inline-block;
+    height: 30px;
+    min-width: 75px;
+    padding: 0 5px;
+    border-radius: 50px;
+    text-align: center;
+
+    p {
+      font-weight: 600;
+    }
+
+    &.new {
+      background-color: #12BD60;
+    }
+
+    &.fix {
+      background-color: #ff5050;
+    }
+
+    &.change {
+      background-color: $blurple;
+    }
+  }
+
+  #text {
+    margin-left: 10px;
+
+    a {
+      position: relative;
+      color: $blurple;
+
+      &:after {
+        transition: width 0.3s ease 0s, left 0.3s ease 0s;
+        content: '';
+        position: absolute;
+        height: 2px;
+        width: 0%;
+        left: 50%;
+        bottom: -1px;
+        background-color: $blurple;
+      }
+
+      &:hover:after {
+        width: 100%;
+        left: 0;
+      }
+    }
+  }
+}

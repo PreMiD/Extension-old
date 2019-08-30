@@ -1,10 +1,10 @@
 [
   {
-    "file": "./Extension/html/popup/scss/app.scss",
-    "outFile": "./Extension/html/popup/css/app.css"
+    "file": "./public/html/popup/scss/app.scss",
+    "outFile": "./public/html/popup/css/app.css"
   },
   {
-    "file": "./Extension/html/tabs/scss/app.scss",
-    "outFile": "./Extension/html/tabs/css/app.css"
+    "file": "./public/html/tabs/scss/app.scss",
+    "outFile": "./public/html/tabs/css/app.css"
   }
 ]

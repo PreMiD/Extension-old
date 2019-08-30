@@ -1,8 +1,11 @@
 {
   "compilerOptions": {
-    "target": "es2018",
-    "module": "commonjs",
-    "strict": true,
-    "esModuleInterop": true
-  }
+    "target": "ES2015",
+    "noImplicitAny": false,
+    "sourceMap": false,
+    "outDir": "dist/js",
+    "noEmitOnError": true,
+    "typeRoots": ["node_modules/@types"]
+  },
+  "include": ["src/*"]
 }

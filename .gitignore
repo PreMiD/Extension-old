@@ -1,5 +1,6 @@
-node_modules
-.vscode
-dist
-pkg.js
-Extension/presenceDev
+node_modules/
+dist/
+tmp/
+dist.pem
+dist.crx
+*.js
