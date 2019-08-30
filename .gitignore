@@ -4,3 +4,4 @@ tmp/
 dist.pem
 dist.crx
 *.js
+!webpack/*.js
