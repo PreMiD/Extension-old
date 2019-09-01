@@ -53,6 +53,20 @@ var extensionEnabled = setTimeout(() => {
     });
 }, 100);
 
+chrome.storage.local.get("defaultAdded", ({ defaultAdded }) => {
+  if (!defaultAdded) {
+    //* Add some default presences
+    addPresence([
+      "YouTube",
+      "YouTube Music",
+      "Netflix",
+      "Twitch",
+      "SoundCloud"
+    ]);
+    chrome.storage.local.set({ defaultAdded: true });
+  }
+});
+
 chrome.runtime.onInstalled.addListener(async details => {
   clearTimeout(extensionEnabled);
   updatePresences();
@@ -67,15 +81,6 @@ chrome.runtime.onInstalled.addListener(async details => {
 
   switch (details.reason) {
     case "install": {
-      //* Add some default presences
-      addPresence([
-        "YouTube",
-        "YouTube Music",
-        "Netflix",
-        "Twitch",
-        "SoundCloud"
-      ]);
-
       //* Open installed tab
       chrome.tabs.create({
         active: true,
@@ -89,20 +94,6 @@ chrome.runtime.onInstalled.addListener(async details => {
       });
     }
     case "update": {
-      //* v2.0 exclusive
-      if (
-        ["2.0", "2.1-BETA"].includes(chrome.runtime.getManifest().version_name)
-      ) {
-        //* Add some default presences
-        addPresence([
-          "YouTube",
-          "YouTube Music",
-          "Netflix",
-          "Twitch",
-          "SoundCloud"
-        ]);
-      }
-
       if (
         (await getStorage("local", "lastVersion")).lastVersion !==
         chrome.runtime.getManifest().version_name
@@ -182,7 +173,7 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
     //* PresenceData is defined
     if (typeof msg.presence.presenceData !== "undefined") {
       if (oldObject == null) {
-        oldObject = msg.presence.presenceData;
+        oldObject = cpObj(msg.presence.presenceData);
         oldActivity = msg.presence;
         setActivity(msg.presence);
         return;
@@ -200,20 +191,17 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
 
       if (
         (isEquivalent(check, check1) &&
-          oldObject.startTimestamp ==
-            msg.presence.presenceData.startTimestamp) ||
-        (oldObject.startTimestamp + 1 ==
-          msg.presence.presenceData.startTimestamp &&
-          oldObject.endTimestamp == msg.presence.presenceData.endTimestamp) ||
-        oldObject.endTimestamp - 1 == msg.presence.presenceData.endTimestamp ||
-        oldObject.endTimestamp + 1 == msg.presence.presenceData.endTimestamp
+          oldObject.endTimestamp + 1 ===
+            msg.presence.presenceData.endTimestamp) ||
+        oldObject.endTimestamp - 1 === msg.presence.presenceData.endTimestamp ||
+        oldObject.endTimestamp === msg.presence.presenceData.endTimestamp
       ) {
       } else {
         oldActivity = msg.presence;
         setActivity(msg.presence);
       }
 
-      oldObject = Object.assign({}, msg.presence.presenceData);
+      oldObject = cpObj(msg.presence.presenceData);
       return;
     }
   }

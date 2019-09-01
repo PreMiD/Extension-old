@@ -52,6 +52,9 @@ Vue.component("settingsView", {
             resolve(result.settings);
           });
         });
+
+        //* Disabled as browsers already support it > won't work
+        delete result.settings.mediaKeys;
       });
     });
 
@@ -69,7 +72,9 @@ Vue.component("settingsView", {
         //* Sort alphabetically
         resolve(
           result.presences.sort((a, b) => {
-            return a.metadata.service < b.metadata.service
+            return a.tmp == b.tmp
+              ? a.tmp
+              : a.metadata.service < b.metadata.service
               ? -1
               : a.metadata.service > b.metadata.service
               ? 1
@@ -83,15 +88,16 @@ Vue.component("settingsView", {
     chrome.storage.onChanged.addListener(key => {
       if (Object.keys(key)[0] === "presences") {
         this.presences = key.presences.newValue.sort((a, b) => {
-          return a.metadata.service < b.metadata.service
+          return a.tmp == b.tmp
+            ? a.tmp
+            : a.metadata.service < b.metadata.service
             ? -1
             : a.metadata.service > b.metadata.service
             ? 1
             : 0;
         });
 
-        if (this.presences.filter(p => !p.tmp).length == 0)
-          this.managePresences = false;
+        if (this.presences.length == 0) this.managePresences = false;
       }
     });
 
@@ -123,7 +129,7 @@ Vue.component("settingsView", {
     },
     removePresence(key) {
       this.presences = this.presences.filter(
-        p => p.metadata.service != this.presences[key].metadata.service || p.tmp
+        p => p.metadata.service != this.presences[key].metadata.service
       );
 
       chrome.storage.local.set({ presences: this.presences });
@@ -156,7 +162,7 @@ Vue.component("settingsView", {
     <div class="settings__container">
       <div class="titleWrapper">
         <h2 class="container__title">{{strings.presences}}</h2>
-        <a class="manage" v-if="presences.filter(p => !p.tmp).length > 0 && (!shiftPressed || !connected) || managePresences" v-on:click="managePresences = !managePresences">
+        <a class="manage" v-if="presences.length > 0 && (!shiftPressed || !connected) || managePresences" v-on:click="managePresences = !managePresences">
           <p v-if="!managePresences">{{strings.manage}}</p>
           <p v-else>{{strings.done}}</p>
         </a>
@@ -171,7 +177,7 @@ Vue.component("settingsView", {
         <div class="setting__switcher">
           <div class="pmd_checkbox">
             <transition name="scaleIn" mode="out-in">
-              <a v-if="managePresences && !presences[key].tmp" class="removePresence" v-on:click="removePresence(key)">
+              <a v-if="managePresences" class="removePresence" v-on:click="removePresence(key)">
                 <i class="far fa-trash-alt"></i>
               </a>
               <label v-else>

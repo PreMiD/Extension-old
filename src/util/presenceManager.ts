@@ -30,10 +30,9 @@ export async function addPresence(name: string | Array<string>) {
   var { presences } = await getStorage("local", "presences");
   if (!presences) presences = [];
   //* Filter out tmp presences
-  presences = presences.filter(p => !p.tmp);
 
   if (typeof name === "string") {
-    if (presences.find(p => p.metadata.service === name)) {
+    if (presences.filter(p => !p.tmp).find(p => p.metadata.service === name)) {
       error(`Presence ${name} already added.`);
       return;
     }
@@ -109,7 +108,7 @@ if (document.location.pathname !== "/_generated_background_page.html") {
     chrome.storage.local.set({
       presences: presences.filter(
         // @ts-ignore
-        p => p.metadata.service !== data.detail && !p.tmp
+        p => p.metadata.service !== data.detail
       )
     });
   });

@@ -33,8 +33,17 @@ Vue.component("change", {
 
     this.text = text;
   },
+  mounted: function() {
+    anime({
+      targets: "#changeItem",
+      opacity: [{ value: 0, duration: 0 }, { value: 1 }],
+      translateX: [{ value: -50, duration: 0 }, { value: 0 }],
+      duration: 2500,
+      delay: anime.stagger(50, { start: 600 })
+    });
+  },
   props: ["change"],
-  template: /*html*/ `
+  template: `
 	<div id="changeItem">
     <div id="badge" v-bind:class="this.change.type">
       <p v-text="this.type"></p>

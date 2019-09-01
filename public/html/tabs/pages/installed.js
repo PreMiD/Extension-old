@@ -37,27 +37,23 @@ Vue.component("installedView", {
       if (typeof msg.socket !== "undefined") this.connected = msg.socket;
     });
   },
-  template: /* html */ `
+  template: `
   <mainBody heading="tab.installed.heading" subHeading="tab.installed.subHeading">
     <div class="inline">
       <a draggable="false" class="button donate" target="_blank" href="https://patreon.com/Timeraa"><i class="fas fa-donate"></i> {{this.strings.donate}}</a>
       <a draggable="false" class="button discord" target="_blank" href="https://discord.premid.app"><i class="fab fa-discord"></i> Discord</a>
     </div>
 
-    <transition name="fade">
-      <div v-if="this.connected">
+      <div v-bind:class="{hidden: !this.connected}" ref="table">
         <a draggable="false" class="button start" target="_blank" href="https://beta.premid.app" v-html="this.strings.start"></a>
       </div>
-    </transition>
-    <transition name="fade">
-      <div v-bind:class="{hidden: this.connected == null}" v-if="!this.connected">
+      <div v-bind:class="{hidden: this.connected}" v-if="!this.connected">
         <div id="error">
           <p v-html="this.strings.error"></p>
           <a draggable="false" target="_blank" href="https://wiki.premid.app/troubleshooting/troubleshooting"><i class="fas fa-question"></i> {{this.strings.troubleshooting}}</a>
           <a draggable="false" target="_blank" href="https://premid.app/downloads"><i class="fas fa-download"></i> {{this.strings.installApplication}}</a>
         </div>
       </div>
-    </transition>
   </mainBody>
   `
 });

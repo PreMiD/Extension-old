@@ -1,22 +1,22 @@
 .navbar {
 	height: 100px;
-	
+
 	.logo {
 		display: flex;
 		background: $blurple;
 		height: 50px;
-		
+
     img {
 			margin: 5px auto;
 			height: 40px;
 			text-align: center;
     }
 	}
-	
+
 	.links {
 		display: flex;
 		position: relative;
-	
+
 		justify-content: center;
 		align-items: center;
 
@@ -24,11 +24,11 @@
 
 		a {
 			color: #fff;
-			font-weight: 700;
-			font-size: 16px;
+			font-weight: 500;
+			font-size: 15px;
 			text-transform: uppercase;
 			text-align: center;
-			
+
 			width: 100%;
 			height: 100%;
 

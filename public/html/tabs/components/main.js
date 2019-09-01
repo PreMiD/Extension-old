@@ -16,13 +16,17 @@ Vue.component("mainBody", {
       '<p class="pmd">PreMiD</p>'
     );
   },
-  template: /*html*/ `
+  template: `
 	<div id="mainWrapper">
     <div id="mainContent">
-      <img draggable="false" src="../../../assets/images/icon_infill.svg">
-      <h1>{{this.strings.heading}}</h1>
-      <h2 v-html="this.strings.subHeading"></h2>
-      <slot></slot>
+      <div id="main">
+        <img draggable="false" src="../../../assets/images/icon.svg">
+        <h1>{{this.strings.heading}}</h1>
+        <h2 v-html="this.strings.subHeading"></h2>
+      </div>
+      <div id="buttons">
+        <slot></slot>
+      </div>
     </div>
   </div>`
 });

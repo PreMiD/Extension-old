@@ -10,11 +10,11 @@ Vue.component("navigation", {
     this.settings = await pmd.getString("popup.navigation.settings");
     this.credits = await pmd.getString("popup.navigation.credits");
   },
-  template: /*html*/ `
+  template: `
 	<div>
 		<div class="navbar">
 			<div class="logo">
-				<img src="../../../../assets/images/icon_infill.svg" draggable="false">
+				<img src="../../../../assets/images/icon.svg" draggable="false">
 			</div>
 
 			<div class="links">

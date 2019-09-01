@@ -16,7 +16,7 @@ Vue.component("heading", {
     this.changelog = await pmd.getString("tab.button.changelog");
     this.version = await chrome.runtime.getManifest().version_name;
   },
-  template: /*html*/ `
+  template: `
 	<div id="header">
     <div id="left">
       <h1>PreMiD</h1>
