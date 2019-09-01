@@ -41,7 +41,7 @@ Vue.component("installedView", {
   <mainBody heading="tab.installed.heading" subHeading="tab.installed.subHeading">
     <div class="inline">
       <a draggable="false" class="button donate" target="_blank" href="https://patreon.com/Timeraa"><i class="fas fa-donate"></i> {{this.strings.donate}}</a>
-      <a draggable="false" class="button discord" target="_blank" href="https://discord.premid.app"><i class="fab fa-discord"></i> Discord</a>
+      <a draggable="false" class="button discord" target="_blank" href="https://discord.premid.app"><i class="fab fa-discord"></i>Discord</a>
     </div>
 
       <div v-bind:class="{hidden: !this.connected}" ref="table">

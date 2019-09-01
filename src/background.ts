@@ -6,8 +6,7 @@ import {
   tabPriority,
   clearActivity,
   priorityTab,
-  oldPresence,
-  tabHasPresence
+  oldPresence
 } from "./util/tabPriority";
 import fetchJSON from "./util/functions/fetchJSON";
 import checkAccess from "./util/functions/checkAccess";

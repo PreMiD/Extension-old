@@ -1,9 +1,11 @@
 @import "variables.scss";
 
 @font-face {
-  font-family: 'Discord Font';
-  font-weight: 900;
-  src: url("../../../assets/fonts/discord.otf")
+    font-family: 'Discord Font';
+    font-weight: 900;
+    src: url('../../../assets/fonts/DiscordFontBlack.woff2') format('woff2'),
+    url('../../../assets/fonts/DiscordFontBlack.woff') format('woff');
+    font-style: normal;
 }
 
 @font-face {

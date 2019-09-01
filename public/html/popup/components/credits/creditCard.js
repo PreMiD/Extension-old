@@ -1,10 +1,40 @@
 Vue.component("creditCard", {
+  name: "creditcard",
   props: ["user"],
+  data() {
+    return {
+      hovered: false,
+      primary: tinycolor(this.$props.user.roleColor)
+        .setAlpha(1)
+        .darken(5)
+        .toRgbString(),
+      secondary: tinycolor(this.$props.user.roleColor)
+        .analogous()[1]
+        .setAlpha(0.5)
+        .saturate(20)
+        .toRgbString()
+    };
+  },
+  computed: {
+    cardShadowColor() {
+      if (this.$data.hovered) {
+        return tinycolor(this.cardSecondaryColor)
+          .setAlpha(0.5)
+          .toRgbString();
+      } else {
+        return "transparent";
+      }
+    }
+  },
   template: `
-	<div class="creditCard" :style="'background: linear-gradient(45deg,'+this.user.roleColor+' 0%, #23272A 100%)'">
-    <h1 v-text="this.user.name.length > 16 ? this.user.name.slice(0, 15) + '...' : this.user.name"/>
-    <h2 v-html="this.user.role.replace(' ', \`<p style='display:inline;line-height:0;'>&nbsp;</p>\`)"/>
-    <span :class="this.user.status"/>
-    <img :src="this.user.avatar + '?size=128'" draggable="false">
+  <div @mouseover="hovered = true" @mouseleave="hovered = false" class="credit-card" :style="'background: linear-gradient(165deg, '+this.primary+' 0%, '+this.secondary+' 100%); box-shadow: 0 2px 42px 0 '+ this.cardShadowColor">
+    <div class="credit-card__user">
+      <h1 :title="user.name" v-text="user.name"/>
+      <h2>{{ user.role }}</h2>
+    </div>
+    <div class="credit-card__avatar">
+      <span :class="user.status"/>
+      <img :src="user.avatar + '?size=128'" draggable="false">
+    </div>
   </div>`
 });
