@@ -29,7 +29,10 @@ if (chrome.runtime.getManifest().version_name.endsWith("-DEV")) {
 
 //* Remove tmp Presence
 getStorage("local", "presences").then(({ presences }) => {
-  if (!presences) return;
+  if (!presences) {
+    chrome.storage.local.set({ presences: [] });
+    return;
+  }
   presences = presences.filter(p => !p.tmp);
   chrome.storage.local.set({ presences: presences });
 });
