@@ -180,20 +180,21 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
 
       //* Check differences and if there aren't any return
 
-      var check = Object.assign({}, oldObject);
+      var check = cpObj(oldObject);
       delete check.startTimestamp;
       delete check.endTimestamp;
 
-      var check1 = Object.assign({}, msg.presence.presenceData);
+      var check1 = cpObj(msg.presence.presenceData);
       delete check1.startTimestamp;
       delete check1.endTimestamp;
 
       if (
-        (isEquivalent(check, check1) &&
-          oldObject.endTimestamp + 1 ===
-            msg.presence.presenceData.endTimestamp) ||
-        oldObject.endTimestamp - 1 === msg.presence.presenceData.endTimestamp ||
-        oldObject.endTimestamp === msg.presence.presenceData.endTimestamp
+        isEquivalent(check, check1) &&
+        (oldObject.endTimestamp + 1 ===
+          msg.presence.presenceData.endTimestamp ||
+          oldObject.endTimestamp - 1 ===
+            msg.presence.presenceData.endTimestamp ||
+          oldObject.endTimestamp === msg.presence.presenceData.endTimestamp)
       ) {
       } else {
         oldActivity = msg.presence;
@@ -224,7 +225,7 @@ chrome.storage.onChanged.addListener(async changes => {
       p => p.metadata.service === oldPresence.metadata.service
     );
 
-    if (prs.enabled) {
+    if (prs && prs.enabled) {
       oldObject = null;
       chrome.tabs.sendMessage(priorityTab, {
         tabPriority: true

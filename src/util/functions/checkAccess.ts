@@ -2,7 +2,7 @@ import fetchJSON from "./fetchJSON";
 
 export default function() {
   return new Promise((resolve, reject) => {
-    if (!chrome.runtime.getManifest().version_name.endsWith("-BETA")) {
+    if (!chrome.runtime.getManifest().version_name.includes("-BETA")) {
       resolve();
       return;
     }
