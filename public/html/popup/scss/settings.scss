@@ -1,8 +1,8 @@
 @import "variables.scss";
 
 .pmd_settings {
-  max-height: 340px;
-  overflow: auto;
+  max-height: 350px;
+  overflow: overlay;
   overflow-x: hidden;
 
   display: flex;
@@ -12,43 +12,17 @@
   align-items: center;
   flex-wrap: wrap;
 
+  color: white;
+
   .settings__container {
     background: $darkButNotQuiteBlack;
-    padding: 10px;
+    padding: 16px;
     width: 100%;
     border-radius: 5px;
-    margin: 0.75em 0 0.75em 0.75em;
+    margin: 0.75em 1.25em;
 
     &:last-child {
       margin-bottom: 0.9em;
-    }
-
-    * {
-      margin: 0;
-      padding: 0;
-
-      color: white;
-    }
-
-    .presenceStore {
-      transition: 0.15s all ease-out;
-
-      position: relative;
-      display: inline-block;
-      margin-top: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      text-align: center;
-      background-color: #7289da;
-      border-radius: 10px;
-      padding: 3px 5px;
-      font-size: 1rem;
-      font-weight: 500;
-      width: 80%;
-
-      &:hover {
-        background-color: lighten($blurple, 5%);
-      }
     }
 
     .container__setting {
@@ -59,19 +33,31 @@
       margin: 2px 0;
 
       img {
-        border-radius: 5px;
+        border-radius: 4px;
       }
 
       .setting__title {
         flex-grow: 1;
-        margin: 0 5px;
         font-weight: 500;
-        height: 30px;
-        line-height: 30px;
-        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        font-size: 1rem;
 
         p {
           display: inline-block;
+        }
+
+        &--presence {
+          p {
+            margin-left: 8px;
+            max-width: 200px;
+
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            -webkit-box-orient: vertical;
+          }
+
         }
 
         .tmp {
@@ -90,6 +76,7 @@
         width: 19px;
         height: 30px;
         line-height: 30px;
+        text-align: center;
         font-size: 1rem;
         cursor: pointer;
 
@@ -99,18 +86,11 @@
       }
     }
 
-    .titleWrapper {
+    .title-wrapper {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-
+      margin-bottom: 0.7rem;
       width: 100%;
-      height: 25px;
-      margin-bottom: 0.3em;
-
-      h2.container__title {
-        margin: 0 !important;
-      }
 
       * {
         display: inline-block;
@@ -120,26 +100,43 @@
         font-size: 0.74rem;
         vertical-align: top;
       }
+      .container__title {
+        margin-right: auto;
+        margin-bottom: 0rem;
+      }
     }
 
     h2.container__title {
       color: $blurple;
-
+      
       font-size: 1.25rem;
       font-weight: 700;
-      margin-bottom: 0.3em;
+      margin: 0;
+      margin-bottom: 0.7rem;
     }
 
-    a.manage {
-      font-size: 0.75rem;
+    .manage-btn {
       cursor: pointer;
 
+      span,
+      a,
       p {
+        font-weight: bold;
         color: $greyple;
+        font-size: 1em;
+        transition: all .1s ease;
+        &:hover {
+          color: lighten($blurple, 15%);
+        }
       }
+
+      i {
+        font-size: 1.1rem;
+      }
+
     }
 
-    > p {
+    >p {
       font-size: 14px;
       font-weight: 500;
       margin: 4px 0;
@@ -175,30 +172,32 @@
     pointer-events: none;
   }
 
-  input[type="checkbox"]:checked + .checkbox-container {
+  input[type="checkbox"]:checked+.checkbox-container {
     background-color: $blurple;
+
     &:after {
-      left: 20px;
+      left: 19px;
     }
+
     &:active {
       &:after {
-        width: 26px;
-        left: 13px;
+        width: 21px;
+        left: 14px;
       }
     }
   }
 
   .checkbox-container:active {
     &:after {
-      width: 26px;
+      width: 21px;
     }
   }
 
   .checkbox-container {
     display: inline-block;
     position: relative;
-    width: 42px;
-    height: 25px;
+    width: 38px;
+    height: 22px;
     background-color: #72767d;
     border-radius: 15px;
 
@@ -206,18 +205,64 @@
 
     cursor: pointer;
     margin: 4px 0;
+
     &:after {
       content: "";
       background-color: #fff;
       position: absolute;
       display: inline-block;
-      width: 19px;
-      height: 19px;
+      width: 16px;
+      height: 16px;
       left: 3px;
       top: 3px;
       border-radius: 14px;
-
       transition: all 0.15s ease;
     }
+  }
+}
+
+.message-container {
+
+    padding: 16px;
+    width: 100%;
+    border-radius: 5px;
+    margin: 0.75em 1.25em;
+    font-size: 1em;
+
+    &__title {
+      margin: 4px 0;
+    }
+
+    &__details {
+      margin: 4px 0;
+      font-weight: 500;
+    }
+
+    &--error {
+      background: orange;
+    }
+}
+
+.presence-categories {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 0.7rem;
+
+  &__label {
+    color: lighten($darkButNotQuiteBlack, 40%);
+    border-radius: 50em;
+    margin: 3px;
+    font-size: 1em;
+    font-weight: 500;
+    padding: 4px 10px;
+    background: lighten($darkButNotQuiteBlack, 8%);
+
+    &--active {
+      color: white;
+      background: $blurple;
+    }
+
   }
 }

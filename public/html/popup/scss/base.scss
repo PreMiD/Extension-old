@@ -41,7 +41,7 @@ body {
 
   margin: 0;
   padding: 0;
-  width: 300px;
+  width: 310px;
   height: 450px;
   background-color: $notQuiteBlack;
 }
@@ -51,7 +51,7 @@ a {
 }
 
 ::-webkit-scrollbar {
-  width: 12px;
+  width: 8px;
   height: 0.6rem;
 }
 
@@ -65,10 +65,10 @@ a {
 
   border: 3px solid $notQuiteBlack;
   border-radius: 20px;
-  background: $blurple;
+  background: lighten($notQuiteBlack, 20%);
 
   &:hover {
-    background: lighten($color: $blurple, $amount: 5);
+    background: lighten($notQuiteBlack, 25%);
   }
 }
 

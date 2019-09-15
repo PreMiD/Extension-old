@@ -1,6 +1,6 @@
 //* Settings View
 Vue.component("settingsView", {
-  data: function() {
+  data: function () {
     return {
       strings: {
         general: "",
@@ -14,12 +14,58 @@ Vue.component("settingsView", {
       shiftPressed: false,
       settings: {},
       presences: [],
+      currentCategory: 'all',
+      categoriesShown: false,
+      categories: {
+        all: {
+          icon: "globe",
+          id: "all",
+          title: "All"
+        },
+        anime: {
+          icon: "star",
+          id: "anime",
+          title: "Anime"
+        },
+        games: {
+          icon: "leaf",
+          id: "games",
+          title: "Games"
+        },
+        music: {
+          icon: "music",
+          id: "music",
+          title: "Music"
+        },
+        socials: {
+          icon: "comments",
+          id: "socials",
+          title: "Socials"
+        },
+        videos: {
+          icon: "play",
+          id: "videos",
+          title: "Videos & Streams"
+        },
+        other: {
+          icon: "box",
+          id: "other",
+          title: "Other"
+        }
+      },
       connected: false,
       managePresences: false
     };
   },
-  created: async function() {
-    chrome.runtime.sendMessage({ popup: true });
+  created: async function () {
+
+    if (localStorage.currentCategory) {
+      this.currentCategory = localStorage.currentCategory;
+    }
+
+    chrome.runtime.sendMessage({
+      popup: true
+    });
     chrome.runtime.onMessage.addListener(msg => {
       if (typeof msg.socket !== "undefined") this.connected = msg.socket;
     });
@@ -35,8 +81,8 @@ Vue.component("settingsView", {
     };
 
     //* Get settings, filter language option for now, save in object
-    this.settings = await new Promise(function(resolve, reject) {
-      chrome.storage.sync.get("settings", function(result) {
+    this.settings = await new Promise(function (resolve, reject) {
+      chrome.storage.sync.get("settings", function (result) {
         Promise.all(
           Object.keys(result.settings).map(async (key, index) => {
             if (typeof result.settings[key].show === "undefined") return;
@@ -46,7 +92,7 @@ Vue.component("settingsView", {
             );
           })
         ).then(res => {
-          chrome.runtime.getPlatformInfo(function(info) {
+          chrome.runtime.getPlatformInfo(function (info) {
             if (!info.os == "mac") delete result.settings.titleMenubar;
             delete result.settings.language;
             resolve(result.settings);
@@ -60,15 +106,17 @@ Vue.component("settingsView", {
 
     this.settings = Object.assign(
       ...Object.keys(this.settings)
-        .sort((a, b) => this.settings[a].position - this.settings[b].position)
-        .map(s => {
-          return { [s]: this.settings[s] };
-        })
+      .sort((a, b) => this.settings[a].position - this.settings[b].position)
+      .map(s => {
+        return {
+          [s]: this.settings[s]
+        };
+      })
     );
 
     //* Get presences, save in array
-    this.presences = await new Promise(function(resolve, reject) {
-      chrome.storage.local.get("presences", function(result) {
+    this.presences = await new Promise(function (resolve, reject) {
+      chrome.storage.local.get("presences", function (result) {
         //* Sort alphabetically
         resolve(sortPresences(result.presences));
       });
@@ -92,17 +140,33 @@ Vue.component("settingsView", {
       this.shiftPressed = event.shiftKey;
     });
   },
+  computed: {
+    filteredPresences() {
+      return this.presences
+        .filter(presence => {
+          if (this.currentCategory == 'all') return presence;
+          if (this.currentCategory !== undefined)
+            return presence.metadata.category == this.currentCategory;
+        });
+    }
+  },
   methods: {
-    updateSetting(key, { target }) {
-      chrome.storage.sync.get("settings", function(result) {
+    updateSetting(key, {
+      target
+    }) {
+      chrome.storage.sync.get("settings", function (result) {
         result.settings[key].value = target.checked;
-        chrome.storage.local.set({ settingsAppUpdated: false });
+        chrome.storage.local.set({
+          settingsAppUpdated: false
+        });
 
         chrome.storage.sync.set(result);
       });
     },
-    updatePresence(key, { target }) {
-      chrome.storage.local.get("presences", function(result) {
+    updatePresence(key, {
+      target
+    }) {
+      chrome.storage.local.get("presences", function (result) {
         result.presences.find(p => p.metadata.service == key).enabled =
           target.checked;
 
@@ -114,15 +178,27 @@ Vue.component("settingsView", {
         p => p.metadata.service != this.presences[key].metadata.service
       );
 
-      chrome.storage.local.set({ presences: this.presences });
+      chrome.storage.local.set({
+        presences: this.presences
+      });
     },
     loadLocalPresence() {
       this.shiftPressed = false;
-      chrome.runtime.sendMessage({ popup: { loadLocalPresence: true } });
+      chrome.runtime.sendMessage({
+        popup: {
+          loadLocalPresence: true
+        }
+      });
     }
   },
   template: `
   <div class="pmd_settings">
+
+    <div v-if="!connected" class="message-container message-container--error">
+      <h1 class="message-container__title">No connection!</h1>
+      <p class="message-container__details">Our extension can not connect to the PreMiD application! Are you sure you downloaded and added it in Firewall whitelist?</p>
+    </div>
+
     <div class="settings__container">
       <h2 class="container__title">{{strings.general}}</h2>
       <div class="container__setting" v-for="(value, key) in settings">
@@ -139,24 +215,33 @@ Vue.component("settingsView", {
         </div>
       </div>
     </div>
-
     <!-- Presence settings -->
     <div class="settings__container">
-      <div class="titleWrapper">
+      <div class="title-wrapper">
         <h2 class="container__title">{{strings.presences}}</h2>
-        <a class="manage" v-if="presences.length > 0 && (!shiftPressed || !connected) || managePresences" v-on:click="managePresences = !managePresences">
-          <p v-if="!managePresences">{{strings.manage}}</p>
-          <p v-else>{{strings.done}}</p>
+        <a @click="categoriesShown = !categoriesShown" v-if="filteredPresences.length > 0 && (!shiftPressed || !connected) || managePresences" class="manage-btn">
+          <span><i class="fas fa-tag" /></span>
         </a>
-        <a class="manage" v-if="!managePresences && shiftPressed && connected" v-on:click="loadLocalPresence">
+        <a class="manage-btn" v-if="filteredPresences.length > 0 && (!shiftPressed || !connected) || managePresences" v-on:click="managePresences = !managePresences">
+          <span v-if="!managePresences"><i class="fas fa-cog" /></span>
+          <span v-else><i class="fas fa-check-circle" /></span>
+        </a>
+        <a class="manage-btn" v-if="!managePresences && shiftPressed && connected" v-on:click="loadLocalPresence">
           <p>{{strings.load}}</p>
         </a>
       </div>
-      <div class="container__setting" v-for="(value, key) in presences">
-        <img draggable="false" :src="value.metadata.logo" width="25px">
-        <div class="setting__title">
+      <transition name="scaleIn" mode="out-in">
+      <div v-show="categoriesShown" class="presence-categories">
+        <a href="#" @click="currentCategory = category.id; localStorage.currentCategory = category.id;" class="presence-categories__label" :class="{ 'presence-categories__label--active': currentCategory == category.id }" v-for="category in categories" :key="category.id"><i :class="'fas fa-' + category.icon" /> {{category.title}}</a>
+      </div>
+      </transition>
+      <transition name="scaleIn" mode="out-in">
+        <div v-if="filteredPresences.length > 0">
+      <div class="container__setting" v-for="(presence, key) in filteredPresences">
+        <img draggable="false" :src="presence.metadata.logo" width="24px">
+        <div class="setting__title setting__title--presence">
           <p>
-            <span class="tmp" v-if="value.tmp">tmp</span>{{value.metadata.service}}
+            <span class="tmp" v-if="presence.tmp">tmp</span> {{presence.metadata.service}}
           </p>
         </div>
         <div class="setting__switcher">
@@ -166,18 +251,22 @@ Vue.component("settingsView", {
                 <i class="far fa-trash-alt"></i>
               </a>
               <label v-else>
-                <input v-model="presences[key].enabled" @change="updatePresence(value.metadata.service, $event)" type="checkbox" :checked="value.enabled" />
-                <span v-bind:style="[presences[key].enabled ? {'background-color': value.metadata.color} : {}]" ref="checkbox" class="checkbox-container"></span>
+                <input v-model="filteredPresences[key].enabled" @change="updatePresence(presence.metadata.service, $event)" type="checkbox" :checked="presence.enabled" />
+                <span v-bind:style="[filteredPresences[key].enabled ? {'background-color': presence.metadata.color} : {}]" ref="checkbox" class="checkbox-container"></span>
               </label>
             </transition>
           </div>
         </div>
       </div>
+      </div>
+      <div v-if="filteredPresences.length <= 0">
+        <p class="error-message">You don't have presences installed for this category.</p>
+      </div>
+      </transition>
 
-      <!-- No Presences/Presence store -->
+      <!-- Presence store -->
       <div>
-        <p v-if="presences.length === 0" class="noPresences" v-html="strings.noPresences"></p>
-        <a href="https://premid.app/store" target="_blank" class="presenceStore" v-html="strings.presenceStore"/>
+        <a v-if="filteredPresences.length <= 3" href="https://premid.app/store" target="_blank" class="button button--store" v-html="strings.presenceStore"/>
       </div>
     </div>
   </div>`
