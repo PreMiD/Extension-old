@@ -15,26 +15,15 @@ Vue.component("creditCard", {
         .toRgbString()
     };
   },
-  computed: {
-    cardShadowColor() {
-      if (this.$data.hovered) {
-        return tinycolor(this.cardSecondaryColor)
-          .setAlpha(0.5)
-          .toRgbString();
-      } else {
-        return "transparent";
-      }
-    }
-  },
   template: `
-  <div @mouseover="hovered = true" @mouseleave="hovered = false" class="credit-card" :style="'background: linear-gradient(165deg, '+this.primary+' 0%, '+this.secondary+' 100%); box-shadow: 0 2px 42px 0 '+ this.cardShadowColor">
+  <div @mouseover="hovered = true" @mouseleave="hovered = false" class="credit-card" :style="'background: linear-gradient(165deg, '+this.primary+' 0%, '+this.secondary+' 100%); box-shadow: 0 2px 42px 0 '">
     <div class="credit-card__user">
       <h1 :title="user.name" v-text="user.name"/>
       <h2>{{ user.role }}</h2>
     </div>
     <div class="credit-card__avatar">
       <span :class="user.status"/>
-      <img :src="user.avatar + '?size=128'" draggable="false">
+      <img :src="user.avatar + '?size=40'" draggable="false">
     </div>
   </div>`
 });

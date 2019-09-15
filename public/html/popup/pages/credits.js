@@ -27,7 +27,7 @@ Vue.component("creditsView", {
         this.errorLoading = true;
       });
   },
-  template: /* html */ `
+  template: `
   <div class="creditsContainer">
     <div class="error" v-if="errorLoading">
       <h1 v-text="strings.creditsErrorHeading"></h1>

@@ -67,7 +67,7 @@ export async function tabPriority(reason = undefined, info = undefined) {
   });
 
   //* If PreMiD has no presence to inject here, inject one if pmdMetaTag has one
-  if (presence.length === 0 && pmdMetaTag !== false) {
+  if (presence.length === 0 && pmdMetaTag) {
     var { metadata } = await fetchJSON(`${apiBase}presences/${pmdMetaTag}`),
       prs = {
         metadata: metadata,

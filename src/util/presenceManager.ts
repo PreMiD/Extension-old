@@ -50,6 +50,14 @@ export async function addPresence(name: string | Array<string>) {
   if (typeof name === "string") {
     fetchJSON(`${apiBase}presences/${name}`)
       .then(async json => {
+        if (
+          typeof json.metadata.button !== "undefined" &&
+          !json.metadata.button
+        ) {
+          error(`Presence ${json.metadata.service} can't be added.`);
+          return;
+        }
+
         var res = {
           metadata: json.metadata,
           presence: await (await fetch(`${json.url}presence.js`)).text(),
@@ -65,7 +73,7 @@ export async function addPresence(name: string | Array<string>) {
       })
       .catch(err => {});
   } else {
-    var presencesToAdd: any = await Promise.all(
+    var presencesToAdd: any = (await Promise.all(
       (await Promise.all(
         name.map(name => {
           return fetchJSON(`${apiBase}presences/${name}`).catch(err => {});
@@ -73,6 +81,11 @@ export async function addPresence(name: string | Array<string>) {
       ))
         .filter(p => typeof p !== "undefined")
         .map(async p => {
+          if (typeof p.metadata.button !== "undefined" && !p.metadata.button) {
+            error(`Presence ${p.metadata.service} can't be added.`);
+            return;
+          }
+
           var res = {
             metadata: p.metadata,
             presence: await (await fetch(`${p.url}presence.js`)).text(),
@@ -84,7 +97,7 @@ export async function addPresence(name: string | Array<string>) {
 
           return res;
         })
-    );
+    )).filter(p => typeof p !== "undefined");
 
     chrome.storage.local.set({ presences: presences.concat(presencesToAdd) });
   }
@@ -94,7 +107,8 @@ export async function addPresence(name: string | Array<string>) {
 if (document.location.pathname !== "/_generated_background_page.html") {
   //* Add extension
   document.addEventListener("DOMContentLoaded", () => {
-    document.querySelector("#app").setAttribute("extension-ready", "true");
+    if (document.querySelector("#app"))
+      document.querySelector("#app").setAttribute("extension-ready", "true");
   });
 
   window.addEventListener("PreMiD_AddPresence", function(data) {

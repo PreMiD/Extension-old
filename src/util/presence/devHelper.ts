@@ -21,6 +21,7 @@ interface PresenceOptions {
    * Wether or not this presence supports media keys
    * @default {mediaKeys: false}
    * @link https://docs.premid.app/presence-development/coding/presence-class#mediakeys
+   * @deprecated Deprecated for now as browsers automatically support this
    */
   mediaKeys?: boolean;
 }
@@ -91,10 +92,11 @@ class Presence {
     this.trayTitle = trayTitle;
   }
 
+  //TODO Make this return the active presence shown in Discord.
   /**
    * Get the current
    * @param strings
-   * TODO finish :3?
+   * @since 2.0-BETA3
    */
   getActivity() {
     return this.internalPresence;
@@ -226,9 +228,10 @@ class iFrame {
     document.dispatchEvent(event);
   }
 
+  //TODO Add to docs
   /**
-   * TODO Add this to docs
    * Returns the iframe url
+   * @since 2.0-BETA3
    */
   getUrl() {
     return new Promise<string>(async resolve => {
@@ -246,7 +249,7 @@ class iFrame {
   }
 
   /**
-   * TODO DESCRIPTION
+   * Subscribe to events emitted by the extension
    * @param eventName
    * @param callback
    */

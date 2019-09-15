@@ -1,4 +1,4 @@
-@import 'variables';
+@import "variables";
 
 .creditsContainer {
   max-height: 350px;
@@ -10,7 +10,6 @@
   align-items: center;
   flex-wrap: wrap;
 
-
   .error {
     background-color: #ff5050;
     border-radius: 5px;
@@ -20,7 +19,8 @@
     text-align: center;
     width: 90%;
 
-    h1, h2 {
+    h1,
+    h2 {
       margin: 0;
     }
 
@@ -47,7 +47,8 @@ span {
   height: 50px;
   border-radius: 5px;
 
-  h1, h2 {
+  h1,
+  h2 {
     margin: 0;
     margin-left: 5px;
   }
@@ -61,7 +62,7 @@ span {
 
   h2 {
     font-size: 1rem;
-    font-family: 'Discord Font';
+    font-family: "Discord Font";
     color: $notQuiteBlack;
   }
 
@@ -85,11 +86,11 @@ span {
     width: 9px;
     height: 9px;
 
-    border: 2px solid #2C2F33;
+    border: 2px solid #2c2f33;
     border-radius: 100%;
 
     &.online {
-      background: #43B581;
+      background: #43b581;
     }
 
     &.dnd {
@@ -106,98 +107,88 @@ span {
   }
 }
 
-
-
 .credit-card {
-    margin: 10px 5px;
-    position: relative;
-    width: 240px;
-    height: 40px;
-    border-radius: 6px;
-    padding: 10px;
-    background: rgb(41, 45, 51);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  margin: 10px 5px;
+  position: relative;
+  width: 240px;
+  height: 40px;
+  border-radius: 6px;
+  padding: 10px;
+  background: rgb(41, 45, 51);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 
-    transition: all 0.15s ease-in-out;
-    user-select: none;
+  transition: all 0.15s ease-in-out;
+  user-select: none;
 
-    &__user {
+  &__user {
+    flex: 0.8;
+    overflow: hidden;
 
-        flex: 0.8;
-        overflow: hidden;
-
-        h1,
-        h2 {
-            margin: 0;
-            margin-left: 5px;
-        }
-
-        h1 {
-            font-size: 1.1rem;
-            color: #fff;
-            font-weight: normal;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            -webkit-box-orient: vertical;
-            font-weight: 800;
-        }
-
-        h2 {
-            font-size: 13px;
-            color: #fff;
-            font-weight: 900;
-            display: inline-block;
-            font-family: 'Discord Font', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
+    h1,
+    h2 {
+      margin: 0;
+      margin-left: 5px;
     }
 
-    &__avatar {
-        img {
-            height: 40px;
-            border-radius: 50%;
-            margin-right: 5px;
-        }
-
-        span {
-            z-index: 1;
-
-            position: absolute;
-            bottom: 10px;
-            right: 14px;
-
-            display: block;
-            width: 9px;
-            height: 9px;
-
-            border: 2px solid #2C2F33;
-            border-radius: 100%;
-
-            &.online {
-                background: #43B581;
-            }
-
-            &.dnd {
-                background: rgb(240, 71, 71);
-            }
-
-            &.idle {
-                background: rgb(250, 166, 26);
-            }
-
-            &.offline {
-                background: rgb(116, 127, 141);
-            }
-        }
+    h1 {
+      font-size: 1.1rem;
+      color: #fff;
+      font-weight: normal;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      -webkit-box-orient: vertical;
+      font-weight: 800;
     }
 
-    &:hover {
-        transform: translateY(-6px);
-        z-index: 6px;
-        box-shadow: 0 2px 74px 0 rgba(0, 0, 0, 0.5);
+    h2 {
+      font-size: 13px;
+      color: #fff;
+      font-weight: 900;
+      display: inline-block;
+      font-family: "Discord Font", "Segoe UI", Tahoma, Geneva, Verdana,
+        sans-serif;
+    }
+  }
+
+  &__avatar {
+    img {
+      height: 40px;
+      border-radius: 50%;
+      margin-right: 5px;
     }
 
+    span {
+      z-index: 1;
+
+      position: absolute;
+      bottom: 10px;
+      right: 14px;
+
+      display: block;
+      width: 9px;
+      height: 9px;
+
+      border: 2px solid #2c2f33;
+      border-radius: 100%;
+
+      &.online {
+        background: #43b581;
+      }
+
+      &.dnd {
+        background: rgb(240, 71, 71);
+      }
+
+      &.idle {
+        background: rgb(250, 166, 26);
+      }
+
+      &.offline {
+        background: rgb(116, 127, 141);
+      }
+    }
+  }
 }

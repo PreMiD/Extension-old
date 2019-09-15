@@ -1,58 +1,57 @@
 @import "variables.scss";
 
 @font-face {
-    font-family: 'Discord Font';
-    font-weight: 900;
-    src: url('../../../assets/fonts/DiscordFontBlack.woff2') format('woff2'),
-    url('../../../assets/fonts/DiscordFontBlack.woff') format('woff');
-    font-style: normal;
+  font-family: "Discord Font";
+  font-weight: 900;
+  src: url("../../../assets/fonts/DiscordFontBlack.woff2") format("woff2");
+  font-style: normal;
 }
 
 @font-face {
   font-family: Inter;
-  src: url("../../../assets/fonts/Inter/Inter-Regular.otf")
+  src: url("../../../assets/fonts/Inter/Inter-Regular.woff2") format("woff2");
 }
 
 @font-face {
   font-family: Inter;
   font-weight: 500;
-  src: url("../../../assets/fonts/Inter/Inter-Medium.otf")
+  src: url("../../../assets/fonts/Inter/Inter-Medium.woff2") format("woff2");
 }
 
 @font-face {
   font-family: Inter;
   font-weight: 700;
-  src: url("../../../assets/fonts/Inter/Inter-Bold.otf")
+  src: url("../../../assets/fonts/Inter/Inter-Bold.woff2") format("woff2");
 }
 
 * {
-  scrollbar-color: #7289DA transparent;
+  scrollbar-color: #7289da transparent;
   scrollbar-width: thin;
 }
 
 ::-webkit-scrollbar {
-    width: 12px;
-    height: 0.6rem;
+  width: 12px;
+  height: 0.6rem;
 }
 
 ::-webkit-scrollbar-track {
-    border: none;
+  border: none;
 }
 
 ::-webkit-scrollbar-thumb {
-    transition: background 0.15s ease-out;
+  transition: background 0.15s ease-out;
 
-    border: 3px solid $notQuiteBlack;
-    border-radius: 20px;
-    background: $blurple;
+  border: 3px solid $notQuiteBlack;
+  border-radius: 20px;
+  background: $blurple;
 
-    &:hover {
-        background: lighten($color: $blurple, $amount: 5)
-    }
+  &:hover {
+    background: lighten($color: $blurple, $amount: 5);
+  }
 }
 
 ::-webkit-scrollbar-corner {
-    background: transparent;
+  background: transparent;
 }
 
 html,
@@ -104,7 +103,7 @@ a {
       color: white;
 
       .pmd {
-        font-family: 'Discord Font';
+        font-family: "Discord Font";
         margin: 0;
         display: inline-block;
         color: $blurple;

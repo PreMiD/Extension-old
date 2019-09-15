@@ -7,7 +7,7 @@
     "init": "npm i --prefer-offline && tsc sassCompiler",
     "watch": "webpack --config webpack/webpack.dev.js --watch",
     "check": "webpack --config webpack/webpack.analyze.js",
-    "build": "rimraf dist && webpack --config webpack/webpack.prod.js",
+    "build": "rimraf dist && node fetchDescriptions.js && webpack --config webpack/webpack.prod.js",
     "watchSass": "node sassCompiler.js"
   },
   "author": "",
@@ -21,10 +21,13 @@
   },
   "devDependencies": {
     "@types/chrome": "0.0.88",
+    "@types/fs-extra": "^8.0.0",
     "@types/node-sass": "^4.11.0",
     "@types/socket.io-client": "^1.4.32",
+    "axios": "^0.19.0",
     "chalk": "^2.4.2",
     "copy-webpack-plugin": "^5.0.4",
+    "fs-extra": "^8.1.0",
     "node-sass": "^4.12.0",
     "rimraf": "^3.0.0",
     "ts-loader": "^6.0.4",

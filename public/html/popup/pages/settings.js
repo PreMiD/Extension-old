@@ -70,32 +70,14 @@ Vue.component("settingsView", {
     this.presences = await new Promise(function(resolve, reject) {
       chrome.storage.local.get("presences", function(result) {
         //* Sort alphabetically
-        resolve(
-          result.presences.sort((a, b) => {
-            return a.tmp == b.tmp
-              ? a.tmp
-              : a.metadata.service < b.metadata.service
-              ? -1
-              : a.metadata.service > b.metadata.service
-              ? 1
-              : 0;
-          })
-        );
+        resolve(sortPresences(result.presences));
       });
     });
 
     //* On presence change update
     chrome.storage.onChanged.addListener(key => {
       if (Object.keys(key)[0] === "presences") {
-        this.presences = key.presences.newValue.sort((a, b) => {
-          return a.tmp == b.tmp
-            ? a.tmp
-            : a.metadata.service < b.metadata.service
-            ? -1
-            : a.metadata.service > b.metadata.service
-            ? 1
-            : 0;
-        });
+        this.presences = sortPresences(key.presences.newValue);
 
         if (this.presences.length == 0) this.managePresences = false;
       }
@@ -171,8 +153,11 @@ Vue.component("settingsView", {
         </a>
       </div>
       <div class="container__setting" v-for="(value, key) in presences">
+        <img draggable="false" :src="value.metadata.logo" width="25px">
         <div class="setting__title">
-          <p><span class="tmp" v-if="value.tmp">tmp</span> {{value.metadata.service}}</p>
+          <p>
+            <span class="tmp" v-if="value.tmp">tmp</span>{{value.metadata.service}}
+          </p>
         </div>
         <div class="setting__switcher">
           <div class="pmd_checkbox">
@@ -190,10 +175,19 @@ Vue.component("settingsView", {
       </div>
 
       <!-- No Presences/Presence store -->
-      <div v-if="presences.length === 0">
-        <p class="noPresences" v-html="strings.noPresences"></p>
+      <div>
+        <p v-if="presences.length === 0" class="noPresences" v-html="strings.noPresences"></p>
         <a href="https://premid.app/store" target="_blank" class="presenceStore" v-html="strings.presenceStore"/>
       </div>
     </div>
   </div>`
 });
+
+function sortPresences(presences) {
+  return presences.sort((a, b) => {
+    a = a.metadata.service.toUpperCase();
+    b = b.metadata.service.toUpperCase();
+
+    return a < b ? -1 : a > b ? 1 : 0;
+  });
+}
