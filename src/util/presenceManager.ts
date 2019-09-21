@@ -136,10 +136,16 @@ if (document.location.pathname !== "/_generated_background_page.html") {
 }
 
 async function sendBackPresences() {
-  var { presences } = await getStorage("local", "presences");
+  let { presences } = await getStorage("local", "presences"),
+    data = {
+      detail: presences.filter(p => !p.tmp).map(p => p.metadata.service)
+    };
 
-  var event = new CustomEvent("PreMiD_GetWebisteFallback", {
-    detail: presences.filter(p => !p.tmp).map(p => p.metadata.service)
-  });
+  // @ts-ignore
+  if (typeof cloneInto === "function")
+    // @ts-ignore
+    data = cloneInto(data, document.defaultView);
+
+  let event = new CustomEvent("PreMiD_GetWebisteFallback", data);
   window.dispatchEvent(event);
 }
