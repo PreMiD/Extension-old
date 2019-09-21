@@ -13,7 +13,7 @@ import checkAccess from "./util/functions/checkAccess";
 import initSettings from "./util/functions/initSettings";
 import { getStorage } from "./util/functions/asyncStorage";
 
-export var apiBase = "https://api.premid.app/v2/";
+export let apiBase = "https://api.premid.app/v2/";
 export { socket };
 
 if (chrome.runtime.getManifest().version_name.endsWith("-DEV")) {
@@ -44,7 +44,7 @@ initSettings();
 setInterval(updatePresences, 5 * 60 * 1000);
 
 //* Run this when extension enables (only if was disabled)
-var extensionEnabled = setTimeout(() => {
+let extensionEnabled = setTimeout(() => {
   updateStrings();
   updatePresences();
 
@@ -141,8 +141,8 @@ chrome.windows.onFocusChanged.addListener(windowId => {
 });
 
 //* Some debug stuff to prevent timestamp jumping
-var oldObject = null;
-export var oldActivity = null;
+let oldObject = null;
+export let oldActivity = null;
 chrome.runtime.onMessage.addListener((msg, sender) => {
   //* Send "UpdateData" to iframe
   if (
@@ -183,11 +183,11 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
 
       //* Check differences and if there aren't any return
 
-      var check = cpObj(oldObject);
+      let check = cpObj(oldObject);
       delete check.startTimestamp;
       delete check.endTimestamp;
 
-      var check1 = cpObj(msg.presence.presenceData);
+      let check1 = cpObj(msg.presence.presenceData);
       delete check1.startTimestamp;
       delete check1.endTimestamp;
 
@@ -224,7 +224,7 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
 //* Disable active presence if it just got disabled
 chrome.storage.onChanged.addListener(async changes => {
   if (changes.presences && oldPresence && priorityTab) {
-    var prs = (await getStorage("local", "presences")).presences.find(
+    let prs = (await getStorage("local", "presences")).presences.find(
       p => p.metadata.service === oldPresence.metadata.service
     );
 
@@ -243,8 +243,8 @@ chrome.storage.onChanged.addListener(async changes => {
 });
 
 export async function setActivity(presence: any, settings = undefined) {
-  if (!settings) var { settings } = await getStorage("sync", "settings");
-  var pTS = cpObj(presence);
+  if (!settings) settings = (await getStorage("sync", "settings")).settings;
+  let pTS = cpObj(presence);
   if (presence == null || !settings.enabled.value) return;
 
   if (settings.titleMenubar.value) {
@@ -261,8 +261,8 @@ export async function setActivity(presence: any, settings = undefined) {
 //* Credit http://adripofjavascript.com/blog/drips/object-equality-in-javascript.html
 function isEquivalent(a: any, b: any) {
   // Create arrays of property names
-  var aProps = Object.getOwnPropertyNames(a);
-  var bProps = Object.getOwnPropertyNames(b);
+  let aProps = Object.getOwnPropertyNames(a);
+  let bProps = Object.getOwnPropertyNames(b);
 
   // If number of properties is different,
   // objects are not equivalent
@@ -270,8 +270,8 @@ function isEquivalent(a: any, b: any) {
     return false;
   }
 
-  for (var i = 0; i < aProps.length; i++) {
-    var propName = aProps[i];
+  for (let i = 0; i < aProps.length; i++) {
+    let propName = aProps[i];
 
     // If values of same property are not equal,
     // objects are not equivalent

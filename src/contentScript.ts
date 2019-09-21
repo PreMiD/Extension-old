@@ -1,11 +1,11 @@
 import { getString } from "./util/langManager";
 import { info } from "./util/debug";
-var tabPriority = null;
+let tabPriority = null;
 
 // TODO Make design and code
 /*
 window.addEventListener("load", () => {
-  var el = document.createElement("div");
+  let el = document.createElement("div");
   el.style.setProperty("z-index", "999");
   el.innerHTML = "<h1>PreMiD supports this page!</h1>";
   document.querySelector("body").appendChild(el);
@@ -14,7 +14,7 @@ window.addEventListener("load", () => {
 
 chrome.runtime.onMessage.addListener(function(data) {
   if (typeof data.iFrameData !== "undefined") {
-    var event = new CustomEvent("PreMiD_iFrameData", {
+    let event = new CustomEvent("PreMiD_iFrameData", {
       detail: data.iFrameData
     });
 
@@ -29,7 +29,7 @@ chrome.runtime.onMessage.addListener(function(data) {
         tabPriority = setInterval(() => {
           chrome.runtime.sendMessage({ iFrameUpdateData: true });
 
-          var event = new CustomEvent("PreMiD_UpdateData");
+          let event = new CustomEvent("PreMiD_UpdateData");
           document.dispatchEvent(event);
 
           info("updateData");
@@ -54,14 +54,14 @@ window.addEventListener("PreMiD_RequestExtensionData", async function(
   data: CustomEvent
 ) {
   if (data.detail.strings != undefined) {
-    var translations = [];
-    for (var i = 0; i < Object.keys(data.detail.strings).length; i++) {
+    let translations = [];
+    for (let i = 0; i < Object.keys(data.detail.strings).length; i++) {
       translations.push(
         await getString(Object.values<string>(data.detail.strings)[i])
       );
     }
     Promise.all(translations).then(completed => {
-      for (var i = 0; i < Object.keys(data.detail.strings).length; i++) {
+      for (let i = 0; i < Object.keys(data.detail.strings).length; i++) {
         data.detail.strings[Object.keys(data.detail.strings)[i]] = completed[i];
       }
     });
@@ -69,7 +69,7 @@ window.addEventListener("PreMiD_RequestExtensionData", async function(
 
   if (data.detail.version) data.detail.version = eval(data.detail.version);
 
-  var event = new CustomEvent("PreMiD_ReceiveExtensionData", {
+  let event = new CustomEvent("PreMiD_ReceiveExtensionData", {
     detail: data.detail
   });
   window.dispatchEvent(event);

@@ -4,15 +4,15 @@ import { info, success } from "./debug";
 import fetchJSON from "./functions/fetchJSON";
 import { apiBase } from "../background";
 
-var currTimeout: NodeJS.Timeout;
+let currTimeout: NodeJS.Timeout;
 
-export var priorityTab = null;
+export let priorityTab = null;
 
-export var oldPresence = null;
+export let oldPresence = null;
 
 export async function tabPriority(reason = undefined, info = undefined) {
   //* Get last focused window
-  var lastFocusedWindow = await new Promise<chrome.windows.Window>(resolve =>
+  let lastFocusedWindow = await new Promise<chrome.windows.Window>(resolve =>
       chrome.windows.getLastFocused(resolve)
     ),
     activeTab = (await new Promise<chrome.tabs.Tab[]>(resolve =>
@@ -32,7 +32,7 @@ export async function tabPriority(reason = undefined, info = undefined) {
     return;
 
   //* Check if this website uses the PreMiD_Presence meta tag
-  var pmdMetaTag = await new Promise(resolve =>
+  let pmdMetaTag = await new Promise(resolve =>
     chrome.tabs.executeScript(
       activeTab.id,
       {
@@ -43,7 +43,7 @@ export async function tabPriority(reason = undefined, info = undefined) {
   );
 
   presence = presence.filter(p => {
-    var res = null;
+    let res = null;
 
     //* If not enabled return false
     if (!p.enabled) return false;
@@ -68,7 +68,7 @@ export async function tabPriority(reason = undefined, info = undefined) {
 
   //* If PreMiD has no presence to inject here, inject one if pmdMetaTag has one
   if (presence.length === 0 && pmdMetaTag) {
-    var { metadata } = await fetchJSON(`${apiBase}presences/${pmdMetaTag}`),
+    let { metadata } = await fetchJSON(`${apiBase}presences/${pmdMetaTag}`),
       prs = {
         metadata: metadata,
         presence: await await fetch(
@@ -92,7 +92,7 @@ export async function tabPriority(reason = undefined, info = undefined) {
   //* Presence available for currUrl
   if (presence.length > 0) {
     //* Check if this tab already has a presence injected
-    var tabHasPresence = (await new Promise(resolve => {
+    let tabHasPresence = (await new Promise(resolve => {
       chrome.tabs.executeScript(
         activeTab.id,
         {
@@ -176,7 +176,7 @@ async function inject(tabId: number, presence: any) {
     chrome.tabs.executeScript(
       tabId,
       {
-        code: "var PreMiD_Presence=true;" + presence.presence,
+        code: "let PreMiD_Presence=true;" + presence.presence,
         runAt: "document_start"
       },
       resolve

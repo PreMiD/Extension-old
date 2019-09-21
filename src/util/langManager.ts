@@ -1,8 +1,8 @@
 import fetchJSON from "./functions/fetchJSON";
-var apiBase = "https://api.premid.app/v2/";
+let apiBase = "https://api.premid.app/v2/";
 import { error } from "./debug";
 
-var defaultLanguage: any, currLanguage: any;
+let defaultLanguage: any, currLanguage: any;
 
 export async function updateStrings() {
   defaultLanguage = await fetchJSON(`${apiBase}langFile/extension/en`).catch(
@@ -33,7 +33,7 @@ export async function updateStrings() {
     });
 }
 
-var initialLoader = null;
+let initialLoader = null;
 export async function loadStrings() {
   if (initialLoader == null) initialLoader = true;
   else initialLoader = false;
@@ -50,7 +50,7 @@ export async function loadStrings() {
         resolve();
       });
     } else {
-      var loadStatus = setInterval(() => {
+      let loadStatus = setInterval(() => {
         if (typeof defaultLanguage !== "undefined") {
           clearInterval(loadStatus);
           resolve();
@@ -71,6 +71,10 @@ export function getString(string: string) {
       resolve(currLanguage[string]);
     else if (typeof defaultLanguage[string] !== "undefined")
       resolve(defaultLanguage[string]);
-    else error(`String ${string} not found`);
+    else {
+      error(`String ${string} not found`);
+      //TODO Find something better
+      resolve();
+    }
   });
 }

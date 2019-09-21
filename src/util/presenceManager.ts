@@ -2,19 +2,19 @@ import fetchJSON from "./functions/fetchJSON";
 import { getStorage } from "./functions/asyncStorage";
 import { error, success } from "./debug";
 
-var apiBase = "https://api.premid.app/v2/";
+let apiBase = "https://api.premid.app/v2/";
 
 export async function updatePresences() {
-  var presenceVersions = await fetchJSON(apiBase + "presences/versions"),
+  let presenceVersions = await fetchJSON(apiBase + "presences/versions"),
     { presences } = await getStorage("local", "presences");
 
   if (!presences) return;
 
-  var currPresenceVersions = presences.map(p => {
+  let currPresenceVersions = presences.map(p => {
     return { name: p.metadata.service, version: p.metadata.version };
   });
 
-  var presencesToUpdate = currPresenceVersions.filter(p =>
+  let presencesToUpdate = currPresenceVersions.filter(p =>
     presenceVersions.find(p1 => p1.name == p.name && p1.version !== p.version)
   );
 
@@ -27,7 +27,7 @@ export async function updatePresences() {
 }
 
 export async function addPresence(name: string | Array<string>) {
-  var { presences } = await getStorage("local", "presences");
+  let { presences } = await getStorage("local", "presences");
   if (!presences) presences = [];
   //* Filter out tmp presences
 
@@ -37,7 +37,7 @@ export async function addPresence(name: string | Array<string>) {
       return;
     }
   } else {
-    var res = name.filter(
+    let res = name.filter(
       s => !presences.map(p => p.metadata.service).includes(s)
     );
 
@@ -58,7 +58,7 @@ export async function addPresence(name: string | Array<string>) {
           return;
         }
 
-        var res = {
+        let res = {
           metadata: json.metadata,
           presence: await (await fetch(`${json.url}presence.js`)).text(),
           enabled: true
@@ -73,7 +73,7 @@ export async function addPresence(name: string | Array<string>) {
       })
       .catch(err => {});
   } else {
-    var presencesToAdd: any = (await Promise.all(
+    let presencesToAdd: any = (await Promise.all(
       (await Promise.all(
         name.map(name => {
           return fetchJSON(`${apiBase}presences/${name}`).catch(err => {});
@@ -86,7 +86,7 @@ export async function addPresence(name: string | Array<string>) {
             return;
           }
 
-          var res = {
+          let res = {
             metadata: p.metadata,
             presence: await (await fetch(`${p.url}presence.js`)).text(),
             enabled: true
@@ -117,7 +117,7 @@ if (document.location.pathname !== "/_generated_background_page.html") {
   });
 
   window.addEventListener("PreMiD_RemovePresence", async function(data) {
-    var { presences } = await getStorage("local", "presences");
+    let { presences } = await getStorage("local", "presences");
 
     chrome.storage.local.set({
       presences: presences.filter(

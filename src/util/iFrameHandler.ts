@@ -1,11 +1,11 @@
-var waitResponse: any = setInterval(() => {
+let waitResponse: any = setInterval(() => {
     chrome.runtime.sendMessage({ iFrame: true });
   }, 1000),
   scriptInjected = false;
 
 chrome.runtime.onMessage.addListener(async msg => {
   if (msg.iFrameUpdateData && scriptInjected) {
-    var evt = new CustomEvent("PreMiD_UpdateData");
+    let evt = new CustomEvent("PreMiD_UpdateData");
     document.dispatchEvent(evt);
   }
 
@@ -16,7 +16,7 @@ chrome.runtime.onMessage.addListener(async msg => {
     if (window.location.href.match(new RegExp(msg.iFrameRegExp)) !== null) {
       scriptInjected = true;
 
-      var script = document.createElement("script");
+      let script = document.createElement("script");
 
       script.textContent = String(
         (await Promise.resolve(

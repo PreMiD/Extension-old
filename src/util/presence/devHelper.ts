@@ -1,5 +1,5 @@
 /**
- * @link https://docs.premid.app/presence-development/coding/presence-class#getpagevariable-string
+ * @link https://docs.premid.app/presence-development/coding/presence-class#getpageletiable-string
  */
 interface presenceData {
   state?: string;
@@ -109,7 +109,7 @@ class Presence {
    */
   getStrings(strings: Object) {
     return new Promise<any>((resolve, reject) => {
-      var listener = function(detail: object) {
+      let listener = function(detail: object) {
         window.removeEventListener("PreMiD_ReceiveExtensionData", listener);
 
         // @ts-ignore
@@ -122,7 +122,7 @@ class Presence {
         listener(detail.detail)
       );
 
-      var event = new CustomEvent("PreMiD_RequestExtensionData", {
+      let event = new CustomEvent("PreMiD_RequestExtensionData", {
         detail: {
           strings: strings
         }
@@ -134,28 +134,28 @@ class Presence {
   }
 
   /**
-   * Get variables from the actual site.
-   * @param {Array} variables Array of variable names to get
-   * @example var pageVar = getPageVariable('pageVar') -> "Variable content"
-   * @link https://docs.premid.app/presence-development/coding/presence-class#getpagevariable-string
+   * Get letiables from the actual site.
+   * @param {Array} letiables Array of letiable names to get
+   * @example let pagelet = getPageletiable('pagelet') -> "letiable content"
+   * @link https://docs.premid.app/presence-development/coding/presence-class#getpageletiable-string
    */
-  getPageVariable(variable: string) {
+  getPageletiable(letiable: string) {
     return new Promise<any>((resolve, reject) => {
-      var script = document.createElement("script"),
+      let script = document.createElement("script"),
         _listener = data => {
           script.remove();
           // @ts-ignore
           resolve(JSON.parse(data.detail));
 
-          window.removeEventListener("PreMiD_PageVariable", _listener, true);
+          window.removeEventListener("PreMiD_Pageletiable", _listener, true);
         };
 
-      window.addEventListener("PreMiD_PageVariable", _listener);
+      window.addEventListener("PreMiD_Pageletiable", _listener);
 
-      script.id = "PreMiD_PageVariables";
+      script.id = "PreMiD_Pageletiables";
       script.appendChild(
         document.createTextNode(`
-        var event = new CustomEvent("PreMiD_PageVariable", {detail: (typeof window["${variable}"] === "string") ? window["${variable}"] : JSON.stringify(window["${variable}"])});
+        let event = new CustomEvent("PreMiD_Pageletiable", {detail: (typeof window["${letiable}"] === "string") ? window["${letiable}"] : JSON.stringify(window["${letiable}"])});
         window.dispatchEvent(event);
       `)
       );
@@ -171,7 +171,7 @@ class Presence {
    */
   private sendData(data: Object) {
     //* Send data to app
-    var event = new CustomEvent("PreMiD_UpdatePresence", {
+    let event = new CustomEvent("PreMiD_UpdatePresence", {
       detail: data
     });
 
@@ -221,7 +221,7 @@ class iFrame {
    * @param data Data to send
    */
   send(data: any) {
-    var event = new CustomEvent("PreMiD_iFrameData", {
+    let event = new CustomEvent("PreMiD_iFrameData", {
       detail: data
     });
 
@@ -235,14 +235,14 @@ class iFrame {
    */
   getUrl() {
     return new Promise<string>(async resolve => {
-      var _listener = data => {
+      let _listener = data => {
         // @ts-ignore
         resolve(data.detail);
         document.removeEventListener("PreMiD_iFrameURL", _listener, true);
       };
       document.addEventListener("PreMiD_iFrameURL", _listener);
 
-      var event = new CustomEvent("PreMiD_GETiFrameURL");
+      let event = new CustomEvent("PreMiD_GETiFrameURL");
 
       document.dispatchEvent(event);
     });

@@ -4,7 +4,7 @@ import { socket } from "../socketManager";
 import { oldActivity, setActivity } from "../../background";
 import { clearActivity, priorityTab } from "../tabPriority";
 
-var settings = null;
+let settings = null;
 
 export default async function() {
   settings = (await getStorage("sync", "settings")).settings;
@@ -20,7 +20,7 @@ export default async function() {
 
 chrome.storage.onChanged.addListener(changes => {
   if (changes.settings) {
-    var nSettings = Object.assign(
+    let nSettings = Object.assign(
       {},
       ...Object.keys(changes.settings.newValue).map(k => {
         return { [k]: changes.settings.newValue[k].value };

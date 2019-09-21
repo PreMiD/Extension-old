@@ -19,7 +19,7 @@ Vue.component("change", {
         break;
     }
 
-    var text = this.change.text;
+    let text = this.change.text;
     if (this.change.text.match(/(\[.*?\])/g) != null)
       this.change.text.match(/(\[.*?\])/g).map((ch, i) => {
         text = text.replace(

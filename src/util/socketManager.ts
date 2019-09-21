@@ -1,10 +1,11 @@
 import * as socketIo from "socket.io-client";
-import { success, error } from "./debug";
-import { priorityTab, oldPresence } from "./tabPriority";
+import { success, error, info } from "./debug";
+import { priorityTab } from "./tabPriority";
 import presenceDevManager from "./functions/presenceDevManager";
+import { oldActivity, setActivity } from "../background";
 
 //* Create socket
-export var socket = socketIo.connect("http://localhost:3020", {
+export let socket = socketIo.connect("http://localhost:3020", {
   autoConnect: false
 });
 
@@ -13,6 +14,18 @@ export function connect() {
 }
 
 socket.on("connect", () => {
+  socket.emit("getVersion");
+  socket.once("receiveVersion", (version: number) => {
+    if (version >= 202) info("Supported app version");
+    else {
+      //TODO Add some information for the user
+      error("Unsupported app version");
+      socket.disconnect();
+    }
+  });
+
+  if (oldActivity) setActivity(oldActivity);
+
   success("Connected to application");
   chrome.runtime.sendMessage({ socket: socket.connected });
 
@@ -33,6 +46,6 @@ socket.on("disconnect", () => {
     chrome.tabs.sendMessage(priorityTab, { tabPriority: false });
 });
 
-socket.on("mediaKeyHandler", key => console.log(key));
+//socket.on("mediaKeyHandler", key => console.log(key));
 
 socket.on("localPresence", presenceDevManager);

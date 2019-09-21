@@ -32,7 +32,7 @@ export default function() {
             return;
           }
 
-          var params = Object.assign(
+          let params = Object.assign(
             // @ts-ignore
             ...responseUrl
               .slice(58, responseUrl.length)
@@ -53,7 +53,7 @@ export default function() {
                 Authorization: `Bearer ${params.access_token}`
               })
             }).then(async res => {
-              var user = await res.json(),
+              let user = await res.json(),
                 access = (await fetchJSON(
                   `https://api.premid.app/betaAccess/${user.id}`
                 )).access;

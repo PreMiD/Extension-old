@@ -2,13 +2,13 @@ import { info, error } from "../debug";
 import { getStorage } from "./asyncStorage";
 import { priorityTab } from "../tabPriority";
 
-var errors = [];
+let errors = [];
 export default async function(files: any) {
   errors = [];
   info("Local Presence update");
 
   files = files.files;
-  var metadata = files.find(f => f.file.toLowerCase() === "metadata.json"),
+  let metadata = files.find(f => f.file.toLowerCase() === "metadata.json"),
     presence = files.find(f => f.file.toLowerCase() === "presence.js"),
     iframe = files.find(f => f.file.toLowerCase() === "iframe.js");
 
@@ -47,16 +47,16 @@ export default async function(files: any) {
 
   errors.map(err => error(err));
 
-  var { presences } = await getStorage("local", "presences");
+  let { presences } = await getStorage("local", "presences");
 
   presences = presences.filter(p => !p.tmp);
 
-  var addedPresence = presences.find(
+  let addedPresence = presences.find(
     p => p.metadata.service === metadata.service
   );
   if (addedPresence) addedPresence.enabled = false;
 
-  var tmpPr = {
+  let tmpPr = {
     enabled: true,
     metadata: metadata,
     presence: presence.contents,
