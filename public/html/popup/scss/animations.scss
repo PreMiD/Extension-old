@@ -1,14 +1,18 @@
-.scaleIn-enter-active, .scaleIn-leave-active {
-  transition: all .15s ease-out;
+.scaleIn-enter-active,
+.scaleIn-leave-active {
+  transition: all 0.15s ease-out;
 }
 
-.scaleIn-enter, .scaleIn-leave-to {
-	transform: scale(0.9);
+.scaleIn-enter,
+.scaleIn-leave-to {
+  transform: scale(0.9);
   opacity: 0;
 }
-.page-enter-active, .page-leave-active {
+.page-enter-active,
+.page-leave-active {
   transition: opacity 0.25s;
 }
-.page-enter, .page-leave-to {
+.page-enter,
+.page-leave-to {
   opacity: 0;
 }

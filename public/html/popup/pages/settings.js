@@ -11,7 +11,15 @@ Vue.component("settingsView", {
         presenceStore: "",
         noPresences: "",
         notConnected: "",
-        notConnectedMessage: ""
+        notConnectedMessage: "",
+        categories: {
+          all: "",
+          anime: "",
+          music: "",
+          socials: "",
+          videos: "",
+          other: ""
+        }
       },
       shiftPressed: false,
       settings: {},
@@ -22,37 +30,37 @@ Vue.component("settingsView", {
         all: {
           icon: "globe",
           id: "all",
-          title: "All"
+          title: ""
         },
         anime: {
           icon: "star",
           id: "anime",
-          title: "Anime"
+          title: ""
         },
         games: {
           icon: "leaf",
           id: "games",
-          title: "Games"
+          title: ""
         },
         music: {
           icon: "music",
           id: "music",
-          title: "Music"
+          title: ""
         },
         socials: {
           icon: "comments",
           id: "socials",
-          title: "Socials"
+          title: ""
         },
         videos: {
           icon: "play",
           id: "videos",
-          title: "Videos & Streams"
+          title: ""
         },
         other: {
           icon: "box",
           id: "other",
-          title: "Other"
+          title: ""
         }
       },
       connected: false,
@@ -82,7 +90,15 @@ Vue.component("settingsView", {
       notConnected: await pmd.getString("popup.info.notConnected"),
       notConnectedMessage: await pmd.getString(
         "popup.info.notConnected.message"
-      )
+      ),
+      categories: {
+        all: await pmd.getString("popup.category.all"),
+        anime: await pmd.getString("popup.category.anime"),
+        music: await pmd.getString("popup.category.music"),
+        socials: await pmd.getString("popup.category.socials"),
+        videos: await pmd.getString("popup.category.videos"),
+        other: await pmd.getString("popup.category.other")
+      }
     };
 
     //* Get settings, filter language option for now, save in object
@@ -146,6 +162,21 @@ Vue.component("settingsView", {
     });
   },
   computed: {
+    filterCategories() {
+      let catFiltered = [];
+
+      let catNames = Object.keys(this.categories).filter(cat => {
+        if (cat === "all") return true;
+        return this.presences.some(p => p.metadata.category === cat);
+      });
+
+      catNames.map(c => {
+        this.categories[c].title = this.strings.categories[c];
+        catFiltered.push(this.categories[c]);
+      });
+
+      return catFiltered;
+    },
     filteredPresences() {
       return this.presences.filter(presence => {
         if (this.currentCategory == "all") return presence;
@@ -219,10 +250,10 @@ Vue.component("settingsView", {
     <div class="settings__container">
       <div class="title-wrapper">
         <h2 class="container__title">{{strings.presences}}</h2>
-        <a draggable="false" @click="categoriesShown = !categoriesShown" v-if="filteredPresences.length > 0 && (!shiftPressed || !connected) || managePresences" class="manage-btn">
+        <a draggable="false" @click="categoriesShown = !categoriesShown" v-if="filteredPresences.length > 0 && (!shiftPressed || !connected) && !managePresences" class="manage-btn">
           <span><i class="fas fa-tag" /></span>
         </a>
-        <a draggable="false" class="manage-btn" v-if="filteredPresences.length > 0 && (!shiftPressed || !connected) || managePresences" v-on:click="managePresences = !managePresences">
+        <a draggable="false" class="manage-btn" v-if="filteredPresences.length > 0 && (!shiftPressed || !connected) || managePresences" v-on:click="if(!managePresences)categoriesShown=false;managePresences=!managePresences;">
           <span v-if="!managePresences"><i class="fas fa-cog" /></span>
           <span v-else><i class="fas fa-check-circle" /></span>
         </a>
@@ -230,10 +261,10 @@ Vue.component("settingsView", {
           <p>{{strings.load}}</p>
         </a>
       </div>
-      <transition name="scaleIn" mode="out-in">
-      <div v-show="categoriesShown" class="presence-categories">
-        <a draggable="false" href="#" @click="currentCategory = category.id; localStorage.currentCategory = category.id;" class="presence-categories__label" :class="{ 'presence-categories__label--active': currentCategory == category.id }" v-for="category in categories" :key="category.id"><i :class="'fas fa-' + category.icon" /> {{category.title}}</a>
-      </div>
+      <transition name="scaleIn">
+        <div v-show="categoriesShown" class="presence-categories">
+          <a draggable="false" href="#" @click="currentCategory = category.id; localStorage.currentCategory = category.id;" class="presence-categories__label" :class="{ 'presence-categories__label--active': currentCategory == category.id }" v-for="category in filterCategories" :key="category.id"><i :class="'fas fa-' + category.icon" /> {{category.title}}</a>
+        </div>
       </transition>
       <transition name="scaleIn" mode="out-in">
         <div v-if="filteredPresences.length > 0">
