@@ -101,6 +101,16 @@ Vue.component("settingsView", {
       }
     };
 
+    this.strings.notConnectedMessage.match(/(\[.*?\])/g).map((ch, i) => {
+      this.strings.notConnectedMessage = this.strings.notConnectedMessage.replace(
+        ch,
+        `<a target="_blank" href="https://wiki.premid.app/troubleshooting/troubleshooting">${ch.slice(
+          1,
+          ch.length - 1
+        )}</a>`
+      );
+    });
+
     //* Get settings, filter language option for now, save in object
     this.settings = await new Promise(function(resolve, reject) {
       chrome.storage.sync.get("settings", function(result) {
@@ -226,8 +236,8 @@ Vue.component("settingsView", {
   <div class="pmd_settings">
 
     <div v-if="!connected" class="message-container message-container--error">
-      <h1 class="message-container__title" v-text="this.notConnected" />
-      <p class="message-container__details" v-text="this.notConnectedMessage" />
+      <h1 class="message-container__title" v-text="strings.notConnected" />
+      <p class="message-container__details" v-html="strings.notConnectedMessage" />
     </div>
 
     <div class="settings__container">
