@@ -16,7 +16,7 @@ Vue.component("creditCard", {
     };
   },
   template: `
-  <div @mouseover="hovered = true" @mouseleave="hovered = false" class="credit-card" :style="'background: linear-gradient(165deg, '+this.primary+' 0%, '+this.secondary+' 100%); box-shadow: 0 2px 42px 0 '">
+  <div @mouseover="hovered = true" @mouseleave="hovered = false" class="credit-card" :style="'background: linear-gradient(165deg, '+this.primary+' 0%, '+this.secondary+' 100%);'">
     <div class="credit-card__user">
       <h1 :title="user.name" v-text="user.name"/>
       <h2>{{ user.role }}</h2>

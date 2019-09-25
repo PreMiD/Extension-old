@@ -57,7 +57,6 @@
             text-overflow: ellipsis;
             -webkit-box-orient: vertical;
           }
-
         }
 
         .tmp {
@@ -108,7 +107,7 @@
 
     h2.container__title {
       color: $blurple;
-      
+
       font-size: 1.25rem;
       font-weight: 700;
       margin: 0;
@@ -124,7 +123,7 @@
         font-weight: bold;
         color: $greyple;
         font-size: 1em;
-        transition: all .1s ease;
+        transition: all 0.1s ease;
         &:hover {
           color: lighten($blurple, 15%);
         }
@@ -133,10 +132,9 @@
       i {
         font-size: 1.1rem;
       }
-
     }
 
-    >p {
+    > p {
       font-size: 14px;
       font-weight: 500;
       margin: 4px 0;
@@ -172,7 +170,7 @@
     pointer-events: none;
   }
 
-  input[type="checkbox"]:checked+.checkbox-container {
+  input[type="checkbox"]:checked + .checkbox-container {
     background-color: $blurple;
 
     &:after {
@@ -222,25 +220,29 @@
 }
 
 .message-container {
+  padding: 16px;
+  width: 100%;
+  border-radius: 5px;
+  margin: 0.75em 1.25em;
+  font-size: 1em;
 
-    padding: 16px;
-    width: 100%;
-    border-radius: 5px;
-    margin: 0.75em 1.25em;
-    font-size: 1em;
+  &__title {
+    margin: 4px 0;
+  }
 
-    &__title {
-      margin: 4px 0;
+  &__details {
+    margin: 4px 0;
+    font-weight: 500;
+  }
+
+  &--error {
+    background: orange;
+
+    a {
+      color: $darkButNotQuiteBlack;
+      font-weight: bold;
     }
-
-    &__details {
-      margin: 4px 0;
-      font-weight: 500;
-    }
-
-    &--error {
-      background: orange;
-    }
+  }
 }
 
 .presence-categories {
@@ -263,6 +265,5 @@
       color: white;
       background: $blurple;
     }
-
   }
 }
