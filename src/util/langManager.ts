@@ -11,11 +11,12 @@ export async function updateStrings() {
     }
   );
 
-  currLanguage = await fetchJSON(`${apiBase}langFile/extension/en`).catch(
-    err => {
-      if (err.status === 404) error(`No translations found for en`);
-    }
-  );
+  currLanguage = await fetchJSON(
+    `${apiBase}langFile/extension/${chrome.i18n.getUILanguage()}`
+  ).catch(err => {
+    if (err.status === 404)
+      error(`No translations found for ${chrome.i18n.getUILanguage()}`);
+  });
 
   if (typeof defaultLanguage === "undefined") return;
   if (typeof currLanguage === "undefined")
