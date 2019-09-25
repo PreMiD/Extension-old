@@ -243,6 +243,10 @@
       font-weight: bold;
     }
   }
+
+  &--outdated {
+    background-color: #ff5050;
+  }
 }
 
 .presence-categories {

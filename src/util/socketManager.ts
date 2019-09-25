@@ -16,9 +16,12 @@ export function connect() {
 socket.on("connect", () => {
   socket.emit("getVersion");
   socket.once("receiveVersion", (version: number) => {
-    if (version >= 202) info("Supported app version");
-    else {
-      //TODO Add some information for the user
+    //TODO increase this for 2.0
+    if (version >= 202) {
+      info("Supported app version");
+      chrome.storage.local.set({ appVersionSupported: true });
+    } else {
+      chrome.storage.local.set({ appVersionSupported: false });
       error("Unsupported app version");
       socket.disconnect();
     }

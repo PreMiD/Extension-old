@@ -12,6 +12,8 @@ Vue.component("settingsView", {
         noPresences: "",
         notConnected: "",
         notConnectedMessage: "",
+        outdatedApp: "",
+        outdatedAppMessage: "",
         categories: {
           all: "",
           anime: "",
@@ -26,6 +28,7 @@ Vue.component("settingsView", {
       presences: [],
       currentCategory: "all",
       categoriesShown: false,
+      supportedVersion: true,
       categories: {
         all: {
           icon: "globe",
@@ -72,6 +75,13 @@ Vue.component("settingsView", {
       this.currentCategory = localStorage.currentCategory;
     }
 
+    chrome.storage.local.get(
+      "appVersionSupported",
+      ({ appVersionSupported }) => {
+        this.supportedVersion = appVersionSupported;
+      }
+    );
+
     chrome.runtime.sendMessage({
       popup: true
     });
@@ -91,10 +101,15 @@ Vue.component("settingsView", {
       notConnectedMessage: await pmd.getString(
         "popup.info.notConnected.message"
       ),
+      outdatedApp: await pmd.getString("popup.info.unsupportedAppVersion"),
+      outdatedAppMessage: await pmd.getString(
+        "popup.info.unsupportedAppVersion.message"
+      ),
       categories: {
         all: await pmd.getString("popup.category.all"),
         anime: await pmd.getString("popup.category.anime"),
         music: await pmd.getString("popup.category.music"),
+        games: await pmd.getString("popup.category.games"),
         socials: await pmd.getString("popup.category.socials"),
         videos: await pmd.getString("popup.category.videos"),
         other: await pmd.getString("popup.category.other")
@@ -235,9 +250,13 @@ Vue.component("settingsView", {
   template: `
   <div class="pmd_settings">
 
-    <div v-if="!connected" class="message-container message-container--error">
+    <div v-if="!connected && supportedVersion" class="message-container message-container--error">
       <h1 class="message-container__title" v-text="strings.notConnected" />
       <p class="message-container__details" v-html="strings.notConnectedMessage" />
+    </div>
+    <div v-if="!supportedVersion" class="message-container message-container--outdated">
+      <h1 class="message-container__title" v-text="strings.outdatedApp" />
+      <p class="message-container__details" v-html="strings.outdatedAppMessage" />
     </div>
 
     <div class="settings__container">
