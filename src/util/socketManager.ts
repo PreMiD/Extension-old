@@ -2,7 +2,8 @@ import * as socketIo from "socket.io-client";
 import { success, error, info } from "./debug";
 import { priorityTab } from "./tabPriority";
 import presenceDevManager from "./functions/presenceDevManager";
-import { oldActivity, setActivity } from "../background";
+import setActivity from "./functions/setActivity";
+import { oldActivity } from "./background/onMessage";
 
 //* Create socket
 export let socket = socketIo.connect("http://localhost:3020", {

@@ -53,10 +53,8 @@ export async function addPresence(name: string | Array<string>) {
         if (
           typeof json.metadata.button !== "undefined" &&
           !json.metadata.button
-        ) {
-          error(`Presence ${json.metadata.service} can't be added.`);
+        )
           return;
-        }
 
         let res = {
           metadata: json.metadata,
@@ -81,10 +79,9 @@ export async function addPresence(name: string | Array<string>) {
       ))
         .filter(p => typeof p !== "undefined")
         .map(async p => {
-          if (typeof p.metadata.button !== "undefined" && !p.metadata.button) {
-            error(`Presence ${p.metadata.service} can't be added.`);
+          if (typeof p.metadata.button !== "undefined" && !p.metadata.button)
             return;
-          }
+
 
           let res = {
             metadata: p.metadata,

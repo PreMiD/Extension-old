@@ -1,15 +1,16 @@
 import { getStorage } from "./functions/asyncStorage";
-import { socket } from "./socketManager";
-import { info, success } from "./debug";
 import fetchJSON from "./functions/fetchJSON";
 import { apiBase } from "../background";
+import clearActivity from "./functions/clearActivity";
+import tabHasPresence from "./functions/tabHasPresence";
+import injectPresence from "./functions/injectPresence";
+
+export let priorityTab = null;
+export let oldPresence = null;
 
 let currTimeout: NodeJS.Timeout;
 
-export let priorityTab = null;
-
-export let oldPresence = null;
-
+//TODO remove reason
 export async function tabPriority(reason = undefined, info = undefined) {
   //* Get last focused window
   let lastFocusedWindow = await new Promise<chrome.windows.Window>(resolve =>
@@ -71,7 +72,7 @@ export async function tabPriority(reason = undefined, info = undefined) {
     let { metadata } = await fetchJSON(`${apiBase}presences/${pmdMetaTag}`),
       prs = {
         metadata: metadata,
-        presence: await await fetch(
+        presence: await fetch(
           `${apiBase}presences/${pmdMetaTag}/presence.js`
         ).then(res => {
           return res.text();
@@ -80,7 +81,7 @@ export async function tabPriority(reason = undefined, info = undefined) {
       };
     if (metadata.iframe)
       // @ts-ignore
-      prs.iframe = await await fetch(
+      prs.iframe = await fetch(
         `${apiBase}presences/${pmdMetaTag}/iframe.js`
       ).then(res => {
         return res.text();
@@ -92,15 +93,7 @@ export async function tabPriority(reason = undefined, info = undefined) {
   //* Presence available for currUrl
   if (presence.length > 0) {
     //* Check if this tab already has a presence injected
-    let tabHasPresence = (await new Promise(resolve => {
-      chrome.tabs.executeScript(
-        activeTab.id,
-        {
-          code: "try{PreMiD_Presence}catch(_){false}"
-        },
-        resolve
-      );
-    }))[0];
+    let tabHasPrs = await tabHasPresence(activeTab.id);
 
     //* If a tab is already prioritised, run 5 sec timeout
     if (priorityTab) {
@@ -115,10 +108,10 @@ export async function tabPriority(reason = undefined, info = undefined) {
           priorityTab = activeTab.id;
 
           //* If tab has presence, tell to enable tabPriority, else inject and tell
-          if (tabHasPresence)
+          if (tabHasPrs)
             chrome.tabs.sendMessage(priorityTab, { tabPriority: true });
           else {
-            await inject(priorityTab, presence[0]);
+            await injectPresence(priorityTab, presence[0]);
 
             oldPresence = presence[0];
             chrome.tabs.sendMessage(priorityTab, { tabPriority: true });
@@ -131,7 +124,7 @@ export async function tabPriority(reason = undefined, info = undefined) {
         //* Check if presence injected, if not inject and send TabPriority
         if (
           priorityTab === activeTab.id &&
-          !tabHasPresence &&
+          !tabHasPrs &&
           typeof info.status !== "undefined" &&
           info.status === "complete"
         ) {
@@ -144,7 +137,7 @@ export async function tabPriority(reason = undefined, info = undefined) {
             clearActivity();
           }
           //* inject new presence
-          await inject(priorityTab, presence[0]);
+          await injectPresence(priorityTab, presence[0]);
           chrome.tabs.sendMessage(priorityTab, {
             tabPriority: true
           });
@@ -155,7 +148,7 @@ export async function tabPriority(reason = undefined, info = undefined) {
       oldPresence = presence[0];
       priorityTab = activeTab.id;
 
-      if (!tabHasPresence) await inject(priorityTab, presence[0]);
+      if (!tabHasPrs) await injectPresence(priorityTab, presence[0]);
 
       chrome.tabs.sendMessage(priorityTab, {
         tabPriority: true
@@ -171,43 +164,6 @@ export async function tabPriority(reason = undefined, info = undefined) {
   }
 }
 
-async function inject(tabId: number, presence: any) {
-  return new Promise(resolve => {
-    chrome.tabs.executeScript(
-      tabId,
-      {
-        code: "let PreMiD_Presence=true;" + presence.presence,
-        runAt: "document_start"
-      },
-      resolve
-    );
-
-    success(`Injected ${presence.metadata.service}`);
-  });
-}
-
-export function clearActivity(resetTabPriority = false) {
-  info(`Clear Activity | ${resetTabPriority}`);
-
-  if (resetTabPriority) {
-    //* Try to clearInterval
-    chrome.tabs.sendMessage(priorityTab, { tabPriority: false });
-
-    priorityTab = null;
-  }
-
-  //* Emit clearActivity to app
-  socket.emit("clearActivity");
-}
-
-export async function tabHasPresence(tabId: number) {
-  return (await new Promise(resolve => {
-    chrome.tabs.executeScript(
-      tabId,
-      {
-        code: "try{PreMiD_Presence}catch(_){false}"
-      },
-      resolve
-    );
-  }))[0];
+export function setPriorityTab(value: any) {
+  priorityTab = value;
 }

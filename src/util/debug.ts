@@ -1,5 +1,5 @@
 let genericStyle = "font-weight: 800; padding: 2px 5px; color: white;",
-  devVersion =
+  devVersion =true||
     chrome.runtime.getManifest().version_name.includes("-DEV") ||
     chrome.runtime.getManifest().version_name.includes("-BETA");
 

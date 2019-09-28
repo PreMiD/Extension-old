@@ -1,12 +1,20 @@
 import { getStorage } from "./asyncStorage";
 import { info } from "../debug";
 import { socket } from "../socketManager";
-import { oldActivity, setActivity } from "../../background";
-import { clearActivity, priorityTab } from "../tabPriority";
+import { priorityTab } from "../tabPriority";
+import setActivity from "./setActivity";
+import { oldActivity } from "../background/onMessage";
+import clearActivity from "./clearActivity";
 
 let settings = null;
 
 export default async function() {
+  let presences = (await getStorage("local", "presences")).presences;
+  if (!presences)
+    await new Promise(resolve =>
+      chrome.storage.local.set({ presences: [] }, resolve)
+    );
+
   settings = (await getStorage("sync", "settings")).settings;
   if (typeof settings === "undefined") settings = {};
 
@@ -15,7 +23,11 @@ export default async function() {
   initSetting("mediaKeys", "popup.setting.mediaControl", 2);
   initSetting("titleMenubar", "popup.setting.titleMenubar", 3);
 
-  chrome.storage.sync.set({ settings: settings });
+  await new Promise(resolve =>
+    chrome.storage.sync.set({ settings: settings }, resolve)
+  );
+
+  info("Initialized settings");
 }
 
 chrome.storage.onChanged.addListener(changes => {
@@ -54,7 +66,6 @@ function cOption(
   show: boolean
 ) {
   if (!settings[setting]) {
-    info(`Setting option ${setting}`);
     settings[setting] = {
       string: string,
       value: option,

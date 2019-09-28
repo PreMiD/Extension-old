@@ -1,7 +1,7 @@
 import fetchJSON from "./functions/fetchJSON";
-let apiBase = "https://api.premid.app/v2/";
 import { error } from "./debug";
 
+let apiBase = "https://api.premid.app/v2/";
 let defaultLanguage: any, currLanguage: any;
 
 export async function updateStrings() {

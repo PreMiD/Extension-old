@@ -2,6 +2,7 @@ import { info, error } from "../debug";
 import { getStorage } from "./asyncStorage";
 import { priorityTab } from "../tabPriority";
 
+//TODO Finish and show in some way
 let errors = [];
 export default async function(files: any) {
   errors = [];
@@ -12,7 +13,6 @@ export default async function(files: any) {
     presence = files.find(f => f.file.toLowerCase() === "presence.js"),
     iframe = files.find(f => f.file.toLowerCase() === "iframe.js");
 
-  //TODO Finish this stupid validation checks
   if (!metadata) errors.push("No metadata.json found.");
   else {
     metadata = metadata.contents;

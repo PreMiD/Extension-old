@@ -4,8 +4,7 @@
     "noImplicitAny": false,
     "sourceMap": false,
     "outDir": "dist/js",
-    "noEmitOnError": true,
-    "typeRoots": ["node_modules/@types"]
+    "noEmitOnError": true
   },
-  "include": ["src/*"]
+  "include": ["src/*", "@types/PreMiD/*.ts"]
 }

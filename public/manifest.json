@@ -2,18 +2,18 @@
   "manifest_version": 2,
 
   "name": "PreMiD",
-
-  "default_locale": "en",
-
   "description": "__MSG_description__",
-  "version": "2.0.6",
-  "version_name": "2.0-BETA3.2",
+
+  "version": "2.0",
+  "version_name": "2.0",
 
   "icons": {
     "16": "assets/images/icon_16x16.png",
     "48": "assets/images/icon_48x48.png",
     "128": "assets/images/icon_128x128.png"
   },
+
+  "default_locale": "en",
 
   "web_accessible_resources": ["html/test.html", "js/devHelper.js"],
 
@@ -51,8 +51,7 @@
 
   "applications": {
     "gecko": {
-      "id": "beta@premid.app",
-      "strict_min_version": "52.0"
+      "id": "beta@premid.app"
     }
   }
 }

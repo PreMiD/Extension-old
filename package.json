@@ -17,10 +17,10 @@
     "url": "https://github.com/Timeraa/Extension.git"
   },
   "dependencies": {
-    "socket.io-client": "^2.2.0"
+    "socket.io-client": "^2.3.0"
   },
   "devDependencies": {
-    "@types/chrome": "0.0.88",
+    "@types/chrome": "0.0.89",
     "@types/fs-extra": "^8.0.0",
     "@types/node-sass": "^4.11.0",
     "@types/socket.io-client": "^1.4.32",
@@ -30,11 +30,11 @@
     "fs-extra": "^8.1.0",
     "node-sass": "^4.12.0",
     "rimraf": "^3.0.0",
-    "ts-loader": "^6.0.4",
-    "typescript": "~3.6.2",
-    "webpack": "~4.39.3",
-    "webpack-bundle-analyzer": "^3.4.1",
-    "webpack-cli": "~3.3.7",
+    "ts-loader": "^6.1.2",
+    "typescript": "~3.6.3",
+    "webpack": "~4.41.0",
+    "webpack-bundle-analyzer": "^3.5.2",
+    "webpack-cli": "~3.3.9",
     "webpack-merge": "~4.2.2",
     "webpack-shell-plugin": "^0.5.0"
   }
