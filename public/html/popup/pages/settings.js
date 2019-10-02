@@ -249,7 +249,6 @@ Vue.component("settingsView", {
   },
   template: `
   <div class="pmd_settings">
-
     <div v-if="!connected && supportedVersion" class="message-container message-container--error">
       <h1 class="message-container__title" v-text="strings.notConnected" />
       <p class="message-container__details" v-html="strings.notConnectedMessage" />
@@ -297,34 +296,31 @@ Vue.component("settingsView", {
       </transition>
       <transition name="scaleIn" mode="out-in">
         <div v-if="filteredPresences.length > 0">
-      <div class="container__setting" v-for="(presence, key) in filteredPresences">
-        <img draggable="false" :src="presence.metadata.logo" width="24px">
-        <div class="setting__title setting__title--presence">
-          <p>
-            <span class="tmp" v-if="presence.tmp">tmp</span> {{presence.metadata.service}}
-          </p>
-        </div>
-        <div class="setting__switcher">
-          <div class="pmd_checkbox">
-            <transition name="scaleIn" mode="out-in">
-              <a v-if="managePresences" class="removePresence" v-on:click="removePresence(key)">
-                <i class="far fa-trash-alt"></i>
-              </a>
-              <label v-else>
-                <input v-model="filteredPresences[key].enabled" @change="updatePresence(presence.metadata.service, $event)" type="checkbox" :checked="presence.enabled" />
-                <span v-bind:style="[filteredPresences[key].enabled ? {'background-color': presence.metadata.color} : {}]" ref="checkbox" class="checkbox-container"></span>
-              </label>
-            </transition>
+          <div class="container__setting" v-for="(presence, key) in filteredPresences">
+            <img draggable="false" :src="presence.metadata.logo" width="24px">
+            <div class="setting__title setting__title--presence">
+              <p>
+                <span class="tmp" v-if="presence.tmp">tmp</span> {{presence.metadata.service}}
+              </p>
+            </div>
+            <div class="setting__switcher">
+              <div class="pmd_checkbox">
+                <transition name="scaleIn" mode="out-in">
+                  <a v-if="managePresences" class="removePresence" v-on:click="removePresence(key)">
+                    <i class="far fa-trash-alt"></i>
+                  </a>
+                  <label v-else>
+                    <input v-model="filteredPresences[key].enabled" @change="updatePresence(presence.metadata.service, $event)" type="checkbox" :checked="presence.enabled" />
+                    <span v-bind:style="[filteredPresences[key].enabled ? {'background-color': presence.metadata.color} : {}]" ref="checkbox" class="checkbox-container"></span>
+                  </label>
+                </transition>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
-  </transition>
-
+      </transition>
     <!-- Presence store -->
-    <div>
-      <a v-if="filteredPresences.length <= 3" href="https://premid.app/store" target="_blank" class="button button--store" v-html="strings.presenceStore"/>
-    </div>
+    <a href="https://premid.app/store" target="_blank" class="button button--store" v-html="strings.presenceStore"/>
   </div>
   </div>`
 });
