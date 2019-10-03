@@ -15,6 +15,42 @@ base.get("langFile/list").then(({ data }) => {
     })
   ).then(data => {
     data.map(description => {
+      switch (description[0]) {
+        case "pt":
+          description[0] = "pt_PT";
+          break;
+        case "ar_SA":
+          description[0] = "ar";
+          break;
+        case "cs_CZ":
+          description[0] = "cs";
+          break;
+        case "da_DK":
+          description[0] = "da";
+          break;
+        case "he_IL":
+          description[0] = "he";
+          break;
+        case "ja_JP":
+          description[0] = "ja";
+          break;
+        case "ko_KR":
+          description[0] = "ko";
+          break;
+        case "sl_SI":
+          description[0] = "sl";
+          break;
+        case "sv_SE":
+          description[0] = "sv";
+          break;
+        case "uk_UA":
+          description[0] = "uk";
+          break;
+        case "bs_BA":
+          description[0] = "bs";
+          break;
+      }
+
       ensureDirSync(`public/_locales/${description[0]}`);
       writeFileSync(
         `public/_locales/${description[0]}/messages.json`,
