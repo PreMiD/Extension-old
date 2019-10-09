@@ -45,7 +45,7 @@ Vue.component("installedView", {
     </div>
 
       <div v-bind:class="{hidden: !this.connected}" ref="table">
-        <a draggable="false" class="button start" target="_blank" href="https://beta.premid.app" v-html="this.strings.start"></a>
+        <a draggable="false" class="button start" target="_blank" href="https://premid.app" v-html="this.strings.start"></a>
       </div>
       <div v-bind:class="{hidden: this.connected}" v-if="!this.connected">
         <div id="error">

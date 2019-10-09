@@ -43,8 +43,18 @@ async function update() {
   //* Save update version
   //* Open updated tab
   if (
-    (await getStorage("local", "lastVersion")).lastVersion !==
-    chrome.runtime.getManifest().version_name
+    //@ts-ignore
+    parseInt(
+      (await getStorage("local", "lastVersion")).lastVersion
+        .replace(/\./g, "")
+        .slice(0, 3)
+    ) <
+    parseInt(
+      chrome.runtime
+        .getManifest()
+        .version_name.replace(/\./g, "")
+        .slice(0, 3)
+    )
   ) {
     chrome.storage.local.set({
       lastVersion: chrome.runtime.getManifest().version_name
