@@ -17,12 +17,13 @@ export function connect() {
 socket.on("connect", () => {
   socket.emit("getVersion");
 
+  //TODO find better solution instead of setTimeout
   let appVersion = setTimeout(() => {
     chrome.storage.local.set({ appVersionSupported: false });
     error("Unsupported app version");
     socket.disconnect();
-  }, 1000);
-  socket.once("receiveVersion", (version: number) => {
+  }, 5000);
+  socket.on("receiveVersion", (version: number) => {
     clearTimeout(appVersion);
     //TODO increase this for 2.0
     if (version >= 203) {
