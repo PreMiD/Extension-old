@@ -4,6 +4,7 @@ import { priorityTab } from "./tabPriority";
 import presenceDevManager from "./functions/presenceDevManager";
 import setActivity from "./functions/setActivity";
 import { oldActivity } from "./background/onMessage";
+import { getStorage } from "./functions/asyncStorage";
 
 //* Create socket
 export let socket = socketIo.connect("http://localhost:3020", {
@@ -14,13 +15,22 @@ export function connect() {
   socket.open();
 }
 
-socket.on("connect", () => {
+socket.on("connect", async () => {
   socket.emit("getVersion");
+
+  //TODO move this in a file or so
+  let settings = (await getStorage("sync", "settings")).settings;
+  settings = Object.assign(
+    {},
+    ...Object.keys(settings).map(k => {
+      return { [k]: settings[k].value };
+    })
+  );
+  socket.emit("settingUpdate", settings);
 
   let appVersion = setTimeout(() => {
     chrome.storage.local.set({ appVersionSupported: false });
     error("Unsupported app version");
-    socket.disconnect();
   }, 1000);
   socket.once("receiveVersion", (version: number) => {
     clearTimeout(appVersion);
