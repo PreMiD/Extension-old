@@ -122,14 +122,14 @@ class Presence {
         listener(detail.detail)
       );
 
-      let event = new CustomEvent("PreMiD_RequestExtensionData", {
+      let pmdRED = new CustomEvent("PreMiD_RequestExtensionData", {
         detail: {
           strings: strings
         }
       });
 
       //* Trigger the event
-      window.dispatchEvent(event);
+      window.dispatchEvent(pmdRED);
     });
   }
 
@@ -155,8 +155,8 @@ class Presence {
       script.id = "PreMiD_Pageletiables";
       script.appendChild(
         document.createTextNode(`
-        let event = new CustomEvent("PreMiD_Pageletiable", {detail: (typeof window["${letiable}"] === "string") ? window["${letiable}"] : JSON.stringify(window["${letiable}"])});
-        window.dispatchEvent(event);
+        var pmdPL = new CustomEvent("PreMiD_Pageletiable", {detail: (typeof window["${letiable}"] === "string") ? window["${letiable}"] : JSON.stringify(window["${letiable}"])});
+        window.dispatchEvent(pmdPL);
       `)
       );
 
@@ -171,11 +171,11 @@ class Presence {
    */
   private sendData(data: Object) {
     //* Send data to app
-    let event = new CustomEvent("PreMiD_UpdatePresence", {
+    let pmdUP = new CustomEvent("PreMiD_UpdatePresence", {
       detail: data
     });
 
-    window.dispatchEvent(event);
+    window.dispatchEvent(pmdUP);
   }
 
   /**
@@ -221,11 +221,11 @@ class iFrame {
    * @param data Data to send
    */
   send(data: any) {
-    let event = new CustomEvent("PreMiD_iFrameData", {
+    let pmdIFD = new CustomEvent("PreMiD_iFrameData", {
       detail: data
     });
 
-    document.dispatchEvent(event);
+    document.dispatchEvent(pmdIFD);
   }
 
   //TODO Add to docs
@@ -242,9 +242,9 @@ class iFrame {
       };
       document.addEventListener("PreMiD_iFrameURL", _listener);
 
-      let event = new CustomEvent("PreMiD_GETiFrameURL");
+      let pmdGIFU = new CustomEvent("PreMiD_GETiFrameURL");
 
-      document.dispatchEvent(event);
+      document.dispatchEvent(pmdGIFU);
     });
   }
 
