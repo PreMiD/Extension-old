@@ -116,15 +116,16 @@ Vue.component("settingsView", {
       }
     };
 
-    this.strings.notConnectedMessage.match(/(\[.*?\])/g).map((ch, i) => {
-      this.strings.notConnectedMessage = this.strings.notConnectedMessage.replace(
-        ch,
-        `<a target="_blank" href="https://wiki.premid.app/troubleshooting/troubleshooting">${ch.slice(
-          1,
-          ch.length - 1
-        )}</a>`
-      );
-    });
+    if (this.strings.notConnectedMessage.match(/(\*.*?\*)/g))
+      this.strings.notConnectedMessage.match(/(\*.*?\*)/g).map((ch, i) => {
+        this.strings.notConnectedMessage = this.strings.notConnectedMessage.replace(
+          ch,
+          `<a target="_blank" href="https://wiki.premid.app/troubleshooting/troubleshooting">${ch.slice(
+            1,
+            ch.length - 1
+          )}</a>`
+        );
+      });
 
     //* Get settings, filter language option for now, save in object
     this.settings = await new Promise(function(resolve, reject) {

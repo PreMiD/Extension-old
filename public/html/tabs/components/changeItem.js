@@ -20,8 +20,8 @@ Vue.component("change", {
     }
 
     let text = this.change.text;
-    if (this.change.text.match(/(\[.*?\])/g) != null)
-      this.change.text.match(/(\[.*?\])/g).map((ch, i) => {
+    if (this.change.text.match(/(\*.*?\*)/g) != null)
+      this.change.text.match(/(\*.*?\*)/g).map((ch, i) => {
         text = text.replace(
           ch,
           `<a target="_blank" href="${this.change.urls[i]}">${ch.slice(
