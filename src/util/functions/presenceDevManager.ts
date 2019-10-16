@@ -72,6 +72,4 @@ export default async function(files: any) {
   chrome.storage.local.set({ presences: presences });
 
   chrome.tabs.reload(priorityTab);
-
-  console.log(tmpPr);
 }
