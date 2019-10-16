@@ -15,6 +15,11 @@ export default async function setActivity(presence: any, settings = undefined) {
 
   if (!settings.mediaKeys.value) pTS.mediaKeys = false;
 
+  if (typeof pTS.presenceData.details !== "undefined")
+    pTS.presenceData.details.slice(0, 128);
+  if (typeof pTS.presenceData.state !== "undefined")
+    pTS.presenceData.state.slice(0, 128);
+
   socket.emit("setActivity", pTS);
   info("setActivity");
 }
