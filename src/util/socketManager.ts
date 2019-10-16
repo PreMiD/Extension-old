@@ -15,8 +15,17 @@ export function connect() {
   socket.open();
 }
 
+let appVersion: NodeJS.Timeout = null;
+
 socket.on("connect", async () => {
+  //* Tell app to give us its version
+  //* Start timeout if we don't receive version response
   socket.emit("getVersion");
+  appVersion = setTimeout(() => {
+    //* No response got, most likely old version
+    chrome.storage.local.set({ appVersionSupported: false });
+    error("Unsupported app version");
+  }, 5000);
 
   //TODO move this in a file or so
   let settings = (await getStorage("sync", "settings")).settings;
@@ -27,31 +36,26 @@ socket.on("connect", async () => {
     })
   );
   socket.emit("settingUpdate", settings);
+});
 
-  let appVersion = setTimeout(() => {
+socket.on("receiveVersion", (version: number) => {
+  clearTimeout(appVersion);
+  if (version >= 203) {
+    info("Supported app version");
+    chrome.storage.local.set({ appVersionSupported: true });
+  } else {
     chrome.storage.local.set({ appVersionSupported: false });
     error("Unsupported app version");
-  }, 5000);
-  socket.once("receiveVersion", (version: number) => {
-    clearTimeout(appVersion);
-    //TODO increase this for 2.0
-    if (version >= 203) {
-      info("Supported app version");
-      chrome.storage.local.set({ appVersionSupported: true });
-    } else {
-      chrome.storage.local.set({ appVersionSupported: false });
-      error("Unsupported app version");
-      return;
-    }
+    return;
+  }
 
-    if (oldActivity) setActivity(oldActivity);
+  if (oldActivity) setActivity(oldActivity);
 
-    success("Connected to application");
-    chrome.runtime.sendMessage({ socket: socket.connected });
+  success("Connected to application");
+  chrome.runtime.sendMessage({ socket: socket.connected });
 
-    if (priorityTab !== null)
-      chrome.tabs.sendMessage(priorityTab, { tabPriority: true });
-  });
+  if (priorityTab !== null)
+    chrome.tabs.sendMessage(priorityTab, { tabPriority: true });
 });
 
 socket.on("disconnect", () => {
@@ -59,7 +63,7 @@ socket.on("disconnect", () => {
   chrome.runtime.sendMessage({ socket: socket.connected });
 
   chrome.storage.local.get("presences", ({ presences }) => {
-    presences = presences.filter(p => !p.tmp);
+    presences = (presences as presenceStorage).filter(p => !p.tmp);
     chrome.storage.local.set({ presences: presences });
   });
 
