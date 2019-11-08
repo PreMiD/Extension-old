@@ -10,8 +10,7 @@ export let oldPresence = null;
 
 let currTimeout: NodeJS.Timeout;
 
-//TODO remove reason
-export async function tabPriority(reason = undefined, info = undefined) {
+export async function tabPriority(info = undefined) {
   //* Get last focused window
   let lastFocusedWindow = await new Promise<chrome.windows.Window>(resolve =>
       chrome.windows.getLastFocused(resolve)
@@ -39,7 +38,14 @@ export async function tabPriority(reason = undefined, info = undefined) {
       {
         code: `try{document.querySelector('meta[name="PreMiD_Presence"]').content}catch(e){false}`
       },
-      res => resolve(res[0])
+      res => {
+        if (!res) {
+          resolve(undefined);
+          return;
+        }
+
+        resolve(res[0]);
+      }
     )
   );
 

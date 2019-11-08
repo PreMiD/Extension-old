@@ -27,7 +27,7 @@ export default async function() {
     chrome.storage.sync.set({ settings: settings }, resolve)
   );
 
-  info("Initialized settings");
+  info("initSettings.ts", "Initialized settings");
 }
 
 chrome.storage.onChanged.addListener(changes => {
@@ -43,7 +43,7 @@ chrome.storage.onChanged.addListener(changes => {
     else if (priorityTab !== null) clearActivity(true);
 
     if (socket.connected) socket.emit("settingUpdate", nSettings);
-    info("Settings update");
+    info("initSettings.ts", "Settings update");
   }
 });
 

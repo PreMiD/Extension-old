@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "init": "npm i --prefer-offline && tsc sassCompiler",
-    "watch": "webpack --config webpack/webpack.dev.js --watch",
+    "dev": "webpack --config webpack/webpack.dev.js --watch",
     "check": "webpack --config webpack/webpack.analyze.js",
     "build": "rimraf dist && node fetchDescriptions.js && webpack --config webpack/webpack.prod.js",
     "watchSass": "node sassCompiler.js"
@@ -17,25 +17,25 @@
     "url": "https://github.com/Timeraa/Extension.git"
   },
   "dependencies": {
-    "socket.io-client": "^2.3.0"
+    "socket.io-client": "2.3.0"
   },
   "devDependencies": {
     "@types/chrome": "0.0.89",
-    "@types/fs-extra": "^8.0.0",
-    "@types/node-sass": "^4.11.0",
-    "@types/socket.io-client": "^1.4.32",
-    "axios": "^0.19.0",
-    "chalk": "^2.4.2",
-    "copy-webpack-plugin": "^5.0.4",
-    "fs-extra": "^8.1.0",
-    "node-sass": "^4.12.0",
-    "rimraf": "^3.0.0",
-    "ts-loader": "^6.1.2",
-    "typescript": "~3.6.3",
-    "webpack": "~4.41.0",
-    "webpack-bundle-analyzer": "^3.5.2",
-    "webpack-cli": "~3.3.9",
-    "webpack-merge": "~4.2.2",
-    "webpack-shell-plugin": "^0.5.0"
+    "@types/fs-extra": "8.0.0",
+    "@types/node-sass": "4.11.0",
+    "@types/socket.io-client": "1.4.32",
+    "axios": "0.19.0",
+    "chalk": "2.4.2",
+    "copy-webpack-plugin": "5.0.4",
+    "fs-extra": "8.1.0",
+    "node-sass": "4.12.0",
+    "rimraf": "3.0.0",
+    "ts-loader": "6.1.2",
+    "typescript": "3.6.3",
+    "webpack": "4.41.0",
+    "webpack-bundle-analyzer": "3.5.2",
+    "webpack-cli": "3.3.9",
+    "webpack-merge": "4.2.2",
+    "webpack-shell-plugin": "0.5.0"
   }
 }

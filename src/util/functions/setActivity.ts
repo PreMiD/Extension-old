@@ -21,5 +21,5 @@ export default async function setActivity(presence: any, settings = undefined) {
     pTS.presenceData.state.slice(0, 128);
 
   socket.emit("setActivity", pTS);
-  info("setActivity");
+  info("setActivity.ts", "setActivity");
 }

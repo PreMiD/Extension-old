@@ -251,10 +251,11 @@
 }
 
 .presence-categories {
+  white-space: nowrap;
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
+  max-width: 250px;
+  overflow-x: hidden;
+  overflow-y: hidden;
   margin-bottom: 0.7rem;
 
   &__label {

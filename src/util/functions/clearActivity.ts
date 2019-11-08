@@ -3,7 +3,7 @@ import { priorityTab, setPriorityTab } from "../tabPriority";
 import { socket } from "../socketManager";
 
 export default function clearActivity(resetTabPriority = false) {
-  info(`Clear Activity | ${resetTabPriority}`);
+  info("clearActivity.ts", `Clear Activity | ${resetTabPriority}`);
 
   if (resetTabPriority) {
     //* Try to clearInterval

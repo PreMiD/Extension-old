@@ -14,6 +14,6 @@ export default async function injectPresence(
       resolve
     );
 
-    success(`Injected ${presence.metadata.service}`);
+    success("injectPresence.ts", `Injected ${presence.metadata.service}`);
   });
 }

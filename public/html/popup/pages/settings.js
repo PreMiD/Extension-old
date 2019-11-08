@@ -70,6 +70,27 @@ Vue.component("settingsView", {
       managePresences: false
     };
   },
+  mounted() {
+    const pCats = document.querySelector(".presence-categories");
+    let mDown = false;
+    let startX;
+    let scrollLeft;
+
+    pCats.addEventListener("mousedown", e => {
+      e.preventDefault();
+      mDown = true;
+      startX = e.pageX - pCats.offsetLeft;
+      scrollLeft = pCats.scrollLeft;
+    });
+    pCats.addEventListener("mouseleave", () => (mDown = false));
+    pCats.addEventListener("mouseup", () => (mDown = false));
+    pCats.addEventListener("mousemove", e => {
+      if (!mDown) return;
+      const x = e.pageX - pCats.offsetLeft;
+      const walkSpeed = (x - startX) * 3;
+      pCats.scrollLeft = scrollLeft - walkSpeed;
+    });
+  },
   created: async function() {
     if (localStorage.currentCategory) {
       this.currentCategory = localStorage.currentCategory;

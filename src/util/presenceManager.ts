@@ -1,14 +1,47 @@
 import fetchJSON from "./functions/fetchJSON";
 import { getStorage } from "./functions/asyncStorage";
 import { error, success } from "./debug";
+import randomHex from "./functions/randomHex";
 
 let apiBase = "https://api.premid.app/v2/";
 
+export async function presenceScience() {
+  let identifier = (await getStorage("local", "identifier")).identifier,
+    presences = (await getStorage("local", "presences")).presences;
+
+  if (!identifier) {
+    identifier = randomHex();
+    chrome.storage.local.set({ identifier: identifier });
+  }
+
+  const headers = new Headers();
+  headers.append("Content-Type", "application/json");
+
+  fetch(apiBase + "science", {
+    body: JSON.stringify({
+      identifier: identifier,
+      presences: presences.map(p => p.metadata.service)
+    }),
+    method: "POST",
+    headers: headers
+  }).catch(() => {});
+}
+
 export async function updatePresences() {
-  let presenceVersions = await fetchJSON(apiBase + "presences/versions"),
+  presenceScience();
+
+  let presenceVersions: Array<{ name: string; version: string; url: string }>,
     { presences } = await getStorage("local", "presences");
 
-  if (!presences) return;
+  if (!presences || presences.length === 0) return;
+
+  //* Catch fetch error
+  try {
+    presenceVersions = await fetchJSON(apiBase + "presences/versions");
+  } catch (e) {
+    error("presenceManager.ts", `Error while updating presences: ${e.message}`);
+    return;
+  }
 
   let currPresenceVersions = presences.map(p => {
     return { name: p.metadata.service, version: p.metadata.version };
@@ -21,7 +54,9 @@ export async function updatePresences() {
   presencesToUpdate.map(p => {
     presences = presences.filter(p1 => p1.metadata.service !== p.name);
     chrome.storage.local.set({ presences }, () => {
-      addPresence(p.name).then(() => success(`Updated ${p.name}`));
+      addPresence(p.name).then(() =>
+        success("presenceManager", `Updated ${p.name}`)
+      );
     });
   });
 }
@@ -33,7 +68,7 @@ export async function addPresence(name: string | Array<string>) {
 
   if (typeof name === "string") {
     if (presences.filter(p => !p.tmp).find(p => p.metadata.service === name)) {
-      error(`Presence ${name} already added.`);
+      error("presenceManager", `Presence ${name} already added.`);
       return;
     }
   } else {
@@ -42,7 +77,7 @@ export async function addPresence(name: string | Array<string>) {
     );
 
     if (res.length === 0) {
-      error("Presences already added.");
+      error("presenceManager", "Presences already added.");
       return;
     } else name = res;
   }
@@ -81,7 +116,6 @@ export async function addPresence(name: string | Array<string>) {
         .map(async p => {
           if (typeof p.metadata.button !== "undefined" && !p.metadata.button)
             return;
-
 
           let res = {
             metadata: p.metadata,

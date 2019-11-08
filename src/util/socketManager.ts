@@ -24,7 +24,7 @@ socket.on("connect", async () => {
   appVersion = setTimeout(() => {
     //* No response got, most likely old version
     chrome.storage.local.set({ appVersionSupported: false });
-    error("Unsupported app version");
+    error("socketManager.ts", "Unsupported app version");
   }, 5000);
 
   //TODO move this in a file or so
@@ -41,17 +41,17 @@ socket.on("connect", async () => {
 socket.on("receiveVersion", (version: number) => {
   clearTimeout(appVersion);
   if (version >= 203) {
-    info("Supported app version");
+    info("socketManager.ts", "Supported app version");
     chrome.storage.local.set({ appVersionSupported: true });
   } else {
     chrome.storage.local.set({ appVersionSupported: false });
-    error("Unsupported app version");
+    error("socketManager.ts", "Unsupported app version");
     return;
   }
 
   if (oldActivity) setActivity(oldActivity);
 
-  success("Connected to application");
+  success("socketManager.ts", "Connected to application");
   chrome.runtime.sendMessage({ socket: socket.connected });
 
   if (priorityTab !== null)
@@ -59,7 +59,7 @@ socket.on("receiveVersion", (version: number) => {
 });
 
 socket.on("disconnect", () => {
-  error("Disconnected from application");
+  error("socketManager.ts", "Disconnected from application");
   chrome.runtime.sendMessage({ socket: socket.connected });
 
   chrome.storage.local.get("presences", ({ presences }) => {

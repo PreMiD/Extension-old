@@ -27,13 +27,6 @@ export async function start() {
     addPresence((await fetchJSON(`${apiBase}presences`)).map(p => p.name));
   checkAccess().then(connect);
 
-  //* Remove tmp Presence
-  let presences: presenceStorage = (await getStorage("local", "presences"))
-    .presences;
-
-  presences = presences.filter(p => !p.tmp);
-  chrome.storage.local.set({ presences: presences });
-
   //* Add default presences
   getStorage("local", "defaultAdded").then(({ defaultAdded }) => {
     //* return if already added
@@ -52,7 +45,7 @@ export async function start() {
 
 //* Update if update available
 chrome.runtime.onUpdateAvailable.addListener(() => chrome.runtime.reload());
-chrome.tabs.onActivated.addListener(() => tabPriority("activated"));
+chrome.tabs.onActivated.addListener(() => tabPriority());
 chrome.tabs.onReplaced.addListener((_, tabId) => {
   //* Only clear if tab is priorityTab
   if (priorityTab === tabId) clearActivity(true);
@@ -61,12 +54,10 @@ chrome.tabs.onRemoved.addListener(tabId => {
   //* Only clear if tab is priorityTab
   if (priorityTab === tabId) clearActivity(true);
 });
-chrome.tabs.onUpdated.addListener((_, changeInfo) =>
-  tabPriority("updated", changeInfo)
-);
+chrome.tabs.onUpdated.addListener((_, changeInfo) => tabPriority(changeInfo));
 chrome.windows.onFocusChanged.addListener(windowId => {
   //* Can't change window
   if (windowId === -1) return;
 
-  tabPriority("focusChanged");
+  tabPriority();
 });

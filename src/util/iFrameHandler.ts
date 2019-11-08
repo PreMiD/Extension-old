@@ -4,14 +4,11 @@ let waitResponse: any = setInterval(() => {
   scriptInjected = false;
 
 chrome.runtime.onMessage.addListener(async msg => {
-  if (msg.iFrameUpdateData && scriptInjected) {
-    let evt = new CustomEvent("PreMiD_UpdateData");
-    document.dispatchEvent(evt);
-  }
-
   if (typeof msg.iFrame !== "undefined" && !scriptInjected) {
     clearInterval(waitResponse);
     waitResponse = null;
+    //* If no iFrame, return
+    if (!msg.iFrame) return;
 
     if (window.location.href.match(new RegExp(msg.iFrameRegExp)) !== null) {
       scriptInjected = true;
@@ -27,6 +24,11 @@ chrome.runtime.onMessage.addListener(async msg => {
       );
       document.querySelector("html").appendChild(script);
     }
+  }
+
+  if (msg.iFrameUpdateData && scriptInjected) {
+    let evt = new CustomEvent("PreMiD_UpdateData");
+    document.dispatchEvent(evt);
   }
 });
 

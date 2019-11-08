@@ -6,7 +6,7 @@ import { priorityTab } from "../tabPriority";
 let errors = [];
 export default async function(files: any) {
   errors = [];
-  info("Local Presence update");
+  info("presenceDevManager.ts", "Local Presence update");
 
   files = files.files;
   let metadata = files.find(f => f.file.toLowerCase() === "metadata.json"),
@@ -45,7 +45,7 @@ export default async function(files: any) {
   }
   if (!presence) errors.push("No presence.js found.");
 
-  errors.map(err => error(err));
+  errors.map(err => error("presenceDevManager.ts", err));
 
   let { presences } = await getStorage("local", "presences");
 

@@ -2,16 +2,6 @@ import { getString } from "./util/langManager";
 import { info } from "./util/debug";
 let tabPriority = null;
 
-// TODO Make design and code
-/*
-window.addEventListener("load", () => {
-  let el = document.createElement("div");
-  el.style.setProperty("z-index", "999");
-  el.innerHTML = "<h1>PreMiD supports this page!</h1>";
-  document.querySelector("body").appendChild(el);
-});
-*/
-
 chrome.runtime.onMessage.addListener(function(data) {
   if (typeof data.iFrameData !== "undefined") {
     let event = new CustomEvent("PreMiD_iFrameData", {
@@ -25,14 +15,14 @@ chrome.runtime.onMessage.addListener(function(data) {
     if (data.tabPriority) {
       //* Prevent multiple intervals
       if (tabPriority === null) {
-        info(`Tab Priority: ${data.tabPriority}`);
+        info("contentScript.ts", `Tab Priority: ${data.tabPriority}`);
         tabPriority = setInterval(() => {
           chrome.runtime.sendMessage({ iFrameUpdateData: true });
 
           let event = new CustomEvent("PreMiD_UpdateData");
           document.dispatchEvent(event);
 
-          info("updateData");
+          info("contentScript.ts", "updateData");
         }, 100);
       }
     } else {

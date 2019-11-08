@@ -3,13 +3,11 @@ import { connect } from "../socketManager";
 import { getStorage } from "../functions/asyncStorage";
 import { start } from "./generic";
 
-var bgPageStarted = false;
 chrome.runtime.onInstalled.addListener(async details => {
   //* ExtEnable
   //* Check access (beta)
   clearTimeout(onExtEnable);
 
-  bgPageStarted = true;
   await start();
 
   await checkAccess().catch(() => chrome.management.uninstallSelf());
@@ -71,7 +69,6 @@ async function update() {
 //* Run this when extension enables (only if was disabled)
 let onExtEnable = setTimeout(enable, 100);
 async function enable() {
-  bgPageStarted = true;
   await start();
 
   checkAccess()
