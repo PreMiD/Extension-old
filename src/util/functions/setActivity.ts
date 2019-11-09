@@ -12,16 +12,14 @@ export default async function setActivity(
   if (presence == null || !settings.enabled.value) return;
 
   if (settings.titleMenubar.value) {
-    if (typeof pTS.trayTitle !== "undefined")
-      pTS.trayTitle = pTS.trayTitle.trim();
+    if (pTS.trayTitle) pTS.trayTitle = pTS.trayTitle.trim();
+    else pTS.trayTitle = "";
   } else pTS.trayTitle = "";
 
   if (!settings.mediaKeys.value) pTS.mediaKeys = false;
 
-  if (typeof pTS.presenceData.details !== "undefined")
-    pTS.presenceData.details.slice(0, 128);
-  if (typeof pTS.presenceData.state !== "undefined")
-    pTS.presenceData.state.slice(0, 128);
+  if (pTS.presenceData.details) pTS.presenceData.details.slice(0, 128);
+  if (pTS.presenceData.state) pTS.presenceData.state.slice(0, 128);
 
   socket.emit("setActivity", pTS);
   info("setActivity.ts", "setActivity");
