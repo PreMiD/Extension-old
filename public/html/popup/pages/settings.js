@@ -110,35 +110,54 @@ Vue.component("settingsView", {
       if (typeof msg.socket !== "undefined") this.connected = msg.socket;
     });
 
-    this.strings = {
-      general: await pmd.getString("popup.headings.general"),
-      presences: await pmd.getString("popup.headings.presences"),
-      manage: await pmd.getString("popup.presences.manage"),
-      load: await pmd.getString("popup.presences.load"),
-      done: await pmd.getString("popup.presences.done"),
-      presenceStore: await pmd.getString("popup.buttons.presenceStore"),
-      noPresences: await pmd.getString("popup.presences.noPresences"),
-      notConnected: await pmd.getString("popup.info.notConnected"),
-      notConnectedMessage: await pmd.getString(
-        "popup.info.notConnected.message"
-      ),
-      outdatedApp: await pmd.getString("popup.info.unsupportedAppVersion"),
-      outdatedAppMessage: await pmd.getString(
-        "popup.info.unsupportedAppVersion.message"
-      ),
-      categories: {
-        all: await pmd.getString("popup.category.all"),
-        anime: await pmd.getString("popup.category.anime"),
-        music: await pmd.getString("popup.category.music"),
-        games: await pmd.getString("popup.category.games"),
-        socials: await pmd.getString("popup.category.socials"),
-        videos: await pmd.getString("popup.category.videos"),
-        other: await pmd.getString("popup.category.other")
-      }
-    };
+    //TODO recode this to use html tags
+    const self = this;
+    Promise.all([
+      pmd.getString("popup.headings.general"),
+      pmd.getString("popup.headings.presences"),
+      pmd.getString("popup.presences.manage"),
+      pmd.getString("popup.presences.load"),
+      pmd.getString("popup.presences.done"),
+      pmd.getString("popup.buttons.presenceStore"),
+      pmd.getString("popup.presences.noPresences"),
+      pmd.getString("popup.info.notConnected"),
+      pmd.getString("popup.info.notConnected.message"),
+      pmd.getString("popup.info.unsupportedAppVersion"),
+      pmd.getString("popup.info.unsupportedAppVersion.message"),
+      pmd.getString("popup.category.all"),
+      pmd.getString("popup.category.anime"),
+      pmd.getString("popup.category.music"),
+      pmd.getString("popup.category.games"),
+      pmd.getString("popup.category.socials"),
+      pmd.getString("popup.category.videos"),
+      pmd.getString("popup.category.other")
+    ]).then(strings => {
+      self.strings = {
+        general: strings[0],
+        presences: strings[1],
+        manage: strings[2],
+        load: strings[3],
+        done: strings[4],
+        presenceStore: strings[5],
+        noPresences: strings[6],
+        notConnected: strings[7],
+        notConnectedMessage: strings[8],
+        outdatedApp: strings[9],
+        outdatedAppMessage: strings[10],
+        categories: {
+          all: strings[11],
+          anime: strings[12],
+          music: strings[13],
+          games: strings[14],
+          socials: strings[15],
+          videos: strings[16],
+          other: strings[17]
+        }
+      };
+    });
 
     if (this.strings.notConnectedMessage.match(/(\*.*?\*)/g))
-      this.strings.notConnectedMessage.match(/(\*.*?\*)/g).map((ch, i) => {
+      this.strings.notConnectedMessage.match(/(\*.*?\*)/g).map(ch => {
         this.strings.notConnectedMessage = this.strings.notConnectedMessage.replace(
           ch,
           `<a target="_blank" href="https://wiki.premid.app/troubleshooting/troubleshooting">${ch.slice(
@@ -149,17 +168,17 @@ Vue.component("settingsView", {
       });
 
     //* Get settings, filter language option for now, save in object
-    this.settings = await new Promise(function(resolve, reject) {
+    this.settings = await new Promise(function(resolve) {
       chrome.storage.sync.get("settings", function(result) {
         Promise.all(
-          Object.keys(result.settings).map(async (key, index) => {
+          Object.keys(result.settings).map(async key => {
             if (typeof result.settings[key].show === "undefined") return;
 
             result.settings[key].string = await pmd.getString(
               result.settings[key].string
             );
           })
-        ).then(res => {
+        ).then(() => {
           chrome.runtime.getPlatformInfo(function(info) {
             if (!info.os == "mac") delete result.settings.titleMenubar;
             delete result.settings.language;
@@ -183,7 +202,7 @@ Vue.component("settingsView", {
     );
 
     //* Get presences, save in array
-    this.presences = await new Promise(function(resolve, reject) {
+    this.presences = await new Promise(function(resolve) {
       chrome.storage.local.get("presences", function(result) {
         //* Sort alphabetically
         resolve(sortPresences(result.presences));
@@ -200,11 +219,11 @@ Vue.component("settingsView", {
     });
 
     //* Presence dev stuff
-    window.addEventListener("keydown", e => {
+    window.addEventListener("keydown", () => {
       this.shiftPressed = event.shiftKey;
     });
 
-    window.addEventListener("keyup", e => {
+    window.addEventListener("keyup", () => {
       this.shiftPressed = event.shiftKey;
     });
   },

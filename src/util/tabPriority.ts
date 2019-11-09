@@ -5,12 +5,12 @@ import clearActivity from "./functions/clearActivity";
 import tabHasPresence from "./functions/tabHasPresence";
 import injectPresence from "./functions/injectPresence";
 
-export let priorityTab = null;
-export let oldPresence = null;
+export let priorityTab: number = null;
+export let oldPresence: any = null;
 
 let currTimeout: NodeJS.Timeout;
 
-export async function tabPriority(info = undefined) {
+export async function tabPriority(info: any = undefined) {
   //* Get last focused window
   let lastFocusedWindow = await new Promise<chrome.windows.Window>(resolve =>
       chrome.windows.getLastFocused(resolve)
@@ -21,7 +21,8 @@ export async function tabPriority(info = undefined) {
         tabs => resolve(tabs)
       )
     ))[0],
-    presence = (await getStorage("local", "presences")).presences;
+    presence: presenceStorage = (await getStorage("local", "presences"))
+      .presences;
 
   //* No point to continue if theres no url
   if (
@@ -131,7 +132,7 @@ export async function tabPriority(info = undefined) {
         if (
           priorityTab === activeTab.id &&
           !tabHasPrs &&
-          typeof info.status !== "undefined" &&
+          info.status &&
           info.status === "complete"
         ) {
           //* Only clear presence if old presence != new presence

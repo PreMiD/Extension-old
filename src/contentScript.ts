@@ -1,6 +1,6 @@
 import { getString } from "./util/langManager";
 import { info } from "./util/debug";
-let tabPriority = null;
+let tabPriority: NodeJS.Timeout = null;
 
 chrome.runtime.onMessage.addListener(function(data) {
   if (typeof data.iFrameData !== "undefined") {

@@ -24,7 +24,9 @@ export async function start() {
   setInterval(updateStrings, 15 * 60 * 1000);
   setInterval(updatePresences, 5 * 60 * 1000);
   if (chrome.runtime.getManifest().version_name.endsWith("-DEV"))
-    addPresence((await fetchJSON(`${apiBase}presences`)).map(p => p.name));
+    addPresence(
+      (await fetchJSON(`${apiBase}presences`)).map((p: any) => p.name)
+    );
   checkAccess().then(connect);
 
   //* Add default presences

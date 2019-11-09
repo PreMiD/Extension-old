@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { info, error } from "../debug";
 import { getStorage } from "./asyncStorage";
 import { priorityTab } from "../tabPriority";
@@ -47,7 +49,8 @@ export default async function(files: any) {
 
   errors.map(err => error("presenceDevManager.ts", err));
 
-  let { presences } = await getStorage("local", "presences");
+  let presences: presenceStorage = (await getStorage("local", "presences"))
+    .presences;
 
   presences = presences.filter(p => !p.tmp);
 

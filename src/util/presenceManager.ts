@@ -7,7 +7,8 @@ let apiBase = "https://api.premid.app/v2/";
 
 export async function presenceScience() {
   let identifier = (await getStorage("local", "identifier")).identifier,
-    presences = (await getStorage("local", "presences")).presences;
+    presences: presenceStorage = (await getStorage("local", "presences"))
+      .presences;
 
   if (!identifier) {
     identifier = randomHex();
@@ -31,7 +32,8 @@ export async function updatePresences() {
   presenceScience();
 
   let presenceVersions: Array<{ name: string; version: string; url: string }>,
-    { presences } = await getStorage("local", "presences");
+    presences: presenceStorage = (await getStorage("local", "presences"))
+      .presences;
 
   if (!presences || presences.length === 0) return;
 
@@ -62,7 +64,9 @@ export async function updatePresences() {
 }
 
 export async function addPresence(name: string | Array<string>) {
-  let { presences } = await getStorage("local", "presences");
+  let presences: presenceStorage = (await getStorage("local", "presences"))
+    .presences;
+
   if (!presences) presences = [];
   //* Filter out tmp presences
 
@@ -104,12 +108,12 @@ export async function addPresence(name: string | Array<string>) {
         presences.push(res);
         chrome.storage.local.set({ presences: presences });
       })
-      .catch(err => {});
+      .catch(() => {});
   } else {
     let presencesToAdd: any = (await Promise.all(
       (await Promise.all(
         name.map(name => {
-          return fetchJSON(`${apiBase}presences/${name}`).catch(err => {});
+          return fetchJSON(`${apiBase}presences/${name}`).catch(() => {});
         })
       ))
         .filter(p => typeof p !== "undefined")
@@ -167,7 +171,7 @@ if (document.location.pathname !== "/_generated_background_page.html") {
 }
 
 async function sendBackPresences() {
-  let { presences } = await getStorage("local", "presences"),
+  let presences = (await getStorage("local", "presences")) as presenceStorage,
     data = {
       detail: presences.filter(p => !p.tmp).map(p => p.metadata.service)
     };

@@ -1,5 +1,5 @@
 export default async function tabHasPresence(tabId: number) {
-  const res = await new Promise(resolve => {
+  const res = await new Promise<boolean[]>(resolve => {
     chrome.tabs.executeScript(
       tabId,
       {
@@ -9,6 +9,6 @@ export default async function tabHasPresence(tabId: number) {
     );
   });
 
-  if (!res) return "";
+  if (!res) return false;
   else return res[0];
 }

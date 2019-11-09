@@ -5,8 +5,8 @@ import { oldPresence } from "../tabPriority";
 import { socket } from "../socketManager";
 
 //* Some debug stuff to prevent timestamp jumping
-export let oldObject = null;
-export let oldActivity = null;
+export let oldObject: any = null;
+export let oldActivity: any = null;
 
 export function setOldObject(object: any) {
   oldObject = object;

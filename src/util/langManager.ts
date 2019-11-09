@@ -34,12 +34,12 @@ export async function updateStrings() {
     });
 }
 
-let initialLoader = null;
+let initialLoader: boolean = null;
 export async function loadStrings() {
   if (initialLoader == null) initialLoader = true;
   else initialLoader = false;
 
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     if (typeof defaultLanguage !== "undefined") resolve();
 
     if (initialLoader) {
@@ -62,7 +62,7 @@ export async function loadStrings() {
 }
 
 export function getString(string: string) {
-  return new Promise(async (resolve, reject) => {
+  return new Promise(async resolve => {
     await loadStrings();
 
     if (

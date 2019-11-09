@@ -6,7 +6,7 @@ import setActivity from "./setActivity";
 import { oldActivity } from "../background/onMessage";
 import clearActivity from "./clearActivity";
 
-let settings = null;
+let settings: any = null;
 
 export default async function() {
   let presences = (await getStorage("local", "presences")).presences;

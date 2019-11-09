@@ -3,7 +3,10 @@ import { info } from "../debug";
 import cpObj from "./cpObj";
 import { getStorage } from "./asyncStorage";
 
-export default async function setActivity(presence: any, settings = undefined) {
+export default async function setActivity(
+  presence: any,
+  settings: any = undefined
+) {
   if (!settings) settings = (await getStorage("sync", "settings")).settings;
   let pTS = cpObj(presence);
   if (presence == null || !settings.enabled.value) return;
