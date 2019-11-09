@@ -17,6 +17,7 @@
     "url": "https://github.com/Timeraa/Extension.git"
   },
   "dependencies": {
+    "sass-loader": "^8.0.0",
     "socket.io-client": "2.3.0"
   },
   "devDependencies": {
@@ -28,10 +29,10 @@
     "chalk": "2.4.2",
     "copy-webpack-plugin": "5.0.4",
     "fs-extra": "8.1.0",
-    "node-sass": "4.12.0",
+    "node-sass": "^4.13.0",
     "rimraf": "3.0.0",
-    "ts-loader": "6.1.2",
-    "typescript": "3.6.3",
+    "ts-loader": "6.2.1",
+    "typescript": "3.7.2",
     "webpack": "4.41.0",
     "webpack-bundle-analyzer": "3.5.2",
     "webpack-cli": "3.3.9",

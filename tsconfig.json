@@ -1,10 +1,10 @@
 {
   "compilerOptions": {
     "target": "ES2015",
+    "moduleResolution": "node",
     "noImplicitAny": false,
     "sourceMap": false,
-    "outDir": "dist/js",
-    "noEmitOnError": true
+    "outDir": "dist/js"
   },
   "include": ["src/*", "@types/PreMiD/*.ts"]
 }

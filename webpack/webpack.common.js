@@ -1,5 +1,3 @@
-const webpack = require("webpack");
-const WebpackShellPlugin = require("webpack-shell-plugin");
 const path = require("path");
 const CopyPlugin = require("copy-webpack-plugin");
 const srcDir = "../src/";
@@ -41,6 +39,10 @@ module.exports = {
   module: {
     rules: [
       {
+        test: /\.s[ac]ss$/i,
+        use: ["sass-loader"]
+      },
+      {
         test: /\.ts?$/,
         use: "ts-loader",
         exclude: /node_modules/
@@ -50,12 +52,5 @@ module.exports = {
   resolve: {
     extensions: [".ts", ".js"]
   },
-  plugins: [
-    new CopyPlugin([{ from: ".", to: "../" }], { context: "public" }),
-    new WebpackShellPlugin({
-      onBuildStart: [
-        "tsc src/util/presence/devHelper.ts --outFile dist/js/devHelper.js"
-      ]
-    })
-  ]
+  plugins: [new CopyPlugin([{ from: ".", to: "../" }], { context: "public" })]
 };
