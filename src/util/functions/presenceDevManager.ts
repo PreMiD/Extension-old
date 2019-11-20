@@ -59,7 +59,7 @@ export default async function(files: any) {
   );
   if (addedPresence) addedPresence.enabled = false;
 
-  let tmpPr = {
+  let tmpPr: any = {
     enabled: true,
     metadata: metadata,
     presence: presence.contents,
@@ -67,7 +67,6 @@ export default async function(files: any) {
   };
 
   if (typeof metadata.iframe !== "undefined" && metadata.iframe)
-    // @ts-ignore
     tmpPr.iframe = iframe.contents;
 
   presences.push(tmpPr);

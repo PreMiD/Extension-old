@@ -41,7 +41,6 @@ async function update() {
   //* Save update version
   //* Open updated tab
   if (
-    //@ts-ignore
     parseInt(
       (await getStorage("local", "lastVersion")).lastVersion
         .replace(/\./g, "")

@@ -54,9 +54,11 @@ export default function() {
               })
             }).then(async res => {
               let user = await res.json(),
-                access = (await fetchJSON(
-                  `https://api.premid.app/betaAccess/${user.id}`
-                )).access;
+                access = (
+                  await fetchJSON(
+                    `https://api.premid.app/betaAccess/${user.id}`
+                  )
+                ).access;
 
               return [user, access];
             })

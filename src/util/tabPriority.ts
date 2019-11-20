@@ -15,12 +15,14 @@ export async function tabPriority(info: any = undefined) {
   let lastFocusedWindow = await new Promise<chrome.windows.Window>(resolve =>
       chrome.windows.getLastFocused(resolve)
     ),
-    activeTab = (await new Promise<chrome.tabs.Tab[]>(resolve =>
-      chrome.tabs.query(
-        { active: true, windowId: lastFocusedWindow.id },
-        tabs => resolve(tabs)
+    activeTab = (
+      await new Promise<chrome.tabs.Tab[]>(resolve =>
+        chrome.tabs.query(
+          { active: true, windowId: lastFocusedWindow.id },
+          tabs => resolve(tabs)
+        )
       )
-    ))[0],
+    )[0],
     presence: presenceStorage = (await getStorage("local", "presences"))
       .presences;
 
@@ -77,7 +79,7 @@ export async function tabPriority(info: any = undefined) {
   //* If PreMiD has no presence to inject here, inject one if pmdMetaTag has one
   if (presence.length === 0 && pmdMetaTag) {
     let { metadata } = await fetchJSON(`${apiBase}presences/${pmdMetaTag}`),
-      prs = {
+      prs: any = {
         metadata: metadata,
         presence: await fetch(
           `${apiBase}presences/${pmdMetaTag}/presence.js`
@@ -87,7 +89,6 @@ export async function tabPriority(info: any = undefined) {
         enabled: true
       };
     if (metadata.iframe)
-      // @ts-ignore
       prs.iframe = await fetch(
         `${apiBase}presences/${pmdMetaTag}/iframe.js`
       ).then(res => {

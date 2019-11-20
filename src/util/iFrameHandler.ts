@@ -32,7 +32,6 @@ chrome.runtime.onMessage.addListener(async msg => {
   }
 });
 
-document.addEventListener("PreMiD_iFrameData", data => {
-  // @ts-ignore
+document.addEventListener("PreMiD_iFrameData", (data: CustomEvent) => {
   chrome.runtime.sendMessage({ iFrameData: data.detail });
 });

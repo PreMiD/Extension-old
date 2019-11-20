@@ -41,8 +41,7 @@ class Presence {
     this.clientId = presenceOptions.clientId;
     this.mediaKeys = presenceOptions.mediaKeys ? true : false;
 
-    window.addEventListener("PreMiD_TabPriority", data => {
-      //@ts-ignore
+    window.addEventListener("PreMiD_TabPriority", (data: CustomEvent) => {
       if (!data.detail) this.clearActivity();
     });
   }
@@ -108,18 +107,17 @@ class Presence {
    * @link https://docs.premid.app/presence-development/coding/presence-class#getstrings-object
    */
   getStrings(strings: Object) {
-    return new Promise<any>((resolve, reject) => {
-      let listener = function(detail: object) {
+    return new Promise<any>(resolve => {
+      let listener = function(detail: any) {
         window.removeEventListener("PreMiD_ReceiveExtensionData", listener);
 
-        // @ts-ignore
         resolve(detail.strings);
       };
 
       //* Receive data from PreMiD
-      window.addEventListener("PreMiD_ReceiveExtensionData", detail =>
-        // @ts-ignore
-        listener(detail.detail)
+      window.addEventListener(
+        "PreMiD_ReceiveExtensionData",
+        (detail: CustomEvent) => listener(detail.detail)
       );
 
       let pmdRED = new CustomEvent("PreMiD_RequestExtensionData", {
@@ -140,11 +138,10 @@ class Presence {
    * @link https://docs.premid.app/presence-development/coding/presence-class#getpageletiable-string
    */
   getPageletiable(letiable: string) {
-    return new Promise<any>((resolve, reject) => {
+    return new Promise<any>(resolve => {
       let script = document.createElement("script"),
-        _listener = data => {
+        _listener = (data: CustomEvent) => {
           script.remove();
-          // @ts-ignore
           resolve(JSON.parse(data.detail));
 
           window.removeEventListener("PreMiD_Pageletiable", _listener, true);
@@ -195,14 +192,12 @@ class Presence {
         });
         return;
       case "MediaKeys":
-        document.addEventListener("PreMiD_MediaKeys", data => {
-          // @ts-ignore
+        document.addEventListener("PreMiD_MediaKeys", (data: CustomEvent) => {
           this._events[eventName](data.detail);
         });
         return;
       case "iFrameData":
-        window.addEventListener("PreMiD_iFrameData", data => {
-          // @ts-ignore
+        window.addEventListener("PreMiD_iFrameData", (data: CustomEvent) => {
           this._events[eventName](data.detail);
         });
         return;
@@ -235,8 +230,7 @@ class iFrame {
    */
   getUrl() {
     return new Promise<string>(async resolve => {
-      let _listener = data => {
-        // @ts-ignore
+      let _listener = (data: CustomEvent) => {
         resolve(data.detail);
         document.removeEventListener("PreMiD_iFrameURL", _listener, true);
       };
@@ -265,8 +259,7 @@ class iFrame {
         return;
       }
       case "MediaKeys":
-        document.addEventListener("PreMiD_MediaKeys", data => {
-          // @ts-ignore
+        document.addEventListener("PreMiD_MediaKeys", (data: CustomEvent) => {
           this._events[eventName](data.detail);
         });
         return;
