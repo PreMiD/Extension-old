@@ -21,7 +21,7 @@ export async function presenceScience() {
   fetch(apiBase + "science", {
     body: JSON.stringify({
       identifier: identifier,
-      presences: presences.map(p => p.metadata.service)
+      presences: presences.filter(p => !p.tmp).map(p => p.metadata.service)
     }),
     method: "POST",
     headers: headers
@@ -110,29 +110,33 @@ export async function addPresence(name: string | Array<string>) {
       })
       .catch(() => {});
   } else {
-    let presencesToAdd: any = (await Promise.all(
-      (await Promise.all(
-        name.map(name => {
-          return fetchJSON(`${apiBase}presences/${name}`).catch(() => {});
-        })
-      ))
-        .filter(p => typeof p !== "undefined")
-        .map(async p => {
-          if (typeof p.metadata.button !== "undefined" && !p.metadata.button)
-            return;
+    let presencesToAdd: any = (
+      await Promise.all(
+        (
+          await Promise.all(
+            name.map(name => {
+              return fetchJSON(`${apiBase}presences/${name}`).catch(() => {});
+            })
+          )
+        )
+          .filter(p => typeof p !== "undefined")
+          .map(async p => {
+            if (typeof p.metadata.button !== "undefined" && !p.metadata.button)
+              return;
 
-          let res = {
-            metadata: p.metadata,
-            presence: await (await fetch(`${p.url}presence.js`)).text(),
-            enabled: true
-          };
-          if (typeof p.metadata.iframe !== "undefined" && p.metadata.iframe)
-            // @ts-ignore
-            res.iframe = await (await fetch(`${p.url}iframe.js`)).text();
+            let res = {
+              metadata: p.metadata,
+              presence: await (await fetch(`${p.url}presence.js`)).text(),
+              enabled: true
+            };
+            if (typeof p.metadata.iframe !== "undefined" && p.metadata.iframe)
+              // @ts-ignore
+              res.iframe = await (await fetch(`${p.url}iframe.js`)).text();
 
-          return res;
-        })
-    )).filter(p => typeof p !== "undefined");
+            return res;
+          })
+      )
+    ).filter(p => typeof p !== "undefined");
 
     chrome.storage.local.set({ presences: presences.concat(presencesToAdd) });
   }
