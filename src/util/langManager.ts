@@ -1,5 +1,5 @@
 import fetchJSON from "./functions/fetchJSON";
-import { error } from "./debug";
+import { error, success } from "./debug";
 
 let apiBase = "https://api.premid.app/v2/";
 let defaultLanguage: any, currLanguage: any;
@@ -11,6 +11,8 @@ export async function updateStrings() {
     currLanguage = await fetchJSON(
       `${apiBase}langFile/extension/${chrome.i18n.getUILanguage()}`
     );
+
+    success("langManager.ts", "Updated translations");
   } catch (e) {
     error("langManager.ts", `Error while fetching langFiles: ${e.message}`);
     return;
