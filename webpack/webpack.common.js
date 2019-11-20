@@ -5,8 +5,7 @@ const srcDir = "../src/";
 module.exports = {
   entry: {
     background: path.join(__dirname, srcDir + "background.ts"),
-    popup: path.join(__dirname, srcDir + "popup.ts"),
-    tabs: path.join(__dirname, srcDir + "tabs.ts"),
+    helper: path.join(__dirname, srcDir + "helper.ts"),
     contentScript: path.join(__dirname, srcDir + "contentScript.ts"),
     presenceManager: path.join(__dirname, srcDir + "util/presenceManager.ts"),
     iFrameHandler: path.join(__dirname, srcDir + "util/iFrameHandler.ts")
