@@ -158,7 +158,9 @@ if (document.location.pathname !== "/_generated_background_page.html") {
     let { presences } = await getStorage("local", "presences");
 
     chrome.storage.local.set({
-      presences: presences.filter(p => p.metadata.service !== data.detail)
+      presences: (presences as presenceStorage).filter(
+        p => p.metadata.service !== data.detail
+      )
     });
   });
 
