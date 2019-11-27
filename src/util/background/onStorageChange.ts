@@ -1,7 +1,7 @@
 import { priorityTab, oldPresence } from "../tabPriority";
 import { getStorage } from "../functions/asyncStorage";
-import { setOldObject } from "./onMessage";
 import clearActivity from "../functions/clearActivity";
+import { setOldObject } from "./onConnect";
 
 //* Disable active presence if it just got disabled
 chrome.storage.onChanged.addListener(async changes => {

@@ -3,8 +3,8 @@ import { success, error, info } from "./debug";
 import { priorityTab } from "./tabPriority";
 import presenceDevManager from "./functions/presenceDevManager";
 import setActivity from "./functions/setActivity";
-import { oldActivity } from "./background/onMessage";
 import { getStorage } from "./functions/asyncStorage";
+import { oldActivity } from "./background/onConnect";
 
 //* Create socket
 export let socket = socketIo.connect("http://localhost:3020", {
@@ -14,16 +14,17 @@ export let socket = socketIo.connect("http://localhost:3020", {
 export function connect() {
   socket.open();
 }
+export let appVersion = 0;
 
-let appVersion: NodeJS.Timeout = null;
+let appVersionTimeout: NodeJS.Timeout = null;
 
 socket.on("connect", async () => {
   //* Tell app to give us its version
   //* Start timeout if we don't receive version response
   socket.emit("getVersion");
-  appVersion = setTimeout(() => {
+  appVersionTimeout = setTimeout(() => {
     //* No response got, most likely old version
-    chrome.storage.local.set({ appVersionSupported: false });
+    appVersion = -1;
     error("socketManager.ts", "Unsupported app version");
   }, 5000);
 
@@ -39,15 +40,13 @@ socket.on("connect", async () => {
 });
 
 socket.on("receiveVersion", (version: number) => {
-  clearTimeout(appVersion);
-  if (version >= 203) {
-    info("socketManager.ts", "Supported app version");
-    chrome.storage.local.set({ appVersionSupported: true });
-  } else {
-    chrome.storage.local.set({ appVersionSupported: false });
+  clearTimeout(appVersionTimeout);
+  appVersion = version;
+
+  if (!supportedAppVersion()) {
     error("socketManager.ts", "Unsupported app version");
     return;
-  }
+  } else info("socketManager.ts", "Supported app version");
 
   if (oldActivity) setActivity(oldActivity);
 
@@ -74,3 +73,8 @@ socket.on("disconnect", () => {
 //socket.on("mediaKeyHandler", key => console.log(key));
 
 socket.on("localPresence", presenceDevManager);
+
+export function supportedAppVersion() {
+  if (appVersion >= 203 || appVersion === 0) return true;
+  else return false;
+}

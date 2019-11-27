@@ -133,6 +133,7 @@ export async function tabPriority(info: any = undefined) {
         if (
           priorityTab === activeTab.id &&
           !tabHasPrs &&
+          info &&
           info.status &&
           info.status === "complete"
         ) {

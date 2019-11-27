@@ -4,8 +4,8 @@
   "name": "PreMiD",
   "description": "__MSG_description__",
 
-  "version": "2.0.1.4",
-  "version_name": "2.0.1.4-DEV",
+  "version": "2.0.1.5",
+  "version_name": "2.0.1.5-DEV",
 
   "icons": {
     "16": "assets/images/icon_16x16.png",
@@ -15,7 +15,7 @@
 
   "default_locale": "en",
 
-  "web_accessible_resources": ["html/test.html", "js/devHelper.js"],
+  "web_accessible_resources": ["js/devHelper.js"],
 
   "browser_action": {
     "default_popup": "html/popup/index.html"
@@ -38,14 +38,15 @@
     },
     {
       "matches": ["<all_urls>"],
+      "js": ["js/iFrameHandler.js", "js/devHelper.js"],
       "all_frames": true,
-      "js": ["js/iFrameHandler.js", "js/devHelper.js"]
+      "run_at": "document_start"
     }
   ],
 
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
 
-  "permissions": ["<all_urls>", "identity", "storage", "management", "tabs"],
+  "permissions": ["<all_urls>", "storage", "tabs"],
 
   "applications": {
     "gecko": {

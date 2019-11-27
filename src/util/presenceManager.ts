@@ -57,7 +57,7 @@ export async function updatePresences() {
     presences = presences.filter(p1 => p1.metadata.service !== p.name);
     chrome.storage.local.set({ presences }, () => {
       addPresence(p.name).then(() =>
-        success("presenceManager", `Updated ${p.name}`)
+        success("presenceManager", `Updated ${p.name} to v${p.version}`)
       );
     });
   });
@@ -173,7 +173,8 @@ if (document.location.pathname !== "/_generated_background_page.html") {
 }
 
 async function sendBackPresences() {
-  let presences = (await getStorage("local", "presences")) as presenceStorage,
+  let presences = (await getStorage("local", "presences"))
+      .presences as presenceStorage,
     data = {
       detail: presences.filter(p => !p.tmp).map(p => p.metadata.service)
     };

@@ -2,19 +2,11 @@
 Vue.component("heading", {
   data: function() {
     return {
-      settings: null,
-      credits: null,
-      changelog: null,
-      wiki: null,
       version: null
     };
   },
-  created: async function() {
-    this.settings = await pmd.getString("popup.navigation.settings");
-    this.credits = await pmd.getString("popup.navigation.credits");
-    this.wiki = await pmd.getString("tab.button.wiki");
-    this.changelog = await pmd.getString("tab.button.changelog");
-    this.version = await chrome.runtime.getManifest().version_name;
+  created: function() {
+    this.version = chrome.runtime.getManifest().version_name;
   },
   template: `
 	<div id="header">
@@ -28,7 +20,7 @@ Vue.component("heading", {
         TODO Add changelog on website?
         <a draggable="false"><i class="fas fa-history"></i> {{this.changelog}}</a>
       -->
-      <a draggable="false" target="_blank" href="https://wiki.premid.app/"><i class="fas fa-book"></i> {{this.wiki}}</a>
+      <a draggable="false" target="_blank" href="https://docs.premid.app/"><i class="fas fa-book"></i> {{$t('tab.button.wiki')}}</a>
     </div>
 	</div>`
 });

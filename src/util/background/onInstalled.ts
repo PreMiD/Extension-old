@@ -1,4 +1,3 @@
-import checkAccess from "../functions/checkAccess";
 import { connect } from "../socketManager";
 import { getStorage } from "../functions/asyncStorage";
 import { start } from "./generic";
@@ -9,8 +8,6 @@ chrome.runtime.onInstalled.addListener(async details => {
   clearTimeout(onExtEnable);
 
   await start();
-
-  await checkAccess().catch(() => chrome.management.uninstallSelf());
 
   switch (details.reason) {
     case "install":
@@ -69,8 +66,5 @@ async function update() {
 let onExtEnable = setTimeout(enable, 100);
 async function enable() {
   await start();
-
-  checkAccess()
-    .then(connect)
-    .catch(() => chrome.management.uninstallSelf());
+  connect();
 }

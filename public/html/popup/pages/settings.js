@@ -2,72 +2,53 @@
 Vue.component("settingsView", {
   data: function() {
     return {
-      strings: {
-        general: "",
-        presences: "",
-        manage: "",
-        load: "",
-        done: "",
-        presenceStore: "",
-        noPresences: "",
-        notConnected: "",
-        notConnectedMessage: "",
-        outdatedApp: "",
-        outdatedAppMessage: "",
-        categories: {
-          all: "",
-          anime: "",
-          music: "",
-          socials: "",
-          videos: "",
-          other: ""
-        }
-      },
+      notConnectedMessage: this.$t("popup.info.notConnected.message"),
       shiftPressed: false,
       settings: {},
       presences: [],
       currentCategory: "all",
       categoriesShown: false,
-      supportedVersion: true,
+      appVersionSupported: true,
       categories: {
         all: {
           icon: "globe",
           id: "all",
-          title: ""
+          title: this.$t("popup.category.all")
         },
         anime: {
           icon: "star",
           id: "anime",
-          title: ""
+          title: this.$t("popup.category.anime")
         },
         games: {
           icon: "leaf",
           id: "games",
-          title: ""
+          title: this.$t("popup.category.music")
         },
         music: {
           icon: "music",
           id: "music",
-          title: ""
+          title: this.$t("popup.category.games")
         },
         socials: {
           icon: "comments",
           id: "socials",
-          title: ""
+          title: this.$t("popup.category.socials")
         },
         videos: {
           icon: "play",
           id: "videos",
-          title: ""
+          title: this.$t("popup.category.videos")
         },
         other: {
           icon: "box",
           id: "other",
-          title: ""
+          title: this.$t("popup.category.other")
         }
       },
-      connected: false,
-      managePresences: false
+      connected: true,
+      managePresences: false,
+      port: chrome.runtime.connect({ name: "popup" })
     };
   },
   mounted() {
@@ -92,98 +73,33 @@ Vue.component("settingsView", {
     });
   },
   created: async function() {
+    this.port.onMessage.addListener(msg => {
+      this.connected = msg.connected;
+      this.appVersionSupported = msg.appVersionSupported;
+    });
+
     if (localStorage.currentCategory) {
       this.currentCategory = localStorage.currentCategory;
     }
 
-    chrome.storage.local.get(
-      "appVersionSupported",
-      ({ appVersionSupported }) => {
-        this.supportedVersion = appVersionSupported;
-      }
-    );
-
-    chrome.runtime.sendMessage({
-      popup: true
-    });
-    chrome.runtime.onMessage.addListener(msg => {
-      if (typeof msg.socket !== "undefined") this.connected = msg.socket;
-    });
-
-    //TODO recode this to use html tags
-    const self = this;
-    Promise.all([
-      pmd.getString("popup.headings.general"),
-      pmd.getString("popup.headings.presences"),
-      pmd.getString("popup.presences.manage"),
-      pmd.getString("popup.presences.load"),
-      pmd.getString("popup.presences.done"),
-      pmd.getString("popup.buttons.presenceStore"),
-      pmd.getString("popup.presences.noPresences"),
-      pmd.getString("popup.info.notConnected"),
-      pmd.getString("popup.info.notConnected.message"),
-      pmd.getString("popup.info.unsupportedAppVersion"),
-      pmd.getString("popup.info.unsupportedAppVersion.message"),
-      pmd.getString("popup.category.all"),
-      pmd.getString("popup.category.anime"),
-      pmd.getString("popup.category.music"),
-      pmd.getString("popup.category.games"),
-      pmd.getString("popup.category.socials"),
-      pmd.getString("popup.category.videos"),
-      pmd.getString("popup.category.other")
-    ]).then(strings => {
-      self.strings = {
-        general: strings[0],
-        presences: strings[1],
-        manage: strings[2],
-        load: strings[3],
-        done: strings[4],
-        presenceStore: strings[5],
-        noPresences: strings[6],
-        notConnected: strings[7],
-        notConnectedMessage: strings[8],
-        outdatedApp: strings[9],
-        outdatedAppMessage: strings[10],
-        categories: {
-          all: strings[11],
-          anime: strings[12],
-          music: strings[13],
-          games: strings[14],
-          socials: strings[15],
-          videos: strings[16],
-          other: strings[17]
-        }
-      };
-
-      if (this.strings.notConnectedMessage.match(/(\*.*?\*)/g))
-        this.strings.notConnectedMessage.match(/(\*.*?\*)/g).map(ch => {
-          this.strings.notConnectedMessage = this.strings.notConnectedMessage.replace(
-            ch,
-            `<a target="_blank" href="https://docs.premid.app/en/troubleshooting">${ch.slice(
-              1,
-              ch.length - 1
-            )}</a>`
-          );
-        });
-    });
+    if (this.notConnectedMessage.match(/(\*.*?\*)/g))
+      this.notConnectedMessage.match(/(\*.*?\*)/g).map(ch => {
+        this.notConnectedMessage = this.notConnectedMessage.replace(
+          ch,
+          `<a target="_blank" href="https://docs.premid.app/en/troubleshooting">${ch.slice(
+            1,
+            ch.length - 1
+          )}</a>`
+        );
+      });
 
     //* Get settings, filter language option for now, save in object
     this.settings = await new Promise(function(resolve) {
       chrome.storage.sync.get("settings", function(result) {
-        Promise.all(
-          Object.keys(result.settings).map(async key => {
-            if (typeof result.settings[key].show === "undefined") return;
-
-            result.settings[key].string = await pmd.getString(
-              result.settings[key].string
-            );
-          })
-        ).then(() => {
-          chrome.runtime.getPlatformInfo(function(info) {
-            if (!info.os == "mac") delete result.settings.titleMenubar;
-            delete result.settings.language;
-            resolve(result.settings);
-          });
+        chrome.runtime.getPlatformInfo(function(info) {
+          if (!info.os == "mac") delete result.settings.titleMenubar;
+          delete result.settings.language;
+          resolve(result.settings);
         });
 
         //* Disabled as browsers already support it > won't work
@@ -219,13 +135,15 @@ Vue.component("settingsView", {
     });
 
     //* Presence dev stuff
-    window.addEventListener("keydown", () => {
-      this.shiftPressed = event.shiftKey;
-    });
+    window.addEventListener(
+      "keydown",
+      () => (this.shiftPressed = event.shiftKey)
+    );
 
-    window.addEventListener("keyup", () => {
-      this.shiftPressed = event.shiftKey;
-    });
+    window.addEventListener(
+      "keyup",
+      () => (this.shiftPressed = event.shiftKey)
+    );
   },
   computed: {
     filterCategories() {
@@ -236,10 +154,7 @@ Vue.component("settingsView", {
         return this.presences.some(p => p.metadata.category === cat);
       });
 
-      catNames.map(c => {
-        this.categories[c].title = this.strings.categories[c];
-        catFiltered.push(this.categories[c]);
-      });
+      catNames.map(c => catFiltered.push(this.categories[c]));
 
       return catFiltered;
     },
@@ -281,29 +196,25 @@ Vue.component("settingsView", {
     },
     loadLocalPresence() {
       this.shiftPressed = false;
-      chrome.runtime.sendMessage({
-        popup: {
-          loadLocalPresence: true
-        }
-      });
+      this.port.postMessage({ action: "loadLocalPresence" });
     }
   },
   template: `
   <div class="pmd_settings">
-    <div v-if="!connected && supportedVersion" class="message-container message-container--error">
-      <h1 class="message-container__title" v-text="strings.notConnected" />
-      <p class="message-container__details" v-html="strings.notConnectedMessage" />
+    <div v-if="!connected && appVersionSupported" class="message-container message-container--error">
+      <h1 class="message-container__title" v-text="$t('popup.info.notConnected')" />
+      <p class="message-container__details" v-html="notConnectedMessage" />
     </div>
-    <div v-if="!supportedVersion" class="message-container message-container--outdated">
-      <h1 class="message-container__title" v-text="strings.outdatedApp" />
-      <p class="message-container__details" v-html="strings.outdatedAppMessage" />
+    <div v-if="!appVersionSupported" class="message-container message-container--outdated">
+      <h1 class="message-container__title" v-text="$t('popup.info.unsupportedAppVersion')"/>
+      <p class="message-container__details" v-text="$t('popup.info.unsupportedAppVersion.message')" />
     </div>
 
     <div class="settings__container">
-      <h2 class="container__title">{{strings.general}}</h2>
+      <h2 class="container__title">{{$t('popup.headings.general')}}</h2>
       <div class="container__setting" v-for="(value, key) in settings">
         <div class="setting__title">
-          <p v-text="value.string"></p>
+          <p v-text="$t(value.string)"></p>
         </div>
         <div class="setting__switcher">
           <div class="pmd_checkbox">
@@ -318,7 +229,7 @@ Vue.component("settingsView", {
     <!-- Presence settings -->
     <div class="settings__container">
       <div class="title-wrapper">
-        <h2 class="container__title">{{strings.presences}}</h2>
+        <h2 class="container__title">{{$t('popup.headings.presences')}}</h2>
         <a draggable="false" @click="categoriesShown = !categoriesShown" v-if="filteredPresences.length > 0 && (!shiftPressed || !connected) && !managePresences" class="manage-btn">
           <span><i class="fas fa-tag" /></span>
         </a>
@@ -327,7 +238,7 @@ Vue.component("settingsView", {
           <span v-else><i class="fas fa-check-circle" /></span>
         </a>
         <a draggable="false" class="manage-btn" v-if="!managePresences && shiftPressed && connected" v-on:click="loadLocalPresence">
-          <p>{{strings.load}}</p>
+          <p>{{$t('popup.presences.load')}}</p>
         </a>
       </div>
       <transition name="scaleIn">
@@ -335,7 +246,6 @@ Vue.component("settingsView", {
           <a draggable="false" href="#" @click="currentCategory = category.id; localStorage.currentCategory = category.id;" class="presence-categories__label" :class="{ 'presence-categories__label--active': currentCategory == category.id }" v-for="category in filterCategories" :key="category.id"><i :class="'fas fa-' + category.icon" /> {{category.title}}</a>
         </div>
       </transition>
-      <transition name="scaleIn" mode="out-in">
         <div v-if="filteredPresences.length > 0">
           <div class="container__setting" v-for="(presence, key) in filteredPresences">
             <img draggable="false" :src="presence.metadata.logo" width="24px">
@@ -359,9 +269,8 @@ Vue.component("settingsView", {
             </div>
           </div>
         </div>
-      </transition>
     <!-- Presence store -->
-    <a href="https://premid.app/store" target="_blank" class="button button--store" v-html="strings.presenceStore"/>
+    <a href="https://premid.app/store" target="_blank" class="button button--store" v-text="$t('popup.buttons.presenceStore')"/>
   </div>
   </div>`
 });

@@ -63,6 +63,19 @@ export async function loadStrings() {
   });
 }
 
+export function getStrings() {
+  return new Promise(async resolve => {
+    await loadStrings();
+
+    if (currLanguage === "undefined") resolve({ en: defaultLanguage });
+    else
+      resolve({
+        [chrome.i18n.getUILanguage()]: currLanguage,
+        en: defaultLanguage
+      });
+  });
+}
+
 export function getString(string: string) {
   return new Promise(async resolve => {
     await loadStrings();

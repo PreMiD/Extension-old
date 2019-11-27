@@ -32,13 +32,11 @@ chrome.runtime.onMessage.addListener(function(data) {
   }
 });
 
-window.addEventListener("PreMiD_UpdatePresence", function(data: CustomEvent) {
-  if (typeof data.detail.presenceData.largeImageKey !== "undefined")
-    data.detail.presenceData.largeImageText = `${
-      chrome.runtime.getManifest().name
-    } v${chrome.runtime.getManifest().version_name}`;
-  chrome.runtime.sendMessage({ presence: data.detail });
-});
+const port = chrome.runtime.connect({ name: "contentScript" });
+
+window.addEventListener("PreMiD_UpdatePresence", (data: CustomEvent) =>
+  port.postMessage({ action: "updatePresence", presence: data.detail })
+);
 
 window.addEventListener("PreMiD_RequestExtensionData", async function(
   data: CustomEvent

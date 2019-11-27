@@ -3,25 +3,26 @@ Vue.component("change", {
   data: function() {
     return {
       text: null,
-      type: null
+      type: null,
+      typeText: null
     };
   },
-  created: async function() {
+  created: function() {
     switch (this.change.type) {
       case "new":
-        this.type = await pmd.getString("tab.updated.new");
+        this.typeText = this.$t("tab.updated.new");
         break;
       case "change":
-        this.type = await pmd.getString("tab.updated.changed");
+        this.typeText = this.$t("tab.updated.changed");
         break;
       case "fix":
-        this.type = await pmd.getString("tab.updated.fixed");
+        this.typeText = this.$t("tab.updated.fixed");
         break;
     }
 
-    let text = this.change.text;
-    if (this.change.text.match(/(\*.*?\*)/g) != null)
-      this.change.text.match(/(\*.*?\*)/g).map((ch, i) => {
+    let text = this.$t(this.change.string);
+    if (text.match(/(\*.*?\*)/g) != null)
+      text.match(/(\*.*?\*)/g).map((ch, i) => {
         text = text.replace(
           ch,
           `<a target="_blank" href="${this.change.urls[i]}">${ch.slice(
@@ -46,8 +47,8 @@ Vue.component("change", {
   template: `
 	<div id="changeItem">
     <div id="badge" v-bind:class="this.change.type">
-      <p v-text="this.type"></p>
+      <p v-text="$t(this.typeText)"/>
     </div>
-    <p id="text" v-html="this.text"/>
+    <p id="text" v-html="$t(this.text)"/>
   </div>`
 });

@@ -6,28 +6,23 @@ import { getStorage } from "../functions/asyncStorage";
 import { updateStrings } from "../langManager";
 import initSettings from "../functions/initSettings";
 import { tabPriority, priorityTab } from "../tabPriority";
-import checkAccess from "../functions/checkAccess";
 import clearActivity from "../functions/clearActivity";
 
 export async function start() {
-  //* Initialize settings
-  //* Run updater intervals
+  //* Initialize settings, Update strings, Update presences
+  //* Start updater intervals
   //*
+  //* Connect to app
   //* If version endsWith DEV, devbuild
   //* Add all presences for testing purposes
-  //* Connect to app
-  //* Update strings
-  //* Update presences
-  await initSettings();
-  await updateStrings();
-  await updatePresences();
+  await Promise.all([initSettings(), updateStrings(), updatePresences()]);
   setInterval(updateStrings, 15 * 60 * 1000);
   setInterval(updatePresences, 5 * 60 * 1000);
+  connect();
   if (chrome.runtime.getManifest().version_name.endsWith("-DEV"))
     addPresence(
       (await fetchJSON(`${apiBase}presences`)).map((p: any) => p.name)
     );
-  checkAccess().then(connect);
 
   //* Add default presences
   getStorage("local", "defaultAdded").then(({ defaultAdded }) => {
@@ -46,6 +41,11 @@ export async function start() {
 }
 
 //* Update if update available
+//* On Tab active
+//* On Tab replace
+//* On Tab remove
+//* On Tab update
+//* On Tab focus change
 chrome.runtime.onUpdateAvailable.addListener(() => chrome.runtime.reload());
 chrome.tabs.onActivated.addListener(() => tabPriority());
 chrome.tabs.onReplaced.addListener((_, tabId) => {
@@ -59,7 +59,7 @@ chrome.tabs.onRemoved.addListener(tabId => {
 chrome.tabs.onUpdated.addListener((_, changeInfo) => tabPriority(changeInfo));
 chrome.windows.onFocusChanged.addListener(windowId => {
   //* Can't change window
+  //* Run tabPriority
   if (windowId === -1) return;
-
   tabPriority();
 });

@@ -3,21 +3,10 @@ Vue.component("creditsView", {
   data: function() {
     return {
       credits: [],
-      errorLoading: false,
-      strings: {
-        creditsErrorHeading: null,
-        creditsErrorMessage: null
-      }
+      errorLoading: false
     };
   },
-  created: async function() {
-    this.strings.creditsErrorHeading = await pmd.getString(
-      "popup.credits.error.heading"
-    );
-    this.strings.creditsErrorMessage = await pmd.getString(
-      "popup.credits.error.message"
-    );
-
+  created: function() {
     pmd
       .fetchJSON("https://api.premid.app/v2/credits")
       .then(data => {
@@ -30,8 +19,8 @@ Vue.component("creditsView", {
   template: `
   <div class="creditsContainer">
     <div class="error" v-if="errorLoading">
-      <h1 v-text="strings.creditsErrorHeading"></h1>
-      <h2 v-text="strings.creditsErrorMessage"></h2>
+      <h1 v-text="strings.creditsErrorHeading" v-text="$t('popup.credits.error.message')">
+      <h2 v-text="strings.creditsErrorMessage" v-text="$t('popup.credits.error.heading')">
     </div>
 
     <transition-group v-else name="scaleIn">

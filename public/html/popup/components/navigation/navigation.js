@@ -1,25 +1,14 @@
 //* Navigation header
 Vue.component("navigation", {
-  data: function() {
-    return {
-      settings: null,
-      credits: null
-    };
-  },
-  created: async function() {
-    this.settings = await pmd.getString("popup.navigation.settings");
-    this.credits = await pmd.getString("popup.navigation.credits");
-  },
   template: `
 	<div>
 		<div class="navbar">
 			<div class="logo">
 				<img src="../../../../assets/images/icon.svg" draggable="false">
 			</div>
-
 			<div class="links">
-				<router-link to='/settings' class="active" draggable='false' v-text="settings"/>
-				<router-link to='/credits' draggable='false' v-text="credits"/>
+				<router-link to='/settings' class="active" draggable='false' v-t="'popup.navigation.settings'"/>
+				<router-link to='/credits' draggable='false' v-t="'popup.navigation.credits'"/>
 			</div>
 		</div>
 	</div>`

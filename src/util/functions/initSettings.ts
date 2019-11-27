@@ -3,8 +3,8 @@ import { info } from "../debug";
 import { socket } from "../socketManager";
 import { priorityTab } from "../tabPriority";
 import setActivity from "./setActivity";
-import { oldActivity } from "../background/onMessage";
 import clearActivity from "./clearActivity";
+import { oldActivity } from "../background/onConnect";
 
 let settings: any = null;
 
