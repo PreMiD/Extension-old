@@ -3,6 +3,7 @@ const CopyPlugin = require("copy-webpack-plugin");
 const srcDir = "../src/";
 
 module.exports = {
+  stats: "errors-only",
   entry: {
     background: path.join(__dirname, srcDir + "background.ts"),
     helper: path.join(__dirname, srcDir + "helper.ts"),
@@ -13,14 +14,13 @@ module.exports = {
   output: {
     path: path.join(__dirname, "../dist/js"),
     filename: "[name].js",
-    library: "pmd",
-    libraryTarget: "var"
+    library: "pmd"
   },
   optimization: {
     splitChunks: {
-      chunks: "all",
       cacheGroups: {
         vendors: {
+          chunks: "all",
           name: "vendor",
           test(module) {
             var context = module.context;
