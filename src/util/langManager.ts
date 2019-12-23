@@ -1,16 +1,22 @@
-import fetchJSON from "./functions/fetchJSON";
 import { error, success } from "./debug";
+import axios from "axios";
 
 let apiBase = "https://api.premid.app/v2/";
 let defaultLanguage: any, currLanguage: any;
 
 export async function updateStrings() {
   try {
-    defaultLanguage = await fetchJSON(`${apiBase}langFile/extension/en`);
+    defaultLanguage = (
+      await axios(`langFile/extension/en`, {
+        baseURL: apiBase
+      })
+    ).data;
 
-    currLanguage = await fetchJSON(
-      `${apiBase}langFile/extension/${chrome.i18n.getUILanguage()}`
-    );
+    currLanguage = (
+      await axios(`langFile/extension/${chrome.i18n.getUILanguage()}`, {
+        baseURL: apiBase
+      })
+    ).data;
 
     success("langManager.ts", "Updated translations");
   } catch (e) {

@@ -3,9 +3,11 @@ import {
   getStrings as getstrings
 } from "./util/langManager";
 import { getStorage as getstorage } from "./util/functions/asyncStorage";
-import fetchjson from "./util/functions/fetchJSON";
+import Axios from "axios";
+import { apiBase as apibase } from "./background";
 
 export let getString = getstring;
 export let getStrings = getstrings;
 export let getStorage = getstorage;
-export let fetchJSON = fetchjson;
+export let axios = Axios;
+export let apiBase = apibase;

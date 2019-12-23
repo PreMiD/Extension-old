@@ -1,7 +1,7 @@
 import axios from "axios";
 import { ensureDirSync, writeFileSync } from "fs-extra";
 
-var base = axios.create({ baseURL: "https://api.premid.app/v2/" });
+let base = axios.create({ baseURL: "https://api.premid.app/v2/" });
 
 base.get("langFile/list").then(({ data }) => {
   Promise.all(

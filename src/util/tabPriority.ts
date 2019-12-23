@@ -1,14 +1,14 @@
 import { getStorage } from "./functions/asyncStorage";
-import fetchJSON from "./functions/fetchJSON";
 import { apiBase } from "../background";
 import clearActivity from "./functions/clearActivity";
 import tabHasPresence from "./functions/tabHasPresence";
 import injectPresence from "./functions/injectPresence";
+import axios from "axios";
 
 export let priorityTab: number = null;
 export let oldPresence: any = null;
 
-let currTimeout: NodeJS.Timeout;
+let currTimeout: number;
 
 export async function tabPriority(info: any = undefined) {
   //* Get last focused window
@@ -78,22 +78,24 @@ export async function tabPriority(info: any = undefined) {
 
   //* If PreMiD has no presence to inject here, inject one if pmdMetaTag has one
   if (presence.length === 0 && pmdMetaTag) {
-    let { metadata } = await fetchJSON(`${apiBase}presences/${pmdMetaTag}`),
+    let { metadata } = (
+        await axios(`presences/${pmdMetaTag}`, {
+          baseURL: apiBase
+        })
+      ).data,
       prs: any = {
         metadata: metadata,
-        presence: await fetch(
-          `${apiBase}presences/${pmdMetaTag}/presence.js`
-        ).then(res => {
-          return res.text();
-        }),
+        presence: (
+          await axios(`presences/${pmdMetaTag}/presence.js`, {
+            baseURL: apiBase
+          })
+        ).data,
         enabled: true
       };
     if (metadata.iframe)
-      prs.iframe = await fetch(
-        `${apiBase}presences/${pmdMetaTag}/iframe.js`
-      ).then(res => {
-        return res.text();
-      });
+      prs.iframe = (
+        await axios(`presences/${pmdMetaTag}/iframe.js`, { baseURL: apiBase })
+      ).data;
 
     presence = [prs];
   }
@@ -107,7 +109,7 @@ export async function tabPriority(info: any = undefined) {
     if (priorityTab) {
       //* If timeout ends change priorityTab
       if (!currTimeout && priorityTab !== activeTab.id)
-        currTimeout = setTimeout(async () => {
+        currTimeout = window.setTimeout(async () => {
           //* Clear old activity
           clearActivity();
           //* Disable tabPriority on old priorityTab

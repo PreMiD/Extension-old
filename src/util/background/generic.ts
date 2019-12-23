@@ -1,7 +1,5 @@
-import { apiBase } from "../../background";
 import { connect } from "../socketManager";
 import { addPresence, updatePresences } from "../presenceManager";
-import fetchJSON from "../functions/fetchJSON";
 import { getStorage } from "../functions/asyncStorage";
 import { updateStrings } from "../langManager";
 import initSettings from "../functions/initSettings";
@@ -13,16 +11,10 @@ export async function start() {
   //* Start updater intervals
   //*
   //* Connect to app
-  //* If version endsWith DEV, devbuild
-  //* Add all presences for testing purposes
   await Promise.all([initSettings(), updateStrings(), updatePresences()]);
   setInterval(updateStrings, 15 * 60 * 1000);
-  setInterval(updatePresences, 5 * 60 * 1000);
+  setInterval(updatePresences, 1 * 60 * 1000);
   connect();
-  if (chrome.runtime.getManifest().version_name.endsWith("-DEV"))
-    addPresence(
-      (await fetchJSON(`${apiBase}presences`)).map((p: any) => p.name)
-    );
 
   //* Add default presences
   getStorage("local", "defaultAdded").then(({ defaultAdded }) => {
