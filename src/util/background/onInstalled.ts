@@ -40,8 +40,10 @@ async function update() {
   if (
     parseInt(
       (await getStorage("local", "lastVersion")).lastVersion
-        .replace(/\./g, "")
-        .slice(0, 3)
+        ? (await getStorage("local", "lastVersion")).lastVersion
+            .replace(/\./g, "")
+            .slice(0, 3)
+        : 0
     ) <
     parseInt(
       chrome.runtime
@@ -65,6 +67,5 @@ async function update() {
 //* Run this when extension enables (only if was disabled)
 let onExtEnable = setTimeout(enable, 100);
 async function enable() {
-  await start();
-  connect();
+  start().then(connect);
 }

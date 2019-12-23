@@ -1,14 +1,21 @@
 import { getString } from "./util/langManager";
 import { info } from "./util/debug";
-let tabPriority: NodeJS.Timeout = null;
+let tabPriority: number = null,
+  port = chrome.runtime.connect({ name: "contentScript" });
+
+window.addEventListener("PreMiD_UpdatePresence", (data: CustomEvent) =>
+  port.postMessage({ action: "updatePresence", presence: data.detail })
+);
 
 chrome.runtime.onMessage.addListener(function(data) {
-  if (typeof data.iFrameData !== "undefined") {
-    let event = new CustomEvent("PreMiD_iFrameData", {
-      detail: data.iFrameData
-    });
+  if (port === null) return;
 
-    window.dispatchEvent(event);
+  if (typeof data.iFrameData !== "undefined") {
+    window.dispatchEvent(
+      new CustomEvent("PreMiD_iFrameData", {
+        detail: data.iFrameData
+      })
+    );
   }
 
   if (typeof data.tabPriority !== "undefined") {
@@ -16,11 +23,11 @@ chrome.runtime.onMessage.addListener(function(data) {
       //* Prevent multiple intervals
       if (tabPriority === null) {
         info("contentScript.ts", `Tab Priority: ${data.tabPriority}`);
-        tabPriority = setInterval(() => {
+        tabPriority = window.setInterval(() => {
+          //TODO Find a way to prevent console error spam (context invalidated) > Most likely using runtime.connect()
           chrome.runtime.sendMessage({ iFrameUpdateData: true });
 
-          let event = new CustomEvent("PreMiD_UpdateData");
-          document.dispatchEvent(event);
+          document.dispatchEvent(new CustomEvent("PreMiD_UpdateData"));
 
           info("contentScript.ts", "updateData");
         }, 100);
@@ -32,33 +39,22 @@ chrome.runtime.onMessage.addListener(function(data) {
   }
 });
 
-const port = chrome.runtime.connect({ name: "contentScript" });
-
-window.addEventListener("PreMiD_UpdatePresence", (data: CustomEvent) =>
-  port.postMessage({ action: "updatePresence", presence: data.detail })
-);
-
 window.addEventListener("PreMiD_RequestExtensionData", async function(
   data: CustomEvent
 ) {
-  if (data.detail.strings != undefined) {
-    let translations = [];
-    for (let i = 0; i < Object.keys(data.detail.strings).length; i++) {
-      translations.push(
-        await getString(Object.values<string>(data.detail.strings)[i])
-      );
-    }
-    Promise.all(translations).then(completed => {
-      for (let i = 0; i < Object.keys(data.detail.strings).length; i++) {
-        data.detail.strings[Object.keys(data.detail.strings)[i]] = completed[i];
+  let strings = data.detail.strings;
+
+  (
+    await Promise.all(
+      Object.keys(strings).map(string => getString(strings[string]))
+    )
+  ).map((sT, i) => (strings[Object.keys(strings)[i]] = sT));
+
+  window.dispatchEvent(
+    new CustomEvent("PreMiD_ReceiveExtensionData", {
+      detail: {
+        strings: strings
       }
-    });
-  }
-
-  if (data.detail.version) data.detail.version = eval(data.detail.version);
-
-  let event = new CustomEvent("PreMiD_ReceiveExtensionData", {
-    detail: data.detail
-  });
-  window.dispatchEvent(event);
+    })
+  );
 });

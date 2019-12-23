@@ -11,18 +11,17 @@ export let socket = socketIo.connect("http://localhost:3020", {
   autoConnect: false
 });
 
-export function connect() {
-  socket.open();
-}
+export const connect = () => socket.open();
+
 export let appVersion = 0;
 
-let appVersionTimeout: NodeJS.Timeout = null;
+let appVersionTimeout: number = null;
 
 socket.on("connect", async () => {
   //* Tell app to give us its version
   //* Start timeout if we don't receive version response
   socket.emit("getVersion");
-  appVersionTimeout = setTimeout(() => {
+  appVersionTimeout = window.setTimeout(() => {
     //* No response got, most likely old version
     appVersion = -1;
     error("socketManager.ts", "Unsupported app version");
@@ -69,8 +68,6 @@ socket.on("disconnect", () => {
   if (priorityTab !== null)
     chrome.tabs.sendMessage(priorityTab, { tabPriority: false });
 });
-
-//socket.on("mediaKeyHandler", key => console.log(key));
 
 socket.on("localPresence", presenceDevManager);
 

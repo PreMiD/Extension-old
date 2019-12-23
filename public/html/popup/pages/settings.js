@@ -23,12 +23,12 @@ Vue.component("settingsView", {
         games: {
           icon: "leaf",
           id: "games",
-          title: this.$t("popup.category.music")
+          title: this.$t("popup.category.games")
         },
         music: {
           icon: "music",
           id: "music",
-          title: this.$t("popup.category.games")
+          title: this.$t("popup.category.music")
         },
         socials: {
           icon: "comments",
@@ -97,7 +97,7 @@ Vue.component("settingsView", {
     this.settings = await new Promise(function(resolve) {
       chrome.storage.sync.get("settings", function(result) {
         chrome.runtime.getPlatformInfo(function(info) {
-          if (!info.os == "mac") delete result.settings.titleMenubar;
+          if (info.os !== "mac") delete result.settings.titleMenubar;
           delete result.settings.language;
           resolve(result.settings);
         });

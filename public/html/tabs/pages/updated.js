@@ -8,12 +8,11 @@ Vue.component("updatedView", {
   created: async function() {
     this.changelog = await Promise.all(
       (
-        await pmd.fetchJSON(
-          `https://api.premid.app/v2/changelog/extension/${
-            chrome.runtime.getManifest().version
-          }`
+        await pmd.axios(
+          `changelog/extension/${chrome.runtime.getManifest().version}`,
+          { baseURL: pmd.apiBase }
         )
-      ).map(async ch => {
+      ).data.map(async ch => {
         return {
           type: ch.type,
           string: ch.string,

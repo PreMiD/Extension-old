@@ -2,11 +2,12 @@
   "compilerOptions": {
     "target": "ES2015",
     "moduleResolution": "node",
-    "noImplicitAny": true,
     "noUnusedParameters": true,
     "noUnusedLocals": true,
     "sourceMap": true,
-    "outDir": "dist/js"
+    "outDir": "dist/js",
+
+    "lib": ["es2017", "dom"]
   },
   "include": ["src/*", "@types/PreMiD/*.ts"]
 }

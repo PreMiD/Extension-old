@@ -3,9 +3,10 @@
   "version": "2.0.1.5",
   "description": "PreMiD Extension",
   "scripts": {
-    "init": "yarn --silent && rimraf dist && node fetchDescriptions.js && tsc src/util/presence/devHelper.ts --out dist/js/devHelper.js",
+    "test": "rollup --config rollup.config.js",
+    "init": "yarn --silent && node fetchDescriptions.js && tsc src/util/presence/devHelper.ts --out dist/js/devHelper.js",
     "dev": "yarn --silent run init && webpack --config webpack/webpack.dev.js --watch",
-    "build": "yarn --silent run init && webpack --config webpack/webpack.prod.js"
+    "build": "rimraf dist && yarn --silent run init && webpack --config webpack/webpack.prod.js"
   },
   "author": "Timeraa",
   "license": "MPL-2.0",
@@ -13,21 +14,22 @@
     "socket.io-client": "2.3.0"
   },
   "devDependencies": {
+    "@rollup/plugin-node-resolve": "^6.0.0",
     "@types/chrome": "0.0.89",
     "@types/fs-extra": "8.0.0",
     "@types/node-sass": "4.11.0",
     "@types/socket.io-client": "1.4.32",
-    "axios": "0.19.0",
+    "axios": "^0.19.0",
     "chalk": "2.4.2",
     "copy-webpack-plugin": "5.0.4",
     "fs-extra": "8.1.0",
-    "node-sass": "^4.13.0",
+    "node-sass": "4.13.0",
     "rimraf": "3.0.0",
     "sass-loader": "8.0.0",
-    "ts-loader": "6.2.1",
-    "typescript": "3.7.2",
+    "ts-loader": "^6.2.1",
+    "typescript": "3.7.3",
     "webpack": "4.41.0",
-    "webpack-cli": "^3.3.10",
+    "webpack-cli": "3.3.10",
     "webpack-merge": "4.2.2"
   }
 }
