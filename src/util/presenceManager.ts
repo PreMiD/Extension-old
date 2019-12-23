@@ -1,7 +1,7 @@
-import fetchJSON from "./functions/fetchJSON";
 import { getStorage } from "./functions/asyncStorage";
 import { error, success } from "./debug";
 import randomHex from "./functions/randomHex";
+import axios from "axios";
 
 let apiBase = "https://api.premid.app/v2/";
 
@@ -18,14 +18,15 @@ export async function presenceScience() {
   const headers = new Headers();
   headers.append("Content-Type", "application/json");
 
-  fetch(apiBase + "science", {
-    body: JSON.stringify({
+  axios("science", {
+    baseURL: apiBase,
+    data: {
       identifier: identifier,
       presences: presences.filter(p => !p.tmp).map(p => p.metadata.service)
-    }),
+    },
     method: "POST",
     headers: headers
-  }).catch(() => {});
+  });
 }
 
 export async function updatePresences() {
@@ -39,25 +40,54 @@ export async function updatePresences() {
 
   //* Catch fetch error
   try {
-    presenceVersions = await fetchJSON(apiBase + "presences/versions");
+    presenceVersions = (await axios("presences/versions", { baseURL: apiBase }))
+      .data;
   } catch (e) {
     error("presenceManager.ts", `Error while updating presences: ${e.message}`);
     return;
   }
 
   let currPresenceVersions = presences.map(p => {
-    return { name: p.metadata.service, version: p.metadata.version };
-  });
+      return { name: p.metadata.service, version: p.metadata.version };
+    }),
+    presencesToUpdate = currPresenceVersions.filter(p =>
+      presenceVersions.find(p1 => p1.name == p.name && p1.version !== p.version)
+    );
 
-  let presencesToUpdate = currPresenceVersions.filter(p =>
-    presenceVersions.find(p1 => p1.name == p.name && p1.version !== p.version)
-  );
+  Promise.all(
+    presencesToUpdate.map(async p => {
+      let presenceIndex = presences.findIndex(
+        //@ts-ignore
+        p1 => p1.metadata.service === p.name && !p.tmp
+      );
 
-  presencesToUpdate.map(p => {
-    presences = presences.filter(p1 => p1.metadata.service !== p.name);
-    chrome.storage.local.set({ presences }, () => {
-      addPresence(p.name).then(() =>
-        success("presenceManager", `Updated ${p.name} to v${p.version}`)
+      const metadata = (
+        await axios(`presences/${p.name}`, { baseURL: apiBase })
+      ).data.metadata;
+
+      let files = (
+        await Promise.all([
+          (await axios(`${apiBase}presences/${p.name}/presence.js`)).data,
+          metadata.iframe
+            ? (await axios(`${apiBase}presences/${p.name}/iframe.js`)).data
+            : undefined
+        ])
+      ).filter(f => f);
+
+      presences[presenceIndex].metadata = metadata;
+      presences[presenceIndex].presence = files[0];
+      // @ts-ignore
+      if (files.length == 2) presences[presenceIndex].iframe = files[1];
+    })
+  ).then(() => {
+    chrome.storage.local.set({ presences: [...presences] }, () => {
+      presencesToUpdate.map(p =>
+        success(
+          "presenceDevManager.ts",
+          `Updated ${p.name} from v${p.version} to v${
+            presenceVersions.find(p1 => p1.name === p.name).version
+          }`
+        )
       );
     });
   });
@@ -87,22 +117,22 @@ export async function addPresence(name: string | Array<string>) {
   }
 
   if (typeof name === "string") {
-    fetchJSON(`${apiBase}presences/${name}`)
-      .then(async json => {
+    axios(`presences/${name}`, { baseURL: apiBase })
+      .then(async ({ data }) => {
         if (
-          typeof json.metadata.button !== "undefined" &&
-          !json.metadata.button
+          typeof data.metadata.button !== "undefined" &&
+          !data.metadata.button
         )
           return;
 
         let res: any = {
-          metadata: json.metadata,
-          presence: await (await fetch(`${json.url}presence.js`)).text(),
+          metadata: data.metadata,
+          presence: await (await fetch(`${data.url}presence.js`)).text(),
           enabled: true
         };
 
-        if (typeof json.metadata.iframe !== "undefined" && json.metadata.iframe)
-          res.iframe = await (await fetch(`${json.url}iframe.js`)).text();
+        if (typeof data.metadata.iframe !== "undefined" && data.metadata.iframe)
+          res.iframe = await (await fetch(`${data.url}iframe.js`)).text();
 
         presences.push(res);
         chrome.storage.local.set({ presences: presences });
@@ -114,25 +144,29 @@ export async function addPresence(name: string | Array<string>) {
         (
           await Promise.all(
             name.map(name => {
-              return fetchJSON(`${apiBase}presences/${name}`).catch(() => {});
+              return axios(`presences/${name}`, { baseURL: apiBase });
             })
           )
-        )
-          .filter(p => typeof p !== "undefined")
-          .map(async p => {
-            if (typeof p.metadata.button !== "undefined" && !p.metadata.button)
-              return;
+        ).map(async ({ data }) => {
+          if (
+            typeof data.metadata.button !== "undefined" &&
+            !data.metadata.button
+          )
+            return;
 
-            let res: any = {
-              metadata: p.metadata,
-              presence: await (await fetch(`${p.url}presence.js`)).text(),
-              enabled: true
-            };
-            if (typeof p.metadata.iframe !== "undefined" && p.metadata.iframe)
-              res.iframe = await (await fetch(`${p.url}iframe.js`)).text();
+          let res: any = {
+            metadata: data.metadata,
+            presence: (await axios(`${data.url}presence.js`)).data,
+            enabled: true
+          };
+          if (
+            typeof data.metadata.iframe !== "undefined" &&
+            data.metadata.iframe
+          )
+            res.iframe = (await axios(`${data.url}iframe.js`)).data;
 
-            return res;
-          })
+          return res;
+        })
       )
     ).filter(p => typeof p !== "undefined");
 
