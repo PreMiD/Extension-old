@@ -95,14 +95,15 @@ function handlePresence(port: chrome.runtime.Port) {
       delete check1.endTimestamp;
 
       if (
-        isEquivalent(check, check1) &&
-        (oldObject.endTimestamp + 1 ===
-          msg.presence.presenceData.endTimestamp ||
-          oldObject.endTimestamp - 1 ===
+        !(
+          isEquivalent(check, check1) &&
+          (oldObject.endTimestamp + 1 ===
             msg.presence.presenceData.endTimestamp ||
-          oldObject.endTimestamp === msg.presence.presenceData.endTimestamp)
+            oldObject.endTimestamp - 1 ===
+              msg.presence.presenceData.endTimestamp ||
+            oldObject.endTimestamp === msg.presence.presenceData.endTimestamp)
+        )
       ) {
-      } else {
         oldActivity = msg.presence;
         setActivity(msg.presence);
       }
