@@ -83,6 +83,16 @@ Vue.component("settingsView", {
       () => (this.shiftPressed = event.shiftKey)
     );
   },
+  beforeDestroy: function() {
+    window.removeEventListener(
+      "keydown",
+      () => (this.shiftPressed = event.shiftKey)
+    );
+    window.removeEventListener(
+      "keyup",
+      () => (this.shiftPressed = event.shiftKey)
+    );
+  },
   created: async function() {
     this.port.onMessage.addListener(msg => {
       this.connected = msg.connected;
