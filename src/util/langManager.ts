@@ -1,7 +1,7 @@
 import { error, success } from "./debug";
 import axios from "axios";
+import { apiBase } from "../config";
 
-let apiBase = "https://api.premid.app/v2/";
 let defaultLanguage: any, currLanguage: any;
 
 export async function updateStrings() {

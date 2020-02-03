@@ -71,6 +71,27 @@ Vue.component("settingsView", {
       const walkSpeed = (x - startX) * 3;
       pCats.scrollLeft = scrollLeft - walkSpeed;
     });
+
+    //* Presence dev stuff
+    window.addEventListener(
+      "keydown",
+      () => (this.shiftPressed = event.shiftKey)
+    );
+
+    window.addEventListener(
+      "keyup",
+      () => (this.shiftPressed = event.shiftKey)
+    );
+  },
+  beforeDestroy: function() {
+    window.removeEventListener(
+      "keydown",
+      () => (this.shiftPressed = event.shiftKey)
+    );
+    window.removeEventListener(
+      "keyup",
+      () => (this.shiftPressed = event.shiftKey)
+    );
   },
   created: async function() {
     this.port.onMessage.addListener(msg => {
@@ -133,17 +154,6 @@ Vue.component("settingsView", {
         if (this.presences.length == 0) this.managePresences = false;
       }
     });
-
-    //* Presence dev stuff
-    window.addEventListener(
-      "keydown",
-      () => (this.shiftPressed = event.shiftKey)
-    );
-
-    window.addEventListener(
-      "keyup",
-      () => (this.shiftPressed = event.shiftKey)
-    );
   },
   computed: {
     filterCategories() {

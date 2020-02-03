@@ -8,8 +8,8 @@ Vue.component("creditsView", {
   },
   created: function() {
     pmd
-      .fetchJSON("https://api.premid.app/v2/credits")
-      .then(data => {
+      .axios("credits", { baseURL: pmd.apiBase })
+      .then(({ data }) => {
         this.credits = data.sort((a, b) => b.rolePosition - a.rolePosition);
       })
       .catch(() => {
