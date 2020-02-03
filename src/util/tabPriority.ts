@@ -59,7 +59,7 @@ export async function tabPriority(info: any = undefined) {
     if (!p.enabled) return false;
 
     if (typeof p.metadata.regExp !== "undefined") {
-      res = new URL(activeTab.url).hostname.match(
+      res = activeTab.url.match(
         new RegExp(p.metadata.regExp)
       );
 
