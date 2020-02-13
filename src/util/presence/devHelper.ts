@@ -28,7 +28,7 @@ interface PresenceOptions {
 
 class Presence {
   private clientId: string;
-  private trayTitle: string = "";
+  private trayTitle: string = '';
   private playback: boolean = true;
   private mediaKeys: boolean = false;
   private internalPresence: presenceData = {};
@@ -41,7 +41,7 @@ class Presence {
     this.clientId = presenceOptions.clientId;
     this.mediaKeys = presenceOptions.mediaKeys ? true : false;
 
-    window.addEventListener("PreMiD_TabPriority", (data: CustomEvent) => {
+    window.addEventListener('PreMiD_TabPriority', (data: CustomEvent) => {
       if (!data.detail) this.clearActivity();
     });
   }
@@ -66,31 +66,6 @@ class Presence {
     });
   }
 
-  /**
-   * Clears the activity shown in discord as well as the Tray and keybinds
-   * @link https://docs.premid.app/presence-development/coding/presence-class#clearactivity
-   */
-  clearActivity() {
-    this.internalPresence = {};
-    this.trayTitle = "";
-
-    //* Send data to app
-    this.sendData({
-      presenceData: {},
-      playback: false,
-      hidden: true
-    });
-  }
-
-  /**
-   * Sets the tray title on the Menubar in Mac OS (Mac OS only, supports ANSI colors)
-   * @param trayTitle Tray Title
-   * @link https://docs.premid.app/presence-development/coding/presence-class#settraytitle-string
-   */
-  setTrayTitle(trayTitle: string = "") {
-    this.trayTitle = trayTitle;
-  }
-
   //TODO Make this return the active presence shown in Discord.
   /**
    * Get the current
@@ -102,6 +77,59 @@ class Presence {
   }
 
   /**
+   * Clears the activity shown in discord as well as the Tray and keybinds
+   * @link https://docs.premid.app/presence-development/coding/presence-class#clearactivity
+   */
+  clearActivity() {
+    this.internalPresence = {};
+    this.trayTitle = '';
+
+    //* Send data to app
+    this.sendData({
+      presenceData: {},
+      playback: false,
+      hidden: true
+    });
+  }
+
+  /**
+   * Saves a cookie to the user's browser.
+   * @param name The name, or key, of the cookie to set.
+   * @param value The value of the cookie.
+   */
+  setCookie(name: string, value: string) {
+    document.cookie = `pmd_${name}=${value}; path=/;`;
+  }
+
+  /**
+   * This will grab the first cookie it finds with the given name.
+   * @param name The name, of the cookie to grab.
+   */
+  getCookie(name: string) {
+    var match = document.cookie.match(
+      RegExp('(^| )' + 'pmd_' + name + '=([^;]+)')
+    );
+    return match ? match[2] : '';
+  }
+
+  /**
+   * Deletes a cookie name, or key.
+   * @param name The name of the cookie to delete.
+   */
+  deleteCookie(name: string) {
+    document.cookie = `pmd_${name}=;max-age=0;path=/;`;
+  }
+
+  /**
+   * Sets the tray title on the Menubar in Mac OS (Mac OS only, supports ANSI colors)
+   * @param trayTitle Tray Title
+   * @link https://docs.premid.app/presence-development/coding/presence-class#settraytitle-string
+   */
+  setTrayTitle(trayTitle: string = '') {
+    this.trayTitle = trayTitle;
+  }
+
+  /**
    * Get translations from the extension
    * @param strings String object with keys being the key for string, keyValue is the string value
    * @link https://docs.premid.app/presence-development/coding/presence-class#getstrings-object
@@ -109,18 +137,18 @@ class Presence {
   getStrings(strings: Object) {
     return new Promise<any>(resolve => {
       let listener = function(detail: any) {
-        window.removeEventListener("PreMiD_ReceiveExtensionData", listener);
+        window.removeEventListener('PreMiD_ReceiveExtensionData', listener);
 
         resolve(detail.strings);
       };
 
       //* Receive data from PreMiD
       window.addEventListener(
-        "PreMiD_ReceiveExtensionData",
+        'PreMiD_ReceiveExtensionData',
         (detail: CustomEvent) => listener(detail.detail)
       );
 
-      let pmdRED = new CustomEvent("PreMiD_RequestExtensionData", {
+      let pmdRED = new CustomEvent('PreMiD_RequestExtensionData', {
         detail: {
           strings: strings
         }
@@ -139,17 +167,17 @@ class Presence {
    */
   getPageletiable(letiable: string) {
     return new Promise<any>(resolve => {
-      let script = document.createElement("script"),
+      let script = document.createElement('script'),
         _listener = (data: CustomEvent) => {
           script.remove();
           resolve(JSON.parse(data.detail));
 
-          window.removeEventListener("PreMiD_Pageletiable", _listener, true);
+          window.removeEventListener('PreMiD_Pageletiable', _listener, true);
         };
 
-      window.addEventListener("PreMiD_Pageletiable", _listener);
+      window.addEventListener('PreMiD_Pageletiable', _listener);
 
-      script.id = "PreMiD_Pageletiables";
+      script.id = 'PreMiD_Pageletiables';
       script.appendChild(
         document.createTextNode(`
         var pmdPL = new CustomEvent("PreMiD_Pageletiable", {detail: (typeof window["${letiable}"] === "string") ? window["${letiable}"] : JSON.stringify(window["${letiable}"])});
@@ -168,7 +196,7 @@ class Presence {
    */
   private sendData(data: Object) {
     //* Send data to app
-    let pmdUP = new CustomEvent("PreMiD_UpdatePresence", {
+    let pmdUP = new CustomEvent('PreMiD_UpdatePresence', {
       detail: data
     });
 
@@ -181,23 +209,23 @@ class Presence {
    * @param callback Callback function for event
    * @link https://docs.premid.app/presence-development/coding/presence-class#events
    */
-  on(eventName: "UpdateData" | "MediaKeys" | "iFrameData", callback: Function) {
+  on(eventName: 'UpdateData' | 'MediaKeys' | 'iFrameData', callback: Function) {
     this._events[eventName] = callback;
 
     switch (eventName) {
-      case "UpdateData":
-        document.addEventListener("PreMiD_UpdateData", () => {
+      case 'UpdateData':
+        document.addEventListener('PreMiD_UpdateData', () => {
           //* Run callback
           this._events[eventName]();
         });
         return;
-      case "MediaKeys":
-        document.addEventListener("PreMiD_MediaKeys", (data: CustomEvent) => {
+      case 'MediaKeys':
+        document.addEventListener('PreMiD_MediaKeys', (data: CustomEvent) => {
           this._events[eventName](data.detail);
         });
         return;
-      case "iFrameData":
-        window.addEventListener("PreMiD_iFrameData", (data: CustomEvent) => {
+      case 'iFrameData':
+        window.addEventListener('PreMiD_iFrameData', (data: CustomEvent) => {
           this._events[eventName](data.detail);
         });
         return;
@@ -216,7 +244,7 @@ class iFrame {
    * @param data Data to send
    */
   send(data: any) {
-    let pmdIFD = new CustomEvent("PreMiD_iFrameData", {
+    let pmdIFD = new CustomEvent('PreMiD_iFrameData', {
       detail: data
     });
 
@@ -232,11 +260,11 @@ class iFrame {
     return new Promise<string>(async resolve => {
       let _listener = (data: CustomEvent) => {
         resolve(data.detail);
-        document.removeEventListener("PreMiD_iFrameURL", _listener, true);
+        document.removeEventListener('PreMiD_iFrameURL', _listener, true);
       };
-      document.addEventListener("PreMiD_iFrameURL", _listener);
+      document.addEventListener('PreMiD_iFrameURL', _listener);
 
-      let pmdGIFU = new CustomEvent("PreMiD_GETiFrameURL");
+      let pmdGIFU = new CustomEvent('PreMiD_GETiFrameURL');
 
       document.dispatchEvent(pmdGIFU);
     });
@@ -247,19 +275,19 @@ class iFrame {
    * @param eventName
    * @param callback
    */
-  on(eventName: "UpdateData" | "MediaKeys", callback: Function) {
+  on(eventName: 'UpdateData' | 'MediaKeys', callback: Function) {
     this._events[eventName] = callback;
 
     switch (eventName) {
-      case "UpdateData": {
-        document.addEventListener("PreMiD_UpdateData", () => {
+      case 'UpdateData': {
+        document.addEventListener('PreMiD_UpdateData', () => {
           //* Run callback
           this._events[eventName]();
         });
         return;
       }
-      case "MediaKeys":
-        document.addEventListener("PreMiD_MediaKeys", (data: CustomEvent) => {
+      case 'MediaKeys':
+        document.addEventListener('PreMiD_MediaKeys', (data: CustomEvent) => {
           this._events[eventName](data.detail);
         });
         return;
