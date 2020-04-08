@@ -1,5 +1,5 @@
 /**
- * @link https://docs.premid.app/presence-development/coding/presence-class#getpageletiable-string
+ * @link https://docs.premid.app/dev/presence/class#presencedata-interface
  */
 interface presenceData {
   state?: string;
@@ -14,16 +14,9 @@ interface presenceData {
 interface PresenceOptions {
   /**
    * ClientId of Discord application
-   * @link https://docs.premid.app/presence-development/coding/presence-class#clientid
+   * @link https://docs.premid.app/dev/presence/class#clientid
    */
   clientId: string;
-  /**
-   * Wether or not this presence supports media keys
-   * @default {mediaKeys: false}
-   * @link https://docs.premid.app/presence-development/coding/presence-class#mediakeys
-   * @deprecated Deprecated for now as browsers automatically support this
-   */
-  mediaKeys?: boolean;
 }
 
 class Presence {
@@ -50,7 +43,7 @@ class Presence {
    *
    * @param presenceData presenceData
    * @param playback Is presence playing
-   * @link https://docs.premid.app/presence-development/coding/presence-class#setactivity-presencedata-boolean
+   * @link https://docs.premid.app/dev/presence/class#setactivitypresencedata-boolean
    */
   setActivity(presenceData: presenceData = {}, playback: boolean = true) {
     this.internalPresence = presenceData;
@@ -68,7 +61,7 @@ class Presence {
 
   /**
    * Clears the activity shown in discord as well as the Tray and keybinds
-   * @link https://docs.premid.app/presence-development/coding/presence-class#clearactivity
+   * @link https://docs.premid.app/dev/presence/class#clearactivity
    */
   clearActivity() {
     this.internalPresence = {};
@@ -85,7 +78,7 @@ class Presence {
   /**
    * Sets the tray title on the Menubar in Mac OS (Mac OS only, supports ANSI colors)
    * @param trayTitle Tray Title
-   * @link https://docs.premid.app/presence-development/coding/presence-class#settraytitle-string
+   * @link https://docs.premid.app/dev/presence/class#settraytitlestring
    */
   setTrayTitle(trayTitle: string = "") {
     this.trayTitle = trayTitle;
@@ -93,9 +86,8 @@ class Presence {
 
   //TODO Make this return the active presence shown in Discord.
   /**
-   * Get the current
+   * Get the current activity
    * @param strings
-   * @since 2.0-BETA3
    */
   getActivity() {
     return this.internalPresence;
@@ -104,7 +96,7 @@ class Presence {
   /**
    * Get translations from the extension
    * @param strings String object with keys being the key for string, keyValue is the string value
-   * @link https://docs.premid.app/presence-development/coding/presence-class#getstrings-object
+   * @link https://docs.premid.app/dev/presence/class#getstringsobject
    */
   getStrings(strings: Object) {
     return new Promise<any>(resolve => {
@@ -132,10 +124,9 @@ class Presence {
   }
 
   /**
-   * Get letiables from the actual site.
+   * Get variables from the current site
    * @param {Array} letiables Array of letiable names to get
-   * @example let pagelet = getPageletiable('pagelet') -> "letiable content"
-   * @link https://docs.premid.app/presence-development/coding/presence-class#getpageletiable-string
+   * @link https://docs.premid.app/dev/presence/class#getpageletiablestring
    */
   getPageletiable(letiable: string) {
     return new Promise<any>(resolve => {
@@ -179,9 +170,9 @@ class Presence {
    * Subscribe to events emitted by the extension
    * @param eventName EventName to subscribe to
    * @param callback Callback function for event
-   * @link https://docs.premid.app/presence-development/coding/presence-class#events
+   * @link https://docs.premid.app/en/dev/presence/class#events
    */
-  on(eventName: "UpdateData" | "MediaKeys" | "iFrameData", callback: Function) {
+  on(eventName: "UpdateData" | "iFrameData", callback: Function) {
     this._events[eventName] = callback;
 
     switch (eventName) {
@@ -189,11 +180,6 @@ class Presence {
         document.addEventListener("PreMiD_UpdateData", () => {
           //* Run callback
           this._events[eventName]();
-        });
-        return;
-      case "MediaKeys":
-        document.addEventListener("PreMiD_MediaKeys", (data: CustomEvent) => {
-          this._events[eventName](data.detail);
         });
         return;
       case "iFrameData":
@@ -214,6 +200,7 @@ class iFrame {
   /**
    * Send data from iFrames back to the presence script
    * @param data Data to send
+   * @link https://docs.premid.app/dev/presence/class#iframedata
    */
   send(data: any) {
     let pmdIFD = new CustomEvent("PreMiD_iFrameData", {
@@ -226,7 +213,6 @@ class iFrame {
   //TODO Add to docs
   /**
    * Returns the iframe url
-   * @since 2.0-BETA3
    */
   getUrl() {
     return new Promise<string>(async resolve => {
@@ -246,8 +232,9 @@ class iFrame {
    * Subscribe to events emitted by the extension
    * @param eventName
    * @param callback
+   * @link https://docs.premid.app/dev/presence/class#updatedata
    */
-  on(eventName: "UpdateData" | "MediaKeys", callback: Function) {
+  on(eventName: "UpdateData", callback: Function) {
     this._events[eventName] = callback;
 
     switch (eventName) {
@@ -258,11 +245,6 @@ class iFrame {
         });
         return;
       }
-      case "MediaKeys":
-        document.addEventListener("PreMiD_MediaKeys", (data: CustomEvent) => {
-          this._events[eventName](data.detail);
-        });
-        return;
     }
   }
 }
