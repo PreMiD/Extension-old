@@ -1,0 +1,31 @@
+$blurple: #7289da;
+$darkButNotQuiteBlack: #2c2f33;
+$notQuiteBlack: #23272a;
+$greyple: #99aab5;
+
+@import "base";
+@import "_animations";
+
+@font-face {
+	font-family: "Discord Font";
+	font-weight: 900;
+	src: url("/assets/fonts/DiscordFontBlack.woff2") format("woff2");
+	font-style: normal;
+}
+
+@font-face {
+	font-family: Inter;
+	src: url("/assets/fonts/Inter/Inter-Regular.woff2") format("woff2");
+}
+
+@font-face {
+	font-family: Inter;
+	font-weight: 500;
+	src: url("/assets/fonts/Inter/Inter-Medium.woff2") format("woff2");
+}
+
+@font-face {
+	font-family: Inter;
+	font-weight: 700;
+	src: url("/assets/fonts/Inter/Inter-Bold.woff2") format("woff2");
+}

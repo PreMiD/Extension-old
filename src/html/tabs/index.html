@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+    <!--
+      * Vue & Vue Router
+    -->
+    <script src="../../../js/vendor.js"></script>
+    <script src="../../../js/lib/vue.min.js"></script>
+    <script src="../../../js/lib/vue-i18n.js"></script>
+    <script src="../../../js/lib/vue-router.min.js"></script>
+    <script src="../../../js/lib/anime.min.js"></script>
+
+    <!--
+      * LangManager & debug
+    -->
+    <script src="../../../js/helper.js"></script>
+
+    <link rel="stylesheet" href="css/app.css"></link>
+
+    <link href="../../assets/css/fontawesome.min.css" rel="stylesheet">
+  </head>
+  <body>
+
+    <div id="app">
+      <heading></heading>
+      <router-view></router-view>
+    </div>
+
+    <!--
+      * Vue Router pages
+    -->
+    <script src="pages/installed.js"></script>
+    <script src="pages/updated.js"></script>
+
+    <!--
+      * Vue components
+    -->
+    <script src="components/header.js"></script>
+    <script src="components/main.js"></script>
+    <script src="components/changeItem.js"></script>
+    <!--
+      * Vue app init
+    -->
+    <script src="app.js"></script>
+  </body>
+</html>

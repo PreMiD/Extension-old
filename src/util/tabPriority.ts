@@ -1,3 +1,103 @@
+/* import tabHasPresence from "./functions/tabHasPresence";
+import injectPresence from "./functions/injectPresence";
+
+export let priorityTab = null;
+
+interface Presence {
+	clientId: string;
+}
+
+export default class TabPriority {
+	activePresence: presenceStorage[0] = null;
+	priorityTab: chrome.tabs.Tab;
+	activeTab: chrome.tabs.Tab;
+
+	constructor() {
+		chrome.tabs.query({ active: true }, tabs => {
+			this.activeTab = tabs[0];
+		});
+
+		chrome.tabs.onActivated.addListener(tabInfo => {
+			chrome.tabs.get(tabInfo.tabId, tab => {
+				this.activeTab = tab;
+				this.priorityCheck("onActivated");
+			});
+		});
+
+		chrome.tabs.onReplaced.addListener((_, tabId) => {
+			chrome.tabs.get(tabId, tab => {
+				this.activeTab = tab;
+				this.priorityCheck("onReplaced");
+			});
+		});
+
+		chrome.tabs.onCreated.addListener(tab => {
+			this.activeTab = tab;
+			this.priorityCheck("onCreated");
+		});
+
+		chrome.tabs.onRemoved.addListener(_ => {
+			chrome.tabs.query({ active: true }, tabs => {
+				this.activeTab = tabs[0];
+				this.priorityCheck("onRemoved");
+			});
+		});
+
+		chrome.tabs.onUpdated.addListener(tabId => {
+				chrome.tabs.get(tabId, tab => {
+				this.activeTab = tab;
+				this.priorityCheck("onUpdated");
+			});
+		});
+
+		chrome.windows.onFocusChanged.addListener(_ => {
+			this.priorityCheck("onFocusChanged");
+		});
+	}
+
+	async priorityCheck(
+		reason:
+			| "onActivated"
+			| "onReplaced"
+			| "onCreated"
+			| "onRemoved"
+			| "onFocusChanged"
+			| "onUpdated"
+	) {
+
+		if (this.priorityTab?.id === this.activeTab.id) {
+			console.log("Same tab, return")
+			return
+		}
+
+		if (!this.activeTab?.url || ["chrome", "edge", "extension"].some(s => this.activeTab.url.startsWith(s))) {
+			console.log("Invalid tab, return")
+			return
+		}
+
+		let presences = await new Promise<presenceStorage>((resolve) =>
+		chrome.storage.local.get("presences", ({ presences }) => resolve(presences)))
+
+		const presenceForTab = presences.filter(p => {
+			if (p.metadata.regExp) {
+				const res = this.activeTab.url.match(new RegExp(p.metadata.regExp));
+
+
+				if (res !== null && res.length > 0) return true;
+			}
+
+			return Array.isArray(p.metadata.url) ? (p.metadata.url as string[]).some(u => this.activeTab.url.includes(u)) : this.activeTab.url.includes((p.metadata.url as string))
+		})
+
+		if (!presenceForTab) return
+
+
+		this.activePresence = presenceForTab[0];
+		this.priorityTab = this.activeTab;
+		injectPresence(this.activeTab.id, presenceForTab[0]);
+	}
+ */
+
 import { getStorage } from "./functions/asyncStorage";
 import { apiBase } from "../config";
 import clearActivity from "./functions/clearActivity";
@@ -7,6 +107,8 @@ import axios from "axios";
 
 export let priorityTab: number = null;
 export let oldPresence: any = null;
+
+export let currentPresence = null;
 
 let currTimeout: number;
 
@@ -53,6 +155,10 @@ export async function tabPriority(info: any = undefined) {
 	);
 
 	presence = presence.filter(p => {
+		if (p.metaTag && p.metadata.service === pmdMetaTag) {
+			return false;
+		}
+
 		let res = null;
 
 		//* If not enabled return false
@@ -88,7 +194,9 @@ export async function tabPriority(info: any = undefined) {
 						baseURL: apiBase
 					})
 				).data,
-				enabled: true
+				enabled: true,
+				metaTag: true,
+				hidden: false
 			};
 		if (metadata.iframe)
 			prs.iframe = (
@@ -96,6 +204,23 @@ export async function tabPriority(info: any = undefined) {
 			).data;
 
 		presence = [prs];
+
+		chrome.storage.local.get("presences", data => {
+			let exPresence = data.presences.findIndex(
+				p =>
+					p.metadata.service === prs.metadata.service &&
+					p.metaTag === prs.metaTag
+			);
+
+			if (exPresence > -1) {
+				const enabled = data.presences[exPresence].enabled;
+				let presence1 = prs;
+				presence1.enabled = enabled;
+				presence1.hidden = false;
+				data.presences[exPresence] = presence1;
+			} else data.presences.push(prs);
+			chrome.storage.local.set(data);
+		});
 	}
 
 	//* Presence available for currUrl
@@ -103,7 +228,7 @@ export async function tabPriority(info: any = undefined) {
 		//* Check if this tab already has a presence injected
 		let tabHasPrs = await tabHasPresence(activeTab.id);
 
-		//* If a tab is already prioritised, run 5 sec timeout
+		//* If a tab is already prioritized, run 5 sec timeout
 		if (priorityTab) {
 			//* If timeout ends change priorityTab
 			if (!currTimeout && priorityTab !== activeTab.id)
@@ -115,15 +240,13 @@ export async function tabPriority(info: any = undefined) {
 					//* Update tab to be this one
 					priorityTab = activeTab.id;
 
-					//* If tab has presence, tell to enable tabPriority, else inject and tell
-					if (tabHasPrs)
-						chrome.tabs.sendMessage(priorityTab, { tabPriority: true });
-					else {
-						await injectPresence(priorityTab, presence[0]);
+					//* If tab doesn't have presence, inject
+					if (!tabHasPrs) await injectPresence(priorityTab, presence[0]);
 
-						oldPresence = presence[0];
-						chrome.tabs.sendMessage(priorityTab, { tabPriority: true });
-					}
+					oldPresence = presence[0];
+					chrome.tabs.sendMessage(priorityTab, { tabPriority: true });
+
+					updatePopupVisibility();
 
 					//* Reset Timeout
 					currTimeout = null;
@@ -151,6 +274,7 @@ export async function tabPriority(info: any = undefined) {
 						tabPriority: true
 					});
 					oldPresence = presence[0];
+					updatePopupVisibility();
 				}
 			}
 		} else {
@@ -162,6 +286,7 @@ export async function tabPriority(info: any = undefined) {
 			chrome.tabs.sendMessage(priorityTab, {
 				tabPriority: true
 			});
+			updatePopupVisibility();
 		}
 	} else {
 		if (priorityTab === activeTab.id) {
@@ -175,4 +300,36 @@ export async function tabPriority(info: any = undefined) {
 
 export function setPriorityTab(value: any) {
 	priorityTab = value;
+}
+
+function updatePopupVisibility() {
+	chrome.storage.local.get("presences", ({ presences }) => {
+		let presenceToShow = presences.findIndex(
+				p =>
+					p.metaTag &&
+					p.hidden &&
+					p.metadata.service === oldPresence.metadata.service
+			),
+			presenceToHide = presences.findIndex(
+				p =>
+					p.metaTag &&
+					!p.hidden &&
+					p.metadata.service !== oldPresence.metadata.service
+			);
+
+		if (presenceToShow > -1) presences[presenceToShow].hidden = false;
+		if (presenceToHide > -1) presences[presenceToHide].hidden = true;
+
+		chrome.storage.local.set({ presences: presences });
+	});
+}
+
+export function hideMetaTagPresences() {
+	chrome.storage.local.get("presences", ({ presences }) => {
+		let presenceToHide = presences.findIndex(p => p.metaTag && !p.hidden);
+
+		if (presenceToHide > -1) presences[presenceToHide].hidden = true;
+
+		chrome.storage.local.set({ presences: presences });
+	});
 }

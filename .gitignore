@@ -1,8 +1,6 @@
 node_modules/
+
 dist/
-tmp/
-dist.pem
-dist.crx
+src/_locales
+
 *.js
-!webpack/*.js
-!public/**/*

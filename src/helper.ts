@@ -1,6 +1,6 @@
 import {
-  getString as getstring,
-  getStrings as getstrings
+	getString as getstring,
+	getStrings as getstrings
 } from "./util/langManager";
 import { getStorage as getstorage } from "./util/functions/asyncStorage";
 import Axios from "axios";

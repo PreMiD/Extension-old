@@ -108,6 +108,21 @@ function handlePresence(port: chrome.runtime.Port) {
 				setActivity(msg.presence);
 			}
 
+			//* No presence update when either startTimestamp / endTimestamp removed
+			if (
+				(oldObject.startTimestamp !== undefined &&
+					msg.presence.presenceData.startTimestamp === undefined) ||
+				(oldObject.startTimestamp === undefined &&
+					msg.presence.presenceData.startTimestamp !== undefined) ||
+				(oldObject.endTimestamp !== undefined &&
+					msg.presence.presenceData.endTimestamp === undefined) ||
+				(oldObject.endTimestamp === undefined &&
+					msg.presence.presenceData.endTimestamp !== undefined)
+			) {
+				oldActivity = msg.presence;
+				setActivity(msg.presence);
+			}
+
 			oldObject = cpObj(msg.presence.presenceData);
 			return;
 		});

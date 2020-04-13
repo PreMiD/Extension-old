@@ -1,0 +1,58 @@
+{
+	"manifest_version": 2,
+
+	"name": "PreMiD",
+	"description": "__MSG_description__",
+
+	"version": "2.1.1",
+	"version_name": "2.1.1-DEV",
+
+	"icons": {
+		"16": "assets/images/icon_16x16.png",
+		"48": "assets/images/icon_48x48.png",
+		"128": "assets/images/icon_128x128.png"
+	},
+
+	"default_locale": "en",
+
+	"web_accessible_resources": ["js/devHelper.js"],
+
+	"browser_action": {
+		"default_popup": "html/popup/index.html"
+	},
+
+	"background": {
+		"scripts": ["js/vendor.js", "js/background.js"]
+	},
+
+	"content_scripts": [
+		{
+			"matches": ["<all_urls>"],
+			"js": ["js/vendor.js", "js/contentScript.js", "js/devHelper.js"],
+			"run_at": "document_start"
+		},
+		{
+			"matches": ["*://*.premid.app/*"],
+			"js": ["js/presenceManager.js"],
+			"run_at": "document_start"
+		},
+		{
+			"matches": ["<all_urls>"],
+			"js": ["js/iFrameHandler.js", "js/devHelper.js"],
+			"all_frames": true,
+			"run_at": "document_start"
+		}
+	],
+
+	"content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
+
+	"permissions": ["<all_urls>", "storage", "tabs"],
+
+	"applications": {
+		"gecko": {
+			"id": "support@premid.app",
+			"strict_min_version": "52.0",
+			"update_url": "https://api.premid.app/firefox/updates"
+		}
+	}
+}
