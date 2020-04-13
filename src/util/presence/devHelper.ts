@@ -1,5 +1,5 @@
 /**
- * @link https://docs.premid.app/presence-development/coding/presence-class#getpageletiable-string
+ * @link https://docs.premid.app/dev/presence/class#presencedata-interface
  */
 interface presenceData {
 	state?: string;
