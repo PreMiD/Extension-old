@@ -5,7 +5,7 @@
 	"description": "__MSG_description__",
 
 	"version": "2.1.1",
-	"version_name": "2.1.1-DEV",
+	"version_name": "2.1.1",
 
 	"icons": {
 		"16": "assets/images/icon_16x16.png",

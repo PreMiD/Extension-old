@@ -237,10 +237,16 @@
 					})
 					.sort((a, b) => {
 						if (a.metaTag !== b.metaTag) return -1;
-						if (a.metadata.service < b.metadata.service) {
+						if (
+							a.metadata.service.toLowerCase() <
+							b.metadata.service.toLowerCase()
+						) {
 							return -1;
 						}
-						if (a.metadata.service > b.metadata.service) {
+						if (
+							a.metadata.service.toLowerCase() >
+							b.metadata.service.toLowerCase()
+						) {
 							return 1;
 						}
 						return 0;
@@ -326,8 +332,11 @@
 			},
 			updatePresence(i: number, value: boolean) {
 				this.filteredPresences[i].enabled = value;
+				//* You may be wondering, why the fuck do you stringify and parse this? Guess what because Firefox sucks and breaks its storage
 				//@ts-ignore
-				chrome.storage.local.set({ presences: this.presences });
+				chrome.storage.local.set(
+					JSON.parse(JSON.stringify({ presences: this.presences }))
+				);
 			},
 			deletePresence(i: number) {
 				const presenceToRemove = this.filteredPresences[i];
@@ -339,8 +348,11 @@
 						)
 				);
 
+				//* You may be wondering, why the fuck do you stringify and parse this? Guess what because Firefox sucks and breaks its storage
 				//@ts-ignore
-				chrome.storage.local.set({ presences: this.presences });
+				chrome.storage.local.set(
+					JSON.parse(JSON.stringify({ presences: this.presences }))
+				);
 			},
 
 			async togglePresenceSettings(i: number) {
@@ -376,11 +388,16 @@
 
 				this.pSettings.find(s => s.id === setting).value = value;
 
+				//* You may be wondering, why the fuck do you stringify and parse this? Guess what because Firefox sucks and breaks its storage
 				//@ts-ignore
-				chrome.storage.local.set({
-					[`pSettings_${this.pSettingsPresence.metadata.service}`]: this
-						.pSettings
-				});
+				chrome.storage.local.set(
+					JSON.parse(
+						JSON.stringify({
+							[`pSettings_${this.pSettingsPresence.metadata.service}`]: this
+								.pSettings
+						})
+					)
+				);
 			}
 		},
 		created: async function() {
@@ -419,6 +436,8 @@
 						storage[
 							`pSettings_${this.pSettingsPresence.metadata.service}`
 						].newValue;
+
+				this.$forceUpdate();
 			});
 
 			//* Presence Dev
@@ -441,6 +460,12 @@
 			* {
 				position: relative;
 				z-index: 1;
+			}
+
+			#presenceInfo {
+				p {
+					max-width: 300px;
+				}
 			}
 
 			#headingWrapper {
