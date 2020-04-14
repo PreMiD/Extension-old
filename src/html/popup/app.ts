@@ -7,8 +7,6 @@ import Vuex from "vuex";
 import appView from "./app.vue";
 // @ts-ignore
 import settings from "./settings.vue";
-// @ts-ignore
-import credits from "./credits.vue";
 
 Vue.config.productionTip = false;
 Vue.config.devtools = false;
@@ -64,10 +62,6 @@ window.onload = async () => {
 				{
 					path: "/settings",
 					component: settings
-				},
-				{
-					path: "/credits",
-					component: credits
 				}
 			]
 		})
