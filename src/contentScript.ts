@@ -1,5 +1,6 @@
 import { getString } from "./util/langManager";
 import { info } from "./util/debug";
+
 let tabPriority: number = null,
 	port = chrome.runtime.connect({ name: "contentScript" });
 

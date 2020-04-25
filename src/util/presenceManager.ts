@@ -1,8 +1,8 @@
-import { getStorage } from "./functions/asyncStorage";
-import { error, success } from "./debug";
-import randomHex from "./functions/randomHex";
 import axios from "axios";
+import { error, success } from "./debug";
+import { getStorage } from "./functions/asyncStorage";
 import { apiBase } from "../config";
+import { v4 as uuidv4 } from "uuid";
 
 export async function presenceScience() {
 	let identifier = (await getStorage("local", "identifier")).identifier,
@@ -10,7 +10,7 @@ export async function presenceScience() {
 			.presences;
 
 	if (!identifier) {
-		identifier = randomHex();
+		identifier = uuidv4();
 		chrome.storage.local.set({ identifier: identifier });
 	}
 

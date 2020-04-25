@@ -1,10 +1,10 @@
+import { getStorage } from "./asyncStorage";
+import { error, info } from "../debug";
+import { oldPresence, priorityTab } from "../tabPriority";
+//TODO RECODE
 // @ts-nocheck
 
-import { info, error } from "../debug";
-import { getStorage } from "./asyncStorage";
-import { priorityTab, oldPresence } from "../tabPriority";
 
-//TODO Finish and show in some way
 let errors = [];
 export default async function(files: any) {
 	errors = [];
