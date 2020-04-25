@@ -54,7 +54,7 @@
 								@change.native="updateSetting('enabled')"
 							/>
 						</div>
-						<div id="setting">
+						<div id="setting" v-if="!platform.includes('Linux')">
 							<i class="fas fa-rocket" />
 							<p v-t="'popup.setting.autoLaunch'" />
 							<checkbox
