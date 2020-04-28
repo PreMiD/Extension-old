@@ -8,7 +8,7 @@ export default async function setActivity(
 	presence: any,
 	settings: any = undefined
 ) {
-	if (releaseType !== "RELEASE") {
+	if (["ALPHA", "BETA"].includes(releaseType)) {
 		const { authorizedBetaAlpha } = await getStorage(
 			"local",
 			"authorizedBetaAlpha"
