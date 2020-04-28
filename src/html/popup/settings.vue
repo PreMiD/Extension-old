@@ -116,8 +116,7 @@
 					>
 						<img :src="presence.metadata.logo" draggable="false" />
 						<h1>
-							{{ presence.metadata.service }}
-							<span v-if="presence.tmp">TMP</span>
+							<span v-if="presence.tmp">TMP</span>{{ presence.metadata.service }}
 						</h1>
 						<i
 							v-if="
@@ -708,6 +707,10 @@
 						font-weight: normal;
 						justify-content: center;
 
+						max-width: 100%;
+						overflow-x: hidden;
+						text-overflow: ellipsis;
+
 						span {
 							font-size: 10px;
 
@@ -717,6 +720,9 @@
 							padding: 2px 4px;
 							border-radius: 5px;
 							position: relative;
+
+							margin-right: 5px;
+							top: -2px;
 						}
 					}
 
