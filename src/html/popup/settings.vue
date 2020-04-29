@@ -114,8 +114,12 @@
 						v-for="(presence, i) in filteredPresences"
 						v-bind:key="`p${i}`"
 					>
-						<img :src="presence.metadata.logo" draggable="false" />
-						<h1>
+						<img :src="presence.metadata.logo" draggable="false"
+							:title="presence.metadata.service"
+						/>
+						<h1
+							:title="presence.metadata.service"
+						>
 							<span v-if="presence.tmp">TMP</span>{{ presence.metadata.service }}
 						</h1>
 						<i
@@ -710,6 +714,8 @@
 						max-width: 100%;
 						overflow-x: hidden;
 						text-overflow: ellipsis;
+
+						white-space: nowrap;
 
 						span {
 							font-size: 10px;
