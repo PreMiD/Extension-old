@@ -2,7 +2,8 @@ import { getStorage } from "./functions/asyncStorage";
 import { error, success } from "./debug";
 import randomHex from "./functions/randomHex";
 import axios from "axios";
-import { apiBase } from "../config";
+
+let apiBase = "https://api.premid.app/v2/";
 
 export async function presenceScience() {
 	let identifier = (await getStorage("local", "identifier")).identifier,

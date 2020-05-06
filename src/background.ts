@@ -1,9 +1,11 @@
 /**
  *
  * PreMiD by Timeraa
- * Copyright (c) 2018-2020
+ * Copyright (c) 2018-2019
  *
  */
+
+export const apiBase = "https://api.premid.app/v2/";
 
 import "./util/background/generic";
 import "./util/background/onInstalled";
