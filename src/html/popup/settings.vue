@@ -581,7 +581,7 @@
 			display: grid;
 			background-color: $darkButNotQuiteBlack;
 			margin: 10px;
-			padding: 5px;
+			padding: 1em;
 			border-radius: 5px;
 
 			max-height: 450px;
@@ -592,11 +592,13 @@
 				display: inline-grid;
 				grid-template-columns: auto min-content;
 				grid-gap: 10px;
+				height: 20px;
 
 				#title {
 					font-family: "Discord Font";
 					color: $blurple;
 					font-size: 15px;
+					align-self: center;
 				}
 
 				#loadPresence {
@@ -618,7 +620,7 @@
 				#actions {
 					display: inline-grid;
 					grid-template-columns: min-content min-content;
-					grid-gap: 5px;
+					grid-gap: .5em;
 
 					i {
 						cursor: pointer;
@@ -641,7 +643,6 @@
 			#categories {
 				display: flex;
 				flex-flow: nowrap;
-				width: 262px;
 				height: 30px;
 				overflow: hidden;
 				align-items: flex-end;
@@ -692,13 +693,10 @@
 					grid-gap: 5px;
 					align-items: center;
 
-					&:first-of-type {
-						margin-top: 3px;
-					}
-
 					img {
 						width: 25px;
-						border-radius: 5px;
+						height: 25px;
+						border-radius: 4px;
 					}
 
 					h1 {
