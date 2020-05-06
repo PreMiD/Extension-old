@@ -1,19 +1,25 @@
 import { success } from "../debug";
+import tabHasPresence from "./tabHasPresence";
 
 export default async function injectPresence(
-  tabId: number,
-  presence: presenceStorage[0]
+	tabId: number,
+	presence: presenceStorage[0]
 ) {
-  return new Promise(resolve => {
-    chrome.tabs.executeScript(
-      tabId,
-      {
-        code: "let PreMiD_Presence=true;" + presence.presence,
-        runAt: "document_start"
-      },
-      resolve
-    );
+	if (await tabHasPresence(tabId)) return false;
 
-    success("injectPresence.ts", `Injected ${presence.metadata.service}`);
-  });
+	return new Promise(resolve => {
+		chrome.tabs.executeScript(
+			tabId,
+			{
+				code:
+					`let PreMiD_Presence=true;let PMD_Info={tabId:${tabId}};let PreMiD_Metadata=${JSON.stringify(
+						presence.metadata
+					)};` + presence.presence,
+				runAt: "document_start"
+			},
+			resolve
+		);
+
+		success("injectPresence.ts", `Injected ${presence.metadata.service}`);
+	});
 }

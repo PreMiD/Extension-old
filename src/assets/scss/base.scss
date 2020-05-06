@@ -1,0 +1,45 @@
+*:not(i) {
+	font-family: Inter;
+}
+
+::-webkit-scrollbar {
+	width: 8px;
+	height: 0.6rem;
+}
+
+::-webkit-scrollbar-track {
+	background: $notQuiteBlack;
+	border: none;
+}
+
+::-webkit-scrollbar-thumb {
+	transition: background 0.15s ease-out;
+
+	border: 3px solid $notQuiteBlack;
+	border-radius: 20px;
+	background: lighten($notQuiteBlack, 20%);
+
+	&:hover {
+		background: lighten($notQuiteBlack, 25%);
+	}
+}
+
+::-webkit-scrollbar-corner {
+	background: transparent;
+}
+
+::selection {
+	background-color: $blurple;
+	color: white;
+}
+
+.link {
+	color: $blurple;
+	text-decoration: none;
+	font-weight: 600;
+}
+
+* {
+	scrollbar-color: lighten($notQuiteBlack, 20%) $notQuiteBlack;
+	scrollbar-width: thin;
+}

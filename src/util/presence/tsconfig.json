@@ -1,0 +1,5 @@
+{
+	"compilerOptions": {
+		"outFile": "../../../dist/js/devHelper.js"
+	}
+}
