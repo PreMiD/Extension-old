@@ -99,7 +99,7 @@ export default class TabPriority {
  */
 
 import { getStorage } from "./functions/asyncStorage";
-import { apiBase } from "../background";
+import { apiBase } from "../config";
 import clearActivity from "./functions/clearActivity";
 import tabHasPresence from "./functions/tabHasPresence";
 import injectPresence from "./functions/injectPresence";

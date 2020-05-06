@@ -8,42 +8,31 @@ export default async function setActivity(
   presence: any,
   settings: any = undefined
 ) {
-<<<<<<< Updated upstream
-	if (releaseType !== "RELEASE") {
-		const { authorizedBetaAlpha } = await getStorage(
-			"local",
-			"authorizedBetaAlpha"
-		);
+  if (releaseType !== "RELEASE") {
+    const { authorizedBetaAlpha } = await getStorage(
+      "local",
+      "authorizedBetaAlpha"
+    );
 
-		if (!authorizedBetaAlpha) return;
-	}
+    if (!authorizedBetaAlpha) return;
+  }
 
-	if (!settings) settings = (await getStorage("sync", "settings")).settings;
-	if (presence == null || !settings.enabled.value) return;
-=======
   if (!settings) settings = (await getStorage("sync", "settings")).settings;
   if (presence == null || !settings.enabled.value) return;
->>>>>>> Stashed changes
 
   let pTS = cpObj(presence);
 
-<<<<<<< Updated upstream
-	if (pTS.trayTitle && settings.titleMenubar.value && pTS.trayTitle.trim())
-		pTS.trayTitle = pTS.trayTitle.trim();
-	else pTS.trayTitle = "";
-=======
-  if (settings.titleMenubar.value && pTS.trayTitle.trim())
+  if (pTS.trayTitle && settings.titleMenubar.value && pTS.trayTitle.trim())
     pTS.trayTitle = pTS.trayTitle.trim();
   else pTS.trayTitle = "";
->>>>>>> Stashed changes
 
   if (!settings.mediaKeys.value) pTS.mediaKeys = false;
 
-	if (pTS.presenceData.details)
-		pTS.presenceData.details = pTS.presenceData.details.slice(0, 128).trim();
-	if (pTS.presenceData.state)
-		pTS.presenceData.state = pTS.presenceData.state.slice(0, 128).trim();
+  if (pTS.presenceData.details)
+    pTS.presenceData.details = pTS.presenceData.details.slice(0, 128).trim();
+  if (pTS.presenceData.state)
+    pTS.presenceData.state = pTS.presenceData.state.slice(0, 128).trim();
 
-  socket.emit("setActivity", pTS);
+  if (socket.connected) socket.emit("setActivity", pTS);
   info("setActivity.ts", "setActivity");
 }

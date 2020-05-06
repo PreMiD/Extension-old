@@ -4,7 +4,7 @@ import {
 } from "./util/langManager";
 import { getStorage as getstorage } from "./util/functions/asyncStorage";
 import Axios from "axios";
-import { apiBase as apibase } from "./background";
+import { apiBase as apibase } from "./config";
 
 export let getString = getstring;
 export let getStrings = getstrings;
