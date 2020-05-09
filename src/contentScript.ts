@@ -43,10 +43,11 @@ window.addEventListener("PreMiD_RequestExtensionData", async function(
 	data: CustomEvent
 ) {
 	let strings = data.detail.strings;
+	const language = data.detail.language;
 
 	(
 		await Promise.all(
-			Object.keys(strings).map(string => getString(strings[string]))
+			Object.keys(strings).map(string => getString(strings[string], language))
 		)
 	).map((sT, i) => (strings[Object.keys(strings)[i]] = sT));
 

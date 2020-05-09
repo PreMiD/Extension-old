@@ -31,22 +31,24 @@
 								{{ setting.title }}
 							</span>
 
-							<checkbox
-								v-if="typeof setting.value === 'boolean'"
-								:checked="setting.value"
-								@change="updatePresenceSetting(setting.id, $event)"
-							/>
-							<input
-								v-if="typeof setting.value === 'string'"
-								type="text"
-								:value="setting.value"
-								spellcheck="false"
-								@change="updatePresenceSetting(setting.id, $event.target.value)"
-								:ref="setting.id"
-								:placeholder="setting.placeholder"
-							/>
+							<template v-if="!setting.multiLanguage">
+								<checkbox
+									v-if="typeof setting.value === 'boolean'"
+									:checked="setting.value"
+									@change="updatePresenceSetting(setting.id, $event)"
+								/>
+								<input
+									v-if="typeof setting.value === 'string'"
+									type="text"
+									:value="setting.value"
+									spellcheck="false"
+									@change="updatePresenceSetting(setting.id, $event.target.value)"
+									:ref="setting.id"
+									:placeholde="setting.placeholder"
+								/>
+							</template>
 							<customSelect
-								v-if="typeof setting.value === 'number'"
+								v-if="typeof setting.value === 'number' || setting.multiLanguage && setting.values && setting.values.length > 1"
 								@change="updatePresenceSetting(setting.id, $event)"
 								:options="setting.values"
 								:selected="setting.value"
@@ -121,7 +123,7 @@
 						</h1>
 						<i
 							v-if="
-								!presence.noCog && presence.metadata.settings && !showDelete
+								!presence.noCog && presence.metadata.settings && presence.metadata.settings.length > 0 && !showDelete
 							"
 							class="fas fa-cog action"
 							id="settings"
@@ -158,6 +160,7 @@
 	import checkbox from "./components/checkbox";
 	// @ts-ignore
 	import customSelect from "./components/customSelect";
+	import { getPresenceLanguages, getString, DEFAULT_LOCALE } from '../../util/langManager';
 
 	export default {
 		components: {
@@ -353,9 +356,22 @@
 					`pSettings_${this.filteredPresences[i].metadata.service}`
 				);
 
-				this.pSettingsPresence.metadata.settings;
-				settings =
-					settings[`pSettings_${this.pSettingsPresence.metadata.service}`];
+				settings = settings[`pSettings_${this.pSettingsPresence.metadata.service}`];
+
+				if (settings) {
+					let storageLngsSettingsIdx = settings.findIndex(s => typeof s.multiLanguage !== "undefined");
+					let presenceLngsSettings = this.pSettingsPresence.metadata.settings.find(s => typeof s.multiLanguage !== "undefined");
+
+					if (storageLngsSettingsIdx >= 0) {
+						if (presenceLngsSettings) {
+							let setting = settings[storageLngsSettingsIdx];
+							setting.multiLanguage = true;
+
+						} else {
+							settings.splice(storageLngsSettingsIdx, 1);
+						}
+					}
+				}
 
 				this.pSettings = settings
 					? settings
@@ -378,9 +394,99 @@
 
 				//@ts-ignore
 				chrome.storage.local.set({
-					[`pSettings_${this.pSettingsPresence.metadata.service}`]: this
-						.pSettings
+					[`pSettings_${this.pSettingsPresence.metadata.service}`]: this.pSettings
 				});
+			},
+
+			async initPresenceLanguages(p) {
+				if (p.metadata.settings) {
+
+					let lngSettingIdx = p.metadata.settings.findIndex(s => typeof s.multiLanguage !== "undefined");
+
+					if (lngSettingIdx >= 0) {
+						let lngSetting =  p.metadata.settings[lngSettingIdx];
+
+						const languages = await this.presenceMultiLanguageLanguages(lngSetting.multiLanguage)
+
+						if (Object.keys(languages).length > 1) {
+							await this.storeDefaultLanguageOfPresence(p, languages);
+
+						} else {
+							p.metadata.settings.splice(lngSettingIdx, 1);
+						}
+					}
+				}
+			},
+			async getPresenceLanguages(serviceName) {
+				let values = [];
+				let languages = await getPresenceLanguages(serviceName);
+
+				for (const language of languages) {
+					values.push({
+						name: await getString("name", language),
+						value: language
+					});
+				}
+
+				return values;
+			},
+			async presenceMultiLanguageLanguages(multiLanguage) {
+				switch(typeof multiLanguage) {
+					case "boolean":
+						if (multiLanguage === true)
+							return await this.getPresenceLanguages("general");
+						break;
+					case "string":
+						return await this.getPresenceLanguages(multiLanguage);
+						break;
+					case "object":
+						if (multiLanguage instanceof Array) {
+							let commonLngs = [];
+
+							for (const prefix of multiLanguage) {
+								if (typeof prefix === "string" && prefix.trim().length > 0) {
+									let lngs = await this.getPresenceLanguages(prefix);
+
+									// only load common languages
+									if (commonLngs.length === 0) {
+										commonLngs = lngs;
+									} else {
+										commonLngs = commonLngs.filter(cl =>
+											lngs.findIndex(l => l.value === cl.value) >= 0
+										);
+									}
+								}
+							}
+
+							return commonLngs;
+						}
+						break;
+				}
+			},
+			async storeDefaultLanguageOfPresence(p, languages) {
+				let lngSetting = p.metadata.settings.find(s => typeof s.multiLanguage !== "undefined");
+
+				// @ts-ignore
+				const presenceSettings = (await pmd.getStorage(
+					"local",
+					`pSettings_${p.metadata.service}`
+				))[`pSettings_${p.metadata.service}`];
+
+				if (!presenceSettings || !presenceSettings.find(s => s.id === lngSetting.id)) {
+					const uiLang = chrome.i18n.getUILanguage()
+					let preferredValue = languages.find(l => l.value === uiLang);
+
+					lngSetting.title = await getString("general.language", uiLang);
+					lngSetting.icon = "fas fa-language";
+					lngSetting.value = preferredValue ? preferredValue.value : DEFAULT_LOCALE;
+					lngSetting.values = languages;
+					this.presenceSettings[this.presences.indexOf(p)] = false;
+
+					this.pSettingsPresence = p;
+					this.pSettings = this.pSettingsPresence.metadata.settings;
+
+					this.updatePresenceSetting(lngSetting.id, lngSetting.value);
+				}
 			}
 		},
 		created: async function() {
@@ -395,14 +501,14 @@
 								`pSettings_${p.metadata.service}`
 							);
 
-							if (
+							await this.initPresenceLanguages(p);
+
+							return !(
 								presenceSettings[`pSettings_${p.metadata.service}`] &&
 								presenceSettings[`pSettings_${p.metadata.service}`].filter(
 									s => !s.hidden
 								).length === 0
-							)
-								return false;
-							else return true;
+							);
 						} else return false;
 					})
 				));

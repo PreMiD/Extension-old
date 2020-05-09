@@ -109,6 +109,7 @@ class Presence {
 				resolve(detail.strings);
 			};
 
+			// TODO currently unhandled
 			this.port.postMessage({ action: "getStrings", language, strings });
 
 			//* Receive data from PreMiD
@@ -119,7 +120,8 @@ class Presence {
 
 			let pmdRED = new CustomEvent("PreMiD_RequestExtensionData", {
 				detail: {
-					strings: strings
+					strings: strings,
+					language: language ?? null
 				}
 			});
 

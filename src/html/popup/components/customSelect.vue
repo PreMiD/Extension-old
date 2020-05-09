@@ -1,18 +1,28 @@
 <template>
   <div id="select" :class="active ? 'active' : null" @click="active = !active">
-    <div id="wrapper">
-      <p id="show" v-text="$props.options[$props.selected]" />
-      <span v-for="(s, i) in $props.options" :key="i" v-text="s" @click="$emit('change',i)" />
-    </div>
+      <template v-if="$props.options && typeof $props.options[0] === 'object'">
+        <div id="wrapper">
+          <p id="show" v-text="$props.options.find(l => l.value === (($props.selected && $props.selected !== true) ? $props.selected : DEFAULT_LOCALE)).name" />
+          <span v-for="o in $props.options" :key="o.value" v-text="o.name" @click="$emit('change', o.value)" />
+        </div>
+      </template>
+      <template v-else>
+        <div id="wrapper">
+          <p id="show" v-text="$props.options[$props.selected]" />
+          <span v-for="(s, i) in $props.options" :key="i" v-text="s" @click="$emit('change',i)" />
+        </div>
+      </template>
   </div>
 </template>
 
 <script>
+import { DEFAULT_LOCALE } from '../../../util/langManager';
 export default {
   props: ["options", "selected"],
   data() {
     return {
-      active: false
+      active: false,
+      DEFAULT_LOCALE: DEFAULT_LOCALE
     };
   }
 };
