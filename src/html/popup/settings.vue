@@ -234,6 +234,22 @@
 				presenceSettings: []
 			};
 		},
+		watch: {
+			async presences(newValue, oldValue) {
+				if (oldValue.length > 0 && newValue.length > oldValue.length) {
+					let newPresences = newValue.filter(p => !oldValue.find(o => o.metadata.service == p.metadata.service));
+
+					for (const newPresence of newPresences) {
+						await this.initPresenceLanguages(newPresence);
+
+						if (newPresence.metadata.settings) {
+							newPresence.noCog = !(newPresence.metadata.settings.findIndex(s => s.multiLanguage && s.values.length > 1) >= 0);
+							this.$forceUpdate();
+						}
+					}
+				}
+			}
+		},
 		computed: {
 			filteredPresences() {
 				return this.presences
