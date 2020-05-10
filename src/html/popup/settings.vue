@@ -506,10 +506,11 @@
 					s => typeof s.multiLanguage !== "undefined"
 				);
 
-				// @ts-ignore
-				const presenceSettings = (
-					await pmd.getStorage("local", `pSettings_${p.metadata.service}`)
-				)[`pSettings_${p.metadata.service}`];
+				const presenceSettings =
+					// @ts-ignore
+					(await pmd.getStorage("local", `pSettings_${p.metadata.service}`))[
+						`pSettings_${p.metadata.service}`
+					];
 
 				if (
 					!presenceSettings ||
