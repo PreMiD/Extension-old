@@ -1,5 +1,5 @@
-import { success } from "../debug";
 import tabHasPresence from "./tabHasPresence";
+import { success } from "../debug";
 
 export default async function injectPresence(
 	tabId: number,

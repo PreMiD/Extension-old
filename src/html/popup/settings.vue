@@ -42,13 +42,20 @@
 									type="text"
 									:value="setting.value"
 									spellcheck="false"
-									@change="updatePresenceSetting(setting.id, $event.target.value)"
+									@change="
+										updatePresenceSetting(setting.id, $event.target.value)
+									"
 									:ref="setting.id"
 									:placeholde="setting.placeholder"
 								/>
 							</template>
 							<customSelect
-								v-if="typeof setting.value === 'number' || setting.multiLanguage && setting.values && setting.values.length > 1"
+								v-if="
+									typeof setting.value === 'number' ||
+										(setting.multiLanguage &&
+											setting.values &&
+											setting.values.length > 1)
+								"
 								@change="updatePresenceSetting(setting.id, $event)"
 								:options="setting.values"
 								:selected="setting.value"
@@ -123,7 +130,10 @@
 						</h1>
 						<i
 							v-if="
-								!presence.noCog && presence.metadata.settings && presence.metadata.settings.length > 0 && !showDelete
+								!presence.noCog &&
+									presence.metadata.settings &&
+									presence.metadata.settings.length > 0 &&
+									!showDelete
 							"
 							class="fas fa-cog action"
 							id="settings"
@@ -160,7 +170,11 @@
 	import checkbox from "./components/checkbox";
 	// @ts-ignore
 	import customSelect from "./components/customSelect";
-	import { getPresenceLanguages, getString, DEFAULT_LOCALE } from '../../util/langManager';
+	import {
+		getPresenceLanguages,
+		getString,
+		DEFAULT_LOCALE
+	} from "../../util/langManager";
 
 	export default {
 		components: {
@@ -240,10 +254,16 @@
 					})
 					.sort((a, b) => {
 						if (a.metaTag !== b.metaTag) return -1;
-						if (a.metadata.service < b.metadata.service) {
+						if (
+							a.metadata.service.toLowerCase() <
+							b.metadata.service.toLowerCase()
+						) {
 							return -1;
 						}
-						if (a.metadata.service > b.metadata.service) {
+						if (
+							a.metadata.service.toLowerCase() >
+							b.metadata.service.toLowerCase()
+						) {
 							return 1;
 						}
 						return 0;
@@ -329,8 +349,11 @@
 			},
 			updatePresence(i: number, value: boolean) {
 				this.filteredPresences[i].enabled = value;
+				//* You may be wondering, why the fuck do you stringify and parse this? Guess what because Firefox sucks and breaks its storage
 				//@ts-ignore
-				chrome.storage.local.set({ presences: this.presences });
+				chrome.storage.local.set(
+					JSON.parse(JSON.stringify({ presences: this.presences }))
+				);
 			},
 			deletePresence(i: number) {
 				const presenceToRemove = this.filteredPresences[i];
@@ -342,8 +365,11 @@
 						)
 				);
 
+				//* You may be wondering, why the fuck do you stringify and parse this? Guess what because Firefox sucks and breaks its storage
 				//@ts-ignore
-				chrome.storage.local.set({ presences: this.presences });
+				chrome.storage.local.set(
+					JSON.parse(JSON.stringify({ presences: this.presences }))
+				);
 			},
 
 			async togglePresenceSettings(i: number) {
@@ -356,17 +382,21 @@
 					`pSettings_${this.filteredPresences[i].metadata.service}`
 				);
 
-				settings = settings[`pSettings_${this.pSettingsPresence.metadata.service}`];
+				settings =
+					settings[`pSettings_${this.pSettingsPresence.metadata.service}`];
 
 				if (settings) {
-					let storageLngsSettingsIdx = settings.findIndex(s => typeof s.multiLanguage !== "undefined");
-					let presenceLngsSettings = this.pSettingsPresence.metadata.settings.find(s => typeof s.multiLanguage !== "undefined");
+					let storageLngsSettingsIdx = settings.findIndex(
+						s => typeof s.multiLanguage !== "undefined"
+					);
+					let presenceLngsSettings = this.pSettingsPresence.metadata.settings.find(
+						s => typeof s.multiLanguage !== "undefined"
+					);
 
 					if (storageLngsSettingsIdx >= 0) {
 						if (presenceLngsSettings) {
 							let setting = settings[storageLngsSettingsIdx];
 							setting.multiLanguage = true;
-
 						} else {
 							settings.splice(storageLngsSettingsIdx, 1);
 						}
@@ -392,25 +422,33 @@
 
 				this.pSettings.find(s => s.id === setting).value = value;
 
+				//* You may be wondering, why the fuck do you stringify and parse this? Guess what because Firefox sucks and breaks its storage
 				//@ts-ignore
-				chrome.storage.local.set({
-					[`pSettings_${this.pSettingsPresence.metadata.service}`]: this.pSettings
-				});
+				chrome.storage.local.set(
+					JSON.parse(
+						JSON.stringify({
+							[`pSettings_${this.pSettingsPresence.metadata.service}`]: this
+								.pSettings
+						})
+					)
+				);
 			},
 
 			async initPresenceLanguages(p) {
 				if (p.metadata.settings) {
-
-					let lngSettingIdx = p.metadata.settings.findIndex(s => typeof s.multiLanguage !== "undefined");
+					let lngSettingIdx = p.metadata.settings.findIndex(
+						s => typeof s.multiLanguage !== "undefined"
+					);
 
 					if (lngSettingIdx >= 0) {
-						let lngSetting =  p.metadata.settings[lngSettingIdx];
+						let lngSetting = p.metadata.settings[lngSettingIdx];
 
-						const languages = await this.presenceMultiLanguageLanguages(lngSetting.multiLanguage)
+						const languages = await this.presenceMultiLanguageLanguages(
+							lngSetting.multiLanguage
+						);
 
 						if (Object.keys(languages).length > 1) {
 							await this.storeDefaultLanguageOfPresence(p, languages);
-
 						} else {
 							p.metadata.settings.splice(lngSettingIdx, 1);
 						}
@@ -431,7 +469,7 @@
 				return values;
 			},
 			async presenceMultiLanguageLanguages(multiLanguage) {
-				switch(typeof multiLanguage) {
+				switch (typeof multiLanguage) {
 					case "boolean":
 						if (multiLanguage === true)
 							return await this.getPresenceLanguages("general");
@@ -451,8 +489,8 @@
 									if (commonLngs.length === 0) {
 										commonLngs = lngs;
 									} else {
-										commonLngs = commonLngs.filter(cl =>
-											lngs.findIndex(l => l.value === cl.value) >= 0
+										commonLngs = commonLngs.filter(
+											cl => lngs.findIndex(l => l.value === cl.value) >= 0
 										);
 									}
 								}
@@ -464,21 +502,27 @@
 				}
 			},
 			async storeDefaultLanguageOfPresence(p, languages) {
-				let lngSetting = p.metadata.settings.find(s => typeof s.multiLanguage !== "undefined");
+				let lngSetting = p.metadata.settings.find(
+					s => typeof s.multiLanguage !== "undefined"
+				);
 
 				// @ts-ignore
-				const presenceSettings = (await pmd.getStorage(
-					"local",
-					`pSettings_${p.metadata.service}`
-				))[`pSettings_${p.metadata.service}`];
+				const presenceSettings = (
+					await pmd.getStorage("local", `pSettings_${p.metadata.service}`)
+				)[`pSettings_${p.metadata.service}`];
 
-				if (!presenceSettings || !presenceSettings.find(s => s.id === lngSetting.id)) {
-					const uiLang = chrome.i18n.getUILanguage()
+				if (
+					!presenceSettings ||
+					!presenceSettings.find(s => s.id === lngSetting.id)
+				) {
+					const uiLang = chrome.i18n.getUILanguage();
 					let preferredValue = languages.find(l => l.value === uiLang);
 
 					lngSetting.title = await getString("general.language", uiLang);
 					lngSetting.icon = "fas fa-language";
-					lngSetting.value = preferredValue ? preferredValue.value : DEFAULT_LOCALE;
+					lngSetting.value = preferredValue
+						? preferredValue.value
+						: DEFAULT_LOCALE;
 					lngSetting.values = languages;
 					this.presenceSettings[this.presences.indexOf(p)] = false;
 
@@ -525,6 +569,8 @@
 						storage[
 							`pSettings_${this.pSettingsPresence.metadata.service}`
 						].newValue;
+
+				this.$forceUpdate();
 			});
 
 			//* Presence Dev
@@ -547,6 +593,12 @@
 			* {
 				position: relative;
 				z-index: 1;
+			}
+
+			#presenceInfo {
+				p {
+					max-width: 300px;
+				}
 			}
 
 			#headingWrapper {

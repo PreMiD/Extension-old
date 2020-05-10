@@ -1,98 +1,36 @@
-import { connect } from "../socketManager";
-import { addPresence, updatePresences } from "../presenceManager";
-import { getStorage } from "../functions/asyncStorage";
-import { updateStrings } from "../langManager";
-import initSettings from "../functions/initSettings";
+import addDefaultPresences from "../functions/addDefaultPresences";
 import clearActivity from "../functions/clearActivity";
-import { tabPriority, priorityTab, hideMetaTagPresences } from "../tabPriority";
-import Axios from "axios";
-import { releaseType, apiBase } from "../../config";
+import consoleHeader from "../functions/consoleHeader";
+import hasAlphaBetaAccess from "../functions/hasAlphaBetaAccess";
+import initSettings from "../functions/initSettings";
+import { connect } from "../socketManager";
+import { hideMetaTagPresences, priorityTab, tabPriority } from "../tabPriority";
+import { releaseType } from "../../config";
+import { updatePresences } from "../presenceManager";
+import { updateStrings } from "../langManager";
 
 export async function start() {
-	if (releaseType !== "RELEASE") {
-		const { authorizedBetaAlpha } = await getStorage(
-			"local",
-			"authorizedBetaAlpha"
-		);
+	await consoleHeader();
 
-		if (!authorizedBetaAlpha) {
-			let redirectURL =
-				"https://cpoegcmgabanfledhkjdicdclgpmghog.chromiumapp.org";
-			// @ts-ignore
-			if (typeof browser !== "undefined")
-				// @ts-ignore
-				redirectURL = await browser.identity.getRedirectURL();
-
-			const allowedAccess = await new Promise(resolve =>
-				chrome.identity.launchWebAuthFlow(
-					{
-						url: `https://discordapp.com/api/oauth2/authorize?response_type=token&client_id=503557087041683458&scope=identify&redirect_uri=${redirectURL}`,
-						interactive: true
-					},
-					async responseUrl => {
-						if (
-							!responseUrl ||
-							!responseUrl.match(/(&access_token=[\d\w]+)/g)
-						) {
-							//* So chrome shuts up
-							chrome.runtime.lastError;
-							resolve();
-							return;
-						}
-
-						const accessToken = responseUrl
-							.match(/(&access_token=[\d\w]+)/g)[0]
-							.replace("&access_token=", "");
-
-						const dUser = (
-							await Axios("https://discordapp.com/api/users/@me", {
-								headers: { Authorization: `Bearer ${accessToken}` }
-							})
-						).data;
-
-						let allowedAccess: boolean;
-						if (releaseType === "BETA") {
-							allowedAccess = (await Axios(apiBase + "betaAccess/" + dUser.id))
-								.data.access;
-						} else if (releaseType === "ALPHA")
-							allowedAccess = (await Axios(apiBase + "alphaAccess/" + dUser.id))
-								.data.access;
-
-						resolve(allowedAccess);
-					}
-				)
-			);
-
-			chrome.storage.local.set({ authorizedBetaAlpha: allowedAccess });
-		}
-	}
+	//* Check alpha/beta access if releasyType equals ALPHA/BETA
+	if (["ALPHA", "BETA"].includes(releaseType)) await hasAlphaBetaAccess();
 
 	chrome.browserAction.setBadgeText({ text: "!" });
 	chrome.browserAction.setBadgeBackgroundColor({ color: "#e1e100" });
 
-	//* Initialize settings, Update strings, Update presences
+	//* Initialize settings, Add default presences, Update strings, Update presences
 	//* Start updater intervals
 	//*
 	//* Connect to app
-	await Promise.all([initSettings(), updateStrings(), updatePresences()]);
+	await Promise.all([
+		initSettings(),
+		addDefaultPresences(),
+		updateStrings(),
+		updatePresences()
+	]);
 	setInterval(updateStrings, 15 * 60 * 1000);
-	setInterval(updatePresences, 1 * 60 * 1000);
+	setInterval(updatePresences, 15 * 60 * 1000);
 	connect();
-
-	//* Add default presences
-	getStorage("local", "defaultAdded").then(({ defaultAdded }) => {
-		//* return if already added
-		//* Add default presences
-		if (defaultAdded) return;
-		addPresence([
-			"YouTube",
-			"YouTube Music",
-			"Netflix",
-			"Twitch",
-			"SoundCloud"
-		]);
-		chrome.storage.local.set({ defaultAdded: true });
-	});
 }
 
 //* Update if update available

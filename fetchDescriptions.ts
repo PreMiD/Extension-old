@@ -1,5 +1,5 @@
 import axios from "axios";
-import { ensureDirSync, writeFileSync, removeSync } from "fs-extra";
+import { ensureDirSync, removeSync, writeFileSync } from "fs-extra";
 
 let base = axios.create({ baseURL: "https://api.premid.app/v2/" });
 

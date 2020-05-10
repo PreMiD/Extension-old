@@ -1,10 +1,9 @@
+import { getStorage } from "./asyncStorage";
+import { error, info } from "../debug";
+import { oldPresence, priorityTab } from "../tabPriority";
+//TODO RECODE
 // @ts-nocheck
 
-import { info, error } from "../debug";
-import { getStorage } from "./asyncStorage";
-import { priorityTab, oldPresence } from "../tabPriority";
-
-//TODO Finish and show in some way
 let errors = [];
 export default async function(files: any) {
 	errors = [];
@@ -47,7 +46,7 @@ export default async function(files: any) {
 	}
 	if (!presence) errors.push("No presence.js found.");
 
-	errors.map(err => error("presenceDevManager.ts", err));
+	errors.map(err => error("presenceDevManager.ts", err, true));
 
 	let presences: presenceStorage = (await getStorage("local", "presences"))
 		.presences;

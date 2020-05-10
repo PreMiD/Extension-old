@@ -1,9 +1,11 @@
 export default function cpObj(mainObj: any) {
-  let objCopy: any = {}; // objCopy will store a copy of the mainObj
-  let key: any;
+	//* objCopy will store a copy of the mainObj
+	let objCopy: any = {},
+		key: any;
 
-  for (key in mainObj) {
-    objCopy[key] = mainObj[key]; // copies each property to the objCopy object
-  }
-  return objCopy;
+	for (key in mainObj) {
+		//* copies each property to the objCopy object
+		objCopy[key] = mainObj[key];
+	}
+	return objCopy;
 }
