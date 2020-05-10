@@ -11,16 +11,112 @@ interface presenceData {
 	smallImageText?: string;
 }
 
+/**
+ * @link https://docs.premid.app/dev/presence/metadata
+ */
+interface Metadata {
+	/**
+	 * Should contain Object with name and id of the presence developer.
+	 * Name is your Discord username without the identifier(#0000).
+	 * User id can be copied from Discord by enabling developer mode and right-clicking on your profile.
+	 */
+	author: { name: string; id: string };
+	/**
+	 * Should contain an Array of Objects with each Object having the name and id of the contributor.
+	 * Name is your Discord username without the identifier(#0000).
+	 * User id can be copied from Discord by enabling developer mode and right-clicking on your profile.
+	 */
+	contributors?: Array<{ name: string; id: string }>;
+	/**
+	 * The title of the service that this presence supports. The folder name and service name should also be the same.
+	 */
+	service: string;
+	/**
+	 * Small description of the service. Your description must have key pair values which indicate the language, and the description in that specific language.
+	 * Make descriptions with the languages that you know, our translators will make changes to your metadata file.
+	 * Visit the link for all the language IDs.
+	 * @link https://api.premid.app/v2/langFile/list
+	 */
+	description: Record<string, string>;
+	/**
+	 * URL of the service.
+	 * Example: `vk.com`
+	 * This url must match the url of the website as it will be used to detect wherever or not this is the website to inject the script to.
+	 * This may only be used as an array when there are more than one urls.
+	 * Note: Do **NOT** add `http://` or `https://` in the url or it will not work.
+	 */
+	url: string;
+	/**
+	 * Version of your presence.
+	 * Use Sematic Versioning; <MAJOR>.<MINOR>.<PATCH>
+	 * @link https://semver.org/
+	 */
+	version: string;
+	/**
+	 * Link to service's logo.
+	 * Must end with .png/.jpg/etc.
+	 */
+	logo: string;
+	/**
+	 * Link to service's thumbnail or picture of the website.
+	 * Must end with .png/.jpg/etc.
+	 */
+	thumbnail: string;
+	/**
+	 * `#HEX` value.
+	 * We recommend to use a primary color of the service that your presence supports.
+	 */
+	color: string;
+	/**
+	 * Array with tags, they will help users to search your presence on the website.
+	 */
+	tags: string | Array<string>;
+	/**
+	 * A string used to represent the category the presence falls under.
+	 * @link https://docs.premid.app/dev/presence/metadata#presence-categories
+	 */
+	category: string;
+	/**
+	 * Defines whether `iFrames` are used.
+	 */
+	iframe?: boolean;
+	/**
+	 * A regular expression string used to match urls.
+	 * @link https://docs.premid.app/dev/presence/metadata#regular-expressions
+	 */
+	regExp?: RegExp;
+	/**
+	 * A regular expression selector that selects iframes to inject into.
+	 * @link https://docs.premid.app/dev/presence/metadata#regular-expressions
+	 */
+	iframeRegExp?: RegExp;
+	button?: boolean;
+	warning?: boolean;
+	/**
+	 * An array of settings the user can change.
+	 * @link https://docs.premid.app/dev/presence/metadata#presence-settings
+	 */
+	settings?: Array<{
+		id: string;
+		title: string;
+		icon: string;
+		if?: Record<string, string>;
+		placeholder?: string;
+		value?: string | number | boolean;
+		values?: Array<string | number | boolean>;
+	}>;
+}
+
 interface PresenceOptions {
 	/**
 	 * ClientId of Discord application
-	 * @link https://docs.premid.app/presence-development/coding/presence-class#clientid
+	 * @link https://docs.premid.app/dev/presence/class#clientid
 	 */
 	clientId: string;
 }
 
 class Presence {
-	metadata: any;
+	metadata: Metadata;
 	_events: any = {};
 	private clientId: string;
 	private trayTitle: string = "";
@@ -45,7 +141,7 @@ class Presence {
 	 *
 	 * @param presenceData presenceData
 	 * @param playback Is presence playing
-	 * @link https://docs.premid.app/presence-development/coding/presence-class#setactivity-presencedata-boolean
+	 * @link https://docs.premid.app/dev/presence/class#setactivitypresencedata-boolean
 	 */
 	setActivity(presenceData: presenceData = {}, playback: boolean = true) {
 		this.internalPresence = presenceData;
@@ -62,7 +158,7 @@ class Presence {
 
 	/**
 	 * Clears the activity shown in discord as well as the Tray and keybinds
-	 * @link https://docs.premid.app/presence-development/coding/presence-class#clearactivity
+	 * @link https://docs.premid.app/dev/presence/class#clearactivity
 	 */
 	clearActivity() {
 		this.internalPresence = {};
@@ -79,7 +175,7 @@ class Presence {
 	/**
 	 * Sets the tray title on the Menubar in Mac OS (Mac OS only, supports ANSI colors)
 	 * @param trayTitle Tray Title
-	 * @link https://docs.premid.app/presence-development/coding/presence-class#settraytitle-string
+	 * @link https://docs.premid.app/dev/presence/class#settraytitlestring
 	 */
 	setTrayTitle(trayTitle: string = "") {
 		this.trayTitle = trayTitle;
@@ -87,9 +183,8 @@ class Presence {
 
 	//TODO Make this return the active presence shown in Discord.
 	/**
-	 * Get the current
+	 * Get the current activity
 	 * @param strings
-	 * @since 2.0-BETA3
 	 */
 	getActivity() {
 		return this.internalPresence;
@@ -99,11 +194,11 @@ class Presence {
 	 * Get translations from the extension
 	 * @param strings String object with keys being the key for string, keyValue is the string value
 	 * @param language Language
-	 * @link https://docs.premid.app/presence-development/coding/presence-class#getstrings-object
+	 * @link https://docs.premid.app/dev/presence/class#getstringsobject
 	 */
 	getStrings(strings: Object, language?: string) {
 		return new Promise<any>(resolve => {
-			let listener = function(detail: any) {
+			let listener = function (detail: any) {
 				window.removeEventListener("PreMiD_ReceiveExtensionData", listener);
 
 				resolve(detail.strings);
@@ -129,10 +224,9 @@ class Presence {
 	}
 
 	/**
-	 * Get letiables from the actual site.
+	 * Get variables from the current site
 	 * @param {Array} letiables Array of letiable names to get
-	 * @example let pagelet = getPageletiable('pagelet') -> "letiable content"
-	 * @link https://docs.premid.app/presence-development/coding/presence-class#getpageletiable-string
+	 * @link https://docs.premid.app/dev/presence/class#getpageletiablestring
 	 */
 	getPageletiable(letiable: string) {
 		return new Promise<any>(resolve => {
@@ -174,6 +268,7 @@ class Presence {
 	/**
 	 * Get a setting from the presence metadata
 	 * @param setting Id of setting as defined in metadata.
+	 * @link https://docs.premid.app/dev/presence/class#getsettingstring
 	 * @since 2.1
 	 */
 	getSetting(setting: string) {
@@ -201,6 +296,7 @@ class Presence {
 	/**
 	 * Hide a setting
 	 * @param setting Id of setting / Array of setting Id's
+	 * @link https://docs.premid.app/dev/presence/class#hidesettingstring
 	 * @since 2.1
 	 */
 	hideSetting(settings: string | Array<string>) {
@@ -234,6 +330,7 @@ class Presence {
 	/**
 	 * Hide a setting
 	 * @param setting Id of setting / Array of setting Id's
+	 * @link https://docs.premid.app/dev/presence/class#showsettingstring
 	 * @since 2.1
 	 */
 	showSetting(settings: string | Array<string>) {
@@ -281,7 +378,7 @@ class Presence {
 	 * Subscribe to events emitted by the extension
 	 * @param eventName EventName to subscribe to
 	 * @param callback Callback function for event
-	 * @link https://docs.premid.app/presence-development/coding/presence-class#events
+	 * @link https://docs.premid.app/dev/presence/class#events
 	 */
 	on(eventName: "UpdateData" | "iFrameData", callback: Function) {
 		this._events[eventName] = callback;
@@ -311,6 +408,7 @@ class iFrame {
 	/**
 	 * Send data from iFrames back to the presence script
 	 * @param data Data to send
+	 * @link https://docs.premid.app/dev/presence/class#iframedata
 	 */
 	send(data: any) {
 		let pmdIFD = new CustomEvent("PreMiD_iFrameData", {
@@ -323,7 +421,7 @@ class iFrame {
 	//TODO Add to docs
 	/**
 	 * Returns the iframe url
-	 * @since 2.0-BETA3
+	 * @link https://docs.premid.app/dev/presence/iframe#geturl
 	 */
 	getUrl() {
 		return new Promise<string>(async resolve => {
@@ -343,6 +441,7 @@ class iFrame {
 	 * Subscribe to events emitted by the extension
 	 * @param eventName
 	 * @param callback
+	 * @link https://docs.premid.app/dev/presence/class#updatedata
 	 */
 	on(eventName: "UpdateData", callback: Function) {
 		this._events[eventName] = callback;
