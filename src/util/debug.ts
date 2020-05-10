@@ -4,8 +4,8 @@ let genericStyle = "font-weight: 800; padding: 2px 5px; color: white;",
 	debugging = releaseType !== "RELEASE",
 	lastFile: string;
 
-export function info(file: string, message: string) {
-	if (!debugging) return;
+export function info(file: string, message: string, force = false) {
+	if (!debugging && !force) return;
 
 	//* Group by file
 	groupFile(file);
@@ -17,8 +17,8 @@ export function info(file: string, message: string) {
 	);
 }
 
-export function success(file: string, message: string) {
-	if (!debugging) return;
+export function success(file: string, message: string, force = false) {
+	if (!debugging && !force) return;
 
 	//* Group by file
 	groupFile(file);
@@ -31,8 +31,8 @@ export function success(file: string, message: string) {
 	);
 }
 
-export function error(file: string, message: string) {
-	if (!debugging) return;
+export function error(file: string, message: string, force = false) {
+	if (!debugging && !force) return;
 
 	//* Group by file
 	groupFile(file);
