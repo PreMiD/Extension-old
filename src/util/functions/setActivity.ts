@@ -1,14 +1,14 @@
-import { socket } from "../socketManager";
-import { info } from "../debug";
 import cpObj from "./cpObj";
 import { getStorage } from "./asyncStorage";
+import { info } from "../debug";
 import { releaseType } from "../../config";
+import { socket } from "../socketManager";
 
 export default async function setActivity(
 	presence: any,
 	settings: any = undefined
 ) {
-	if (releaseType !== "RELEASE") {
+	if (["ALPHA", "BETA"].includes(releaseType)) {
 		const { authorizedBetaAlpha } = await getStorage(
 			"local",
 			"authorizedBetaAlpha"

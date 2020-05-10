@@ -1,10 +1,10 @@
 import * as socketIo from "socket.io-client";
-import { success, error, info } from "./debug";
-import { priorityTab } from "./tabPriority";
 import presenceDevManager from "./functions/presenceDevManager";
 import setActivity from "./functions/setActivity";
+import { error, info, success } from "./debug";
 import { getStorage } from "./functions/asyncStorage";
 import { oldActivity } from "./background/onConnect";
+import { priorityTab } from "./tabPriority";
 import { requiredAppVersion } from "../config";
 
 //* Create socket

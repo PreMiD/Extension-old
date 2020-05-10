@@ -1,7 +1,7 @@
-import { supportedAppVersion, socket } from "../socketManager";
-import setActivity from "../functions/setActivity";
-import isEquivalent from "../functions/isEquivalent";
 import cpObj from "../functions/cpObj";
+import isEquivalent from "../functions/isEquivalent";
+import setActivity from "../functions/setActivity";
+import { socket, supportedAppVersion } from "../socketManager";
 
 //* Some debug stuff to prevent timestamp jumping
 export let oldObject: any = null;
