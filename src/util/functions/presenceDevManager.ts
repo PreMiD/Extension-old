@@ -1,6 +1,6 @@
 import { getStorage } from "./asyncStorage";
 import { error, info } from "../debug";
-import { oldPresence, priorityTab } from "../tabPriority";
+// import { oldPresence, priorityTab } from "../tabPriority";
 //TODO RECODE
 // @ts-nocheck
 
@@ -77,5 +77,30 @@ export default async function(files: any) {
 
 	chrome.storage.local.set({ presences: presences });
 
-	if (oldPresence && priorityTab) chrome.tabs.reload(priorityTab);
+	// reload all tabs of any presence in development mode
+	for (let i = 0; i < presences.length; i++) {
+		if (presences[i].tmp) {
+			let updatedPresence = presences[i];
+
+			chrome.tabs.query({
+				windowType: "normal"
+			}, tabs => {
+				for (let j = 0; j < tabs.length; j++) {
+					let tabUrl = new URL(tabs[j].url);
+
+					if (
+						(typeof updatedPresence.metadata.url === "string" && updatedPresence.metadata.url === tabUrl.hostname) ||
+						(updatedPresence.metadata.url instanceof Array && updatedPresence.metadata.url.includes(tabUrl.hostname)) ||
+						(updatedPresence.metadata.regExp && new RegExp(updatedPresence.metadata.regExp).test(tabUrl.href))
+					) {
+						chrome.tabs.reload(tabs[j].id, {bypassCache: true}, () => {
+							console.info(`Presence ${updatedPresence.metadata.service} updated, tab reloaded!`);
+						});
+					}
+				}
+			});
+		}
+	}
+
+	// if (oldPresence && priorityTab) chrome.tabs.reload(priorityTab);
 }
