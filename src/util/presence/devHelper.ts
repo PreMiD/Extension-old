@@ -1,7 +1,7 @@
 /**
  * @link https://docs.premid.app/dev/presence/class#presencedata-interface
  */
-interface presenceData {
+interface PresenceData {
 	state?: string;
 	details?: string;
 	startTimestamp?: number;
@@ -18,13 +18,17 @@ interface presenceData {
 interface Metadata {
 	/**
 	 * Should contain Object with name and id of the presence developer.
+	 *
 	 * Name is your Discord username without the identifier(#0000).
+	 *
 	 * User id can be copied from Discord by enabling developer mode and right-clicking on your profile.
 	 */
 	author: { name: string; id: string };
 	/**
 	 * Should contain an Array of Objects with each Object having the name and id of the contributor.
+	 *
 	 * Name is your Discord username without the identifier(#0000).
+	 *
 	 * User id can be copied from Discord by enabling developer mode and right-clicking on your profile.
 	 */
 	contributors?: Array<{ name: string; id: string }>;
@@ -33,38 +37,51 @@ interface Metadata {
 	 */
 	service: string;
 	/**
-	 * Small description of the service. Your description must have key pair values which indicate the language, and the description in that specific language.
+	 * Small description of the service.
+	 *
+	 * Your description must have key pair values which indicate the language, and the description in that specific language.
+	 *
 	 * Make descriptions with the languages that you know, our translators will make changes to your metadata file.
+	 *
 	 * Visit the link for all the language IDs.
 	 * @link https://api.premid.app/v2/langFile/list
 	 */
 	description: Record<string, string>;
 	/**
 	 * URL of the service.
+	 *
 	 * Example: `vk.com`
+	 *
 	 * This url must match the url of the website as it will be used to detect wherever or not this is the website to inject the script to.
+	 *
 	 * This may only be used as an array when there are more than one urls.
+	 *
 	 * Note: Do **NOT** add `http://` or `https://` in the url or it will not work.
 	 */
 	url: string;
 	/**
 	 * Version of your presence.
+	 *
 	 * Use Sematic Versioning; <MAJOR>.<MINOR>.<PATCH>
+	 *
 	 * @link https://semver.org/
 	 */
 	version: string;
 	/**
 	 * Link to service's logo.
+	 *
 	 * Must end with .png/.jpg/etc.
 	 */
 	logo: string;
 	/**
 	 * Link to service's thumbnail or picture of the website.
+	 *
 	 * Must end with .png/.jpg/etc.
 	 */
 	thumbnail: string;
 	/**
 	 * `#HEX` value.
+	 *
 	 * We recommend to use a primary color of the service that your presence supports.
 	 */
 	color: string;
@@ -99,12 +116,28 @@ interface Metadata {
 	 */
 	settings?: Array<{
 		id: string;
-		title: string;
-		icon: string;
-		if?: Record<string, string>;
+		/**
+		 * Needed for every setting except if you use `multiLanguage`.
+		 */
+		title?: string;
+		/**
+		 * Needed for every setting except if you use `multiLanguage`.
+		 */
+		icon?: string;
+		if?: Record<string, string | number | boolean>;
 		placeholder?: string;
 		value?: string | number | boolean;
 		values?: Array<string | number | boolean>;
+		/**
+		 * `false`: default, it disables multi-localization.
+		 *
+		 * `true`: use this if you are only going to use strings from the `general.json` file, of the  [localization github repo](https://github.com/PreMiD/Localization/tree/master/src/Presence).
+		 *
+		 * `string`: name of the file, excluding the extension (.json), inside the [localization github repo](https://github.com/PreMiD/Localization/tree/master/src/Presence).
+		 *
+		 * `Array<string>`: if you are using more than one file, from inside of the [localization github repo](https://github.com/PreMiD/Localization/tree/master/src/Presence), you can specify all the values in an array. Only common languages of all the files will be listed.
+		 */
+		multiLanguage?: boolean | string | Array<string>;
 	}>;
 }
 
@@ -129,7 +162,7 @@ class Presence {
 	private clientId: string;
 	private trayTitle: string = "";
 	private playback: boolean = true;
-	private internalPresence: presenceData = {};
+	private internalPresence: PresenceData = {};
 	private port = chrome.runtime.connect({ name: "devHelper" });
 	private genericStyle: string =
 		"font-weight: 800; padding: 2px 5px; color: white;";
@@ -159,7 +192,7 @@ class Presence {
 	 * @link https://docs.premid.app/dev/presence/class#setactivitypresencedata-boolean
 	 */
 	setActivity(
-		presenceData: presenceData | Slideshow = {},
+		presenceData: PresenceData | Slideshow = {},
 		playback: boolean = true
 	) {
 		if (presenceData instanceof Slideshow)
@@ -222,7 +255,7 @@ class Presence {
 	 */
 	getStrings(strings: Object, language?: string) {
 		return new Promise<any>(resolve => {
-			let listener = function(detail: any) {
+			let listener = function (detail: any) {
 				window.removeEventListener("PreMiD_ReceiveExtensionData", listener);
 
 				resolve(detail.strings);
@@ -556,10 +589,10 @@ class Presence {
  */
 class SlideshowSlide {
 	id: string;
-	data: presenceData;
+	data: PresenceData;
 	private _interval: number;
 
-	constructor(id: string, data: presenceData, interval: number) {
+	constructor(id: string, data: PresenceData, interval: number) {
 		this.id = id;
 		this.data = data;
 		this.interval = interval;
@@ -581,7 +614,7 @@ class SlideshowSlide {
 	 * Passing null will keep the original value
 	 * @param data The slide presenceData
 	 */
-	updateData(data: presenceData = null) {
+	updateData(data: PresenceData = null) {
 		this.data = data || this.data;
 	}
 
@@ -602,7 +635,7 @@ class SlideshowSlide {
 class Slideshow {
 	private index: number = 0;
 	private slides: Array<SlideshowSlide> = [];
-	currentSlide: presenceData = {};
+	currentSlide: PresenceData = {};
 
 	constructor() {
 		this.pollSlide();
@@ -637,7 +670,7 @@ class Slideshow {
 	 * @param data The slide presenceData
 	 * @param interval Interval until next slide
 	 */
-	addSlide(id: string, data: presenceData, interval: number) {
+	addSlide(id: string, data: PresenceData, interval: number) {
 		if (this.hasSlide(id)) return this.updateSlide(id, data, interval);
 		const slide = new SlideshowSlide(id, data, interval);
 		this.slides.push(slide);
@@ -667,7 +700,7 @@ class Slideshow {
 	 * @param data The slide presenceData
 	 * @param interval Interval until next slide
 	 */
-	updateSlide(id: string, data: presenceData = null, interval: number = null) {
+	updateSlide(id: string, data: PresenceData = null, interval: number = null) {
 		for (var slide of this.slides) {
 			if (slide.id === id) {
 				slide.updateData(data);
