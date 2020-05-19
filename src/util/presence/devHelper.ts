@@ -139,7 +139,7 @@ class Presence {
 			let script = document.createElement("script"),
 				_listener = (data: CustomEvent) => {
 					script.remove();
-					resolve(data.detail);
+					resolve(JSON.parse(data.detail));
 
 					window.removeEventListener("PreMiD_Pageletiable", _listener, true);
 				};
@@ -149,7 +149,7 @@ class Presence {
 			script.id = "PreMiD_Pageletiables";
 			script.appendChild(
 				document.createTextNode(`
-        var pmdPL = new CustomEvent("PreMiD_Pageletiable", {detail: (${js})});
+        var pmdPL = new CustomEvent("PreMiD_Pageletiable", {detail: JSON.stringify(${js})});
         window.dispatchEvent(pmdPL);
       `)
 			);
