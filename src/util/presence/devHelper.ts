@@ -129,17 +129,17 @@ class Presence {
 	}
 
 	/**
-	 * Get letiables from the actual site.
-	 * @param {Array} letiables Array of letiable names to get
-	 * @example let pagelet = getPageletiable('pagelet') -> "letiable content"
+	 * Get result of running JS in the page. 
+	 * @param js JS to run in page
+	 * @example let pagelet = getPageletiable('window.myvar') -> "content of myvar"
 	 * @link https://docs.premid.app/presence-development/coding/presence-class#getpageletiable-string
 	 */
-	getPageletiable(letiable: string) {
+	getPageletiable(js: string) {
 		return new Promise<any>(resolve => {
 			let script = document.createElement("script"),
 				_listener = (data: CustomEvent) => {
 					script.remove();
-					resolve(JSON.parse(data.detail));
+					resolve(data.detail);
 
 					window.removeEventListener("PreMiD_Pageletiable", _listener, true);
 				};
@@ -149,7 +149,7 @@ class Presence {
 			script.id = "PreMiD_Pageletiables";
 			script.appendChild(
 				document.createTextNode(`
-        var pmdPL = new CustomEvent("PreMiD_Pageletiable", {detail: (typeof window["${letiable}"] === "string") ? window["${letiable}"] : JSON.stringify(window["${letiable}"])});
+        var pmdPL = new CustomEvent("PreMiD_Pageletiable", {detail: (${js})});
         window.dispatchEvent(pmdPL);
       `)
 			);
