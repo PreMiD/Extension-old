@@ -123,6 +123,8 @@ class Presence {
 	private playback: boolean = true;
 	private internalPresence: presenceData = {};
 	private port = chrome.runtime.connect({ name: "devHelper" });
+	private genericStyle = "font-weight: 800; padding: 2px 5px; color: white;";
+	private presenceStyle = "";
 
 	/**
 	 * Create a new Presence
@@ -131,6 +133,10 @@ class Presence {
 		this.clientId = presenceOptions.clientId;
 		// @ts-ignore
 		this.metadata = PreMiD_Metadata;
+
+		this.presenceStyle = `background: ${
+			this.metadata.color
+		}; color: ${this.getFontColor(this.metadata.color)};`;
 
 		window.addEventListener("PreMiD_TabPriority", (data: CustomEvent) => {
 			if (!data.detail) this.clearActivity();
@@ -361,6 +367,113 @@ class Presence {
 				}
 			);
 		});
+	}
+
+	/**
+	 * Similar to `getTimestamps` but takes in a media element and returns snowflake timestamps.
+	 * @param media Media object
+	 */
+	getTimestampsfromMedia(media: HTMLMediaElement) {
+		return this.getTimestamps(media.currentTime, media.duration);
+	}
+
+	/**
+	 * Converts time and duration integers into snowflake timestamps.
+	 * @param {Number} elementTime Current element time seconds
+	 * @param {Number} elementDuration Element duration seconds
+	 */
+	getTimestamps(elementTime: number, elementDuration: number) {
+		var startTime = Date.now();
+		var endTime = Math.floor(startTime / 1000) - elementTime + elementDuration;
+		return [Math.floor(startTime / 1000), endTime];
+	}
+
+	/**
+	 * Converts a string with format `HH:MM:SS` or `MM:SS` or `SS` into an integer. (Does not return snowflake timestamp)
+	 * @param format The formatted string
+	 */
+	timestampFromFormat(format: string) {
+		return format
+			.split(":")
+			.map(time => {
+				return parseInt(time);
+			})
+			.reduce((prev, time) => 60 * prev + +time);
+	}
+
+	private hexToRGB(hex: string) {
+		var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+		hex = hex.replace(shorthandRegex, (_, r, g, b) => {
+			return r + r + g + g + b + b;
+		});
+
+		var result = hex.match(/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i);
+		return result
+			? {
+					r: parseInt(result[1], 16),
+					g: parseInt(result[2], 16),
+					b: parseInt(result[3], 16)
+			  }
+			: null;
+	}
+
+	private getFontColor(backgroundHex: string) {
+		const rgb = this.hexToRGB(backgroundHex);
+
+		const r = rgb.r;
+		const g = rgb.g;
+		const b = rgb.b;
+
+		const hsp = Math.sqrt(0.299 * (r * r) + 0.587 * (g * g) + 0.114 * (b * b));
+
+		if (hsp > 127.5) {
+			return "white";
+		} else {
+			return "black";
+		}
+	}
+
+	/**
+	 * Console logs with an info message.
+	 * @param message The log message
+	 */
+	info(message: string) {
+		console.log(
+			`%cPreMiD%c${this.metadata.service}%cINFO%c ${message}`,
+			this.genericStyle + "border-radius: 25px 0 0 25px; background: #596cae;",
+			this.genericStyle + this.presenceStyle,
+			this.genericStyle + "border-radius: 0 25px 25px 0; background: #5050ff;",
+			"color: unset;"
+		);
+	}
+
+	/**
+	 * Console logs with a success message.
+	 * @param message The log message
+	 */
+	success(message: string) {
+		console.log(
+			`%cPreMiD%c${this.metadata.service}%cSUCCESS%c ${message}`,
+			this.genericStyle + "border-radius: 25px 0 0 25px; background: #596cae;",
+			this.genericStyle + this.presenceStyle,
+			this.genericStyle +
+				"border-radius: 0 25px 25px 0; background: #50ff50; color: black;",
+			"color: unset;"
+		);
+	}
+
+	/**
+	 * Console logs with an error message.
+	 * @param message The log message
+	 */
+	error(message: string) {
+		console.log(
+			`%cPreMiD%c${this.metadata.service}%cERROR%c ${message}`,
+			this.genericStyle + "border-radius: 25px 0 0 25px; background: #596cae;",
+			this.genericStyle + this.presenceStyle,
+			this.genericStyle + "border-radius: 0 25px 25px 0; background: #ff5050;",
+			"color: unset;"
+		);
 	}
 
 	/**
