@@ -12,6 +12,7 @@ interface presenceData {
 }
 
 /**
+ * Contains basic information about the presece
  * @link https://docs.premid.app/dev/presence/metadata
  */
 interface Metadata {
@@ -107,6 +108,9 @@ interface Metadata {
 	}>;
 }
 
+/**
+ * Options that change the behavior of the presence
+ */
 interface PresenceOptions {
 	/**
 	 * ClientId of Discord application
@@ -115,6 +119,10 @@ interface PresenceOptions {
 	clientId: string;
 }
 
+/**
+ * Useful tools for developing presences
+ * @link https://docs.premid.app/en/dev/presence/class
+ */
 class Presence {
 	metadata: Metadata;
 	_events: any = {};
@@ -123,8 +131,9 @@ class Presence {
 	private playback: boolean = true;
 	private internalPresence: presenceData = {};
 	private port = chrome.runtime.connect({ name: "devHelper" });
-	private genericStyle = "font-weight: 800; padding: 2px 5px; color: white;";
-	private presenceStyle = "";
+	private genericStyle: string =
+		"font-weight: 800; padding: 2px 5px; color: white;";
+	private presenceStyle: string = "";
 
 	/**
 	 * Create a new Presence
@@ -149,11 +158,20 @@ class Presence {
 	 * @param playback Is presence playing
 	 * @link https://docs.premid.app/dev/presence/class#setactivitypresencedata-boolean
 	 */
-	setActivity(presenceData: presenceData = {}, playback: boolean = true) {
+	setActivity(
+		presenceData: presenceData | Slideshow = {},
+		playback: boolean = true
+	) {
+		if (presenceData instanceof Slideshow)
+			presenceData = presenceData.currentSlide;
+
 		this.internalPresence = presenceData;
 		this.playback = playback;
 
-		//* Senddata
+		// Fix 00:00 timestamp bug
+		if (presenceData.endTimestamp && Date.now() >= presenceData.endTimestamp)
+			playback = false;
+
 		this.sendData({
 			clientId: this.clientId,
 			presenceData: this.internalPresence,
@@ -204,7 +222,7 @@ class Presence {
 	 */
 	getStrings(strings: Object, language?: string) {
 		return new Promise<any>(resolve => {
-			let listener = function (detail: any) {
+			let listener = function(detail: any) {
 				window.removeEventListener("PreMiD_ReceiveExtensionData", listener);
 
 				resolve(detail.strings);
@@ -275,7 +293,7 @@ class Presence {
 
 	/**
 	 * Get a setting from the presence metadata
-	 * @param setting Id of setting as defined in metadata.
+	 * @param setting Id of setting as defined in metadata
 	 * @link https://docs.premid.app/dev/presence/class#getsettingstring
 	 * @since 2.1
 	 */
@@ -370,7 +388,7 @@ class Presence {
 	}
 
 	/**
-	 * Similar to `getTimestamps` but takes in a media element and returns snowflake timestamps.
+	 * Similar to `getTimestamps` but takes in a media element and returns snowflake timestamps
 	 * @param media Media object
 	 */
 	getTimestampsfromMedia(media: HTMLMediaElement) {
@@ -378,7 +396,7 @@ class Presence {
 	}
 
 	/**
-	 * Converts time and duration integers into snowflake timestamps.
+	 * Converts time and duration integers into snowflake timestamps
 	 * @param {Number} elementTime Current element time seconds
 	 * @param {Number} elementDuration Element duration seconds
 	 */
@@ -389,7 +407,7 @@ class Presence {
 	}
 
 	/**
-	 * Converts a string with format `HH:MM:SS` or `MM:SS` or `SS` into an integer. (Does not return snowflake timestamp)
+	 * Converts a string with format `HH:MM:SS` or `MM:SS` or `SS` into an integer (Does not return snowflake timestamp)
 	 * @param format The formatted string
 	 */
 	timestampFromFormat(format: string) {
@@ -401,6 +419,10 @@ class Presence {
 			.reduce((prev, time) => 60 * prev + +time);
 	}
 
+	/**
+	 * Converts a hex string into an RGB object
+	 * @param hex The hex string
+	 */
 	private hexToRGB(hex: string) {
 		var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
 		hex = hex.replace(shorthandRegex, (_, r, g, b) => {
@@ -417,6 +439,10 @@ class Presence {
 			: null;
 	}
 
+	/**
+	 * Calculates the font color based on the luminosity of the background
+	 * @param backgroundHex The hex string of the background
+	 */
 	private getFontColor(backgroundHex: string) {
 		const rgb = this.hexToRGB(backgroundHex);
 
@@ -434,7 +460,7 @@ class Presence {
 	}
 
 	/**
-	 * Console logs with an info message.
+	 * Console logs with an info message
 	 * @param message The log message
 	 */
 	info(message: string) {
@@ -448,7 +474,7 @@ class Presence {
 	}
 
 	/**
-	 * Console logs with a success message.
+	 * Console logs with a success message
 	 * @param message The log message
 	 */
 	success(message: string) {
@@ -463,7 +489,7 @@ class Presence {
 	}
 
 	/**
-	 * Console logs with an error message.
+	 * Console logs with an error message
 	 * @param message The log message
 	 */
 	error(message: string) {
@@ -474,6 +500,14 @@ class Presence {
 			this.genericStyle + "border-radius: 0 25px 25px 0; background: #ff5050;",
 			"color: unset;"
 		);
+	}
+
+	/**
+	 * Creates a slideshow that allows for alternating between sets of
+	 * presence data at specific intervals
+	 */
+	createSlideshow() {
+		return new Slideshow();
 	}
 
 	/**
@@ -517,6 +551,152 @@ class Presence {
 	}
 }
 
+/**
+ * Represents a slideshow slide
+ */
+class SlideshowSlide {
+	id: string;
+	data: presenceData;
+	private _interval: number;
+
+	constructor(id: string, data: presenceData, interval: number) {
+		this.id = id;
+		this.data = data;
+		this.interval = interval;
+	}
+
+	get interval(): number {
+		return this._interval;
+	}
+
+	set interval(interval: number) {
+		if (interval <= 2000) {
+			interval = 2000;
+		}
+		this._interval = interval;
+	}
+
+	/**
+	 * Updates the slide presenceData
+	 * Passing null will keep the original value
+	 * @param data The slide presenceData
+	 */
+	updateData(data: presenceData = null) {
+		this.data = data || this.data;
+	}
+
+	/**
+	 * Updates the slide interval
+	 * Passing null will keep the original value
+	 * @param interval The slide interval
+	 */
+	updateInterval(interval: number = null) {
+		this.interval = interval || this.interval;
+	}
+}
+
+/**
+ * Controller for alternating between multiple sets of
+ * presence data at specific intervals
+ */
+class Slideshow {
+	private index: number = 0;
+	private slides: Array<SlideshowSlide> = [];
+	currentSlide: presenceData = {};
+
+	constructor() {
+		this.pollSlide();
+	}
+
+	/**
+	 * Sets the current slide
+	 */
+	private pollSlide() {
+		if (this.index > this.slides.length - 1) this.index = 0;
+		if (this.slides.length !== 0) {
+			const slide = this.slides[this.index];
+			this.currentSlide = slide.data;
+			this.index++;
+			setTimeout(() => {
+				// necessary to keep 'this' bound
+				this.pollSlide();
+			}, slide.interval);
+		} else {
+			this.currentSlide = {};
+			setTimeout(() => {
+				// necessary to keep 'this' bound
+				this.pollSlide();
+			}, 2000);
+		}
+	}
+
+	/**
+	 * Adds a slide to the queue
+	 * If a slide already exists with the given id, it will be updated with a new value
+	 * @param id The slide id
+	 * @param data The slide presenceData
+	 * @param interval Interval until next slide
+	 */
+	addSlide(id: string, data: presenceData, interval: number) {
+		if (this.hasSlide(id)) return this.updateSlide(id, data, interval);
+		const slide = new SlideshowSlide(id, data, interval);
+		this.slides.push(slide);
+		return slide;
+	}
+
+	/**
+	 * Deletes a slide from the queue
+	 * @param id The slide id
+	 */
+	deleteSlide(id: string) {
+		this.slides = this.slides.filter(slide => slide.id !== id);
+	}
+
+	/**
+	 * Clears the queue
+	 */
+	deleteAllSlides() {
+		this.slides = [];
+		this.currentSlide = {};
+	}
+
+	/**
+	 * Updates a slide already in queue
+	 * Passing null will keep the old value
+	 * @param id The slide id
+	 * @param data The slide presenceData
+	 * @param interval Interval until next slide
+	 */
+	updateSlide(id: string, data: presenceData = null, interval: number = null) {
+		for (var slide of this.slides) {
+			if (slide.id === id) {
+				slide.updateData(data);
+				slide.updateInterval(interval);
+				return slide;
+			}
+		}
+	}
+
+	/**
+	 * Returns if a slide exists in the queue
+	 * @param id The slide id
+	 */
+	hasSlide(id: string) {
+		return this.slides.filter(slide => slide.id === id).length > 0;
+	}
+
+	/**
+	 * Returns all slides
+	 */
+	getSlides() {
+		return this.slides;
+	}
+}
+
+/**
+ * Is used to gather information from iFrames
+ * @link https://docs.premid.app/en/dev/presence/iframe
+ */
 class iFrame {
 	_events: any = {};
 
