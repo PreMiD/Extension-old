@@ -12,6 +12,17 @@ interface presenceData {
 }
 
 /**
+ * Options that change the behavior of the presence
+ */
+interface PresenceOptions {
+	/**
+	 * ClientId of Discord application
+	 * @link https://docs.premid.app/dev/presence/class#clientid
+	 */
+	clientId: string;
+}
+
+/**
  * Contains basic information about the presece
  * @link https://docs.premid.app/dev/presence/metadata
  */
@@ -109,17 +120,6 @@ interface Metadata {
 }
 
 /**
- * Options that change the behavior of the presence
- */
-interface PresenceOptions {
-	/**
-	 * ClientId of Discord application
-	 * @link https://docs.premid.app/dev/presence/class#clientid
-	 */
-	clientId: string;
-}
-
-/**
  * Useful tools for developing presences
  * @link https://docs.premid.app/en/dev/presence/class
  */
@@ -152,25 +152,29 @@ class Presence {
 		});
 	}
 
+	//TODO Make this return the active presence shown in Discord.
+	/**
+	 * Get the current activity
+	 * @link https://docs.premid.app/en/dev/presence/class#getactivity
+	 */
+	getActivity() {
+		return this.internalPresence;
+	}
+
 	/**
 	 *
-	 * @param presenceData presenceData
+	 * @param data presenceData or slideshow
 	 * @param playback Is presence playing
 	 * @link https://docs.premid.app/dev/presence/class#setactivitypresencedata-boolean
 	 */
-	setActivity(
-		presenceData: presenceData | Slideshow = {},
-		playback: boolean = true
-	) {
-		if (presenceData instanceof Slideshow)
-			presenceData = presenceData.currentSlide;
+	setActivity(data: presenceData | Slideshow = {}, playback: boolean = true) {
+		if (data instanceof Slideshow) data = data.currentSlide;
 
-		this.internalPresence = presenceData;
+		this.internalPresence = data;
 		this.playback = playback;
 
 		// Fix 00:00 timestamp bug
-		if (presenceData.endTimestamp && Date.now() >= presenceData.endTimestamp)
-			playback = false;
+		if (data.endTimestamp && Date.now() >= data.endTimestamp) playback = false;
 
 		this.sendData({
 			clientId: this.clientId,
@@ -200,18 +204,10 @@ class Presence {
 	 * Sets the tray title on the Menubar in Mac OS (Mac OS only, supports ANSI colors)
 	 * @param trayTitle Tray Title
 	 * @link https://docs.premid.app/dev/presence/class#settraytitlestring
+	 * @since 2.0-BETA3
 	 */
 	setTrayTitle(trayTitle: string = "") {
 		this.trayTitle = trayTitle;
-	}
-
-	//TODO Make this return the active presence shown in Discord.
-	/**
-	 * Get the current activity
-	 * @param strings
-	 */
-	getActivity() {
-		return this.internalPresence;
 	}
 
 	/**
@@ -250,9 +246,10 @@ class Presence {
 	}
 
 	/**
-	 * Get variables from the current site
+	 * Get letiables from the actual site
 	 * @param {Array} letiables Array of letiable names to get
-	 * @link https://docs.premid.app/dev/presence/class#getpageletiablestring
+	 * @example let pagelet = getPageletiable('pagelet') -> "letiable content"
+	 * @link https://docs.premid.app/presence-development/coding/presence-class#getpageletiable-string
 	 */
 	getPageletiable(letiable: string) {
 		return new Promise<any>(resolve => {
@@ -283,6 +280,7 @@ class Presence {
 	/**
 	 * Returns extension version
 	 * @param onlyNumeric version nubmer without dots
+	 * @link https://docs.premid.app/en/dev/presence/class#getextensionversionboolean
 	 * @since 2.1
 	 */
 	getExtensionVersion(onlyNumeric = true) {
@@ -713,10 +711,10 @@ class iFrame {
 		document.dispatchEvent(pmdIFD);
 	}
 
-	//TODO Add to docs
 	/**
 	 * Returns the iframe url
 	 * @link https://docs.premid.app/dev/presence/iframe#geturl
+	 * @since 2.0-BETA3
 	 */
 	getUrl() {
 		return new Promise<string>(async resolve => {
