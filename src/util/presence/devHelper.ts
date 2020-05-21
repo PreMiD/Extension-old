@@ -69,7 +69,7 @@ interface Metadata {
 	 *
 	 * Note: Do **NOT** add `http://` or `https://` in the url or it will not work.
 	 */
-	url: string;
+	url: string | Array<string>;
 	/**
 	 * Version of your presence.
 	 *
@@ -99,7 +99,7 @@ interface Metadata {
 	/**
 	 * Array with tags, they will help users to search your presence on the website.
 	 */
-	tags: string | Array<string>;
+	tags: Array<string>;
 	/**
 	 * A string used to represent the category the presence falls under.
 	 * @link https://docs.premid.app/dev/presence/metadata#presence-categories
@@ -251,7 +251,7 @@ class Presence {
 	 */
 	getStrings(strings: Object, language?: string) {
 		return new Promise<any>(resolve => {
-			let listener = function(detail: any) {
+			let listener = function (detail: any) {
 				window.removeEventListener("PreMiD_ReceiveExtensionData", listener);
 
 				resolve(detail.strings);
