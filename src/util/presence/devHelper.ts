@@ -20,6 +20,16 @@ interface PresenceOptions {
 	 * @link https://docs.premid.app/dev/presence/class#clientid
 	 */
 	clientId: string;
+	/**
+	 * The `UpdateData` event for both the presence and the iframe
+	 * will only be fired when the page has fully loaded.
+	 */
+	injectOnComplete?: boolean;
+	/**
+	 * Empty presence data will show the application (image and name) on
+	 * the user's profile.
+	 */
+	appMode?: boolean;
 }
 
 /**
@@ -160,27 +170,29 @@ class Presence {
 	metadata: Metadata;
 	_events: any = {};
 	private clientId: string;
-	private trayTitle: string = "";
+	private injectOnComplete: boolean;
+	private appMode: boolean;
+	private trayTitle: string = '';
 	private playback: boolean = true;
 	private internalPresence: PresenceData = {};
-	private port = chrome.runtime.connect({ name: "devHelper" });
-	private genericStyle: string =
-		"font-weight: 800; padding: 2px 5px; color: white;";
-	private presenceStyle: string = "";
+	private port = chrome.runtime.connect({ name: 'devHelper' });
+	private genericStyle: string = 'font-weight: 800; padding: 2px 5px; color: white;';
+	private presenceStyle: string = '';
 
 	/**
 	 * Create a new Presence
 	 */
 	constructor(presenceOptions: PresenceOptions) {
 		this.clientId = presenceOptions.clientId;
+		this.injectOnComplete = presenceOptions.injectOnComplete || false;
+		this.appMode = presenceOptions.appMode || false;
+
 		// @ts-ignore
 		this.metadata = PreMiD_Metadata;
 
-		this.presenceStyle = `background: ${
-			this.metadata.color
-		}; color: ${this.getFontColor(this.metadata.color)};`;
+		this.presenceStyle = `background: ${this.metadata.color}; color: ${this.getFontColor(this.metadata.color)};`;
 
-		window.addEventListener("PreMiD_TabPriority", (data: CustomEvent) => {
+		window.addEventListener('PreMiD_TabPriority', (data: CustomEvent) => {
 			if (!data.detail) this.clearActivity();
 		});
 	}
@@ -223,14 +235,19 @@ class Presence {
 	 */
 	clearActivity() {
 		this.internalPresence = {};
-		this.trayTitle = "";
+		this.trayTitle = '';
 
-		//* Send data to app
-		this.sendData({
+		const data = {
+			clientId: undefined,
 			presenceData: {},
 			playback: false,
 			hidden: true
-		});
+		};
+
+		if (this.appMode) data.clientId = this.clientId;
+
+		//* Send data to app
+		this.sendData(data);
 	}
 
 	/**
@@ -239,7 +256,7 @@ class Presence {
 	 * @link https://docs.premid.app/dev/presence/class#settraytitlestring
 	 * @since 2.0-BETA3
 	 */
-	setTrayTitle(trayTitle: string = "") {
+	setTrayTitle(trayTitle: string = '') {
 		this.trayTitle = trayTitle;
 	}
 
@@ -251,22 +268,19 @@ class Presence {
 	 */
 	getStrings(strings: Object, language?: string) {
 		return new Promise<any>(resolve => {
-			let listener = function (detail: any) {
-				window.removeEventListener("PreMiD_ReceiveExtensionData", listener);
+			let listener = function(detail: any) {
+				window.removeEventListener('PreMiD_ReceiveExtensionData', listener);
 
 				resolve(detail.strings);
 			};
 
 			// TODO currently unhandled
-			this.port.postMessage({ action: "getStrings", language, strings });
+			this.port.postMessage({ action: 'getStrings', language, strings });
 
 			//* Receive data from PreMiD
-			window.addEventListener(
-				"PreMiD_ReceiveExtensionData",
-				(detail: CustomEvent) => listener(detail.detail)
-			);
+			window.addEventListener('PreMiD_ReceiveExtensionData', (detail: CustomEvent) => listener(detail.detail));
 
-			let pmdRED = new CustomEvent("PreMiD_RequestExtensionData", {
+			let pmdRED = new CustomEvent('PreMiD_RequestExtensionData', {
 				detail: {
 					strings: strings,
 					language: language ?? null
@@ -286,17 +300,17 @@ class Presence {
 	 */
 	getPageletiable(letiable: string) {
 		return new Promise<any>(resolve => {
-			let script = document.createElement("script"),
+			let script = document.createElement('script'),
 				_listener = (data: CustomEvent) => {
 					script.remove();
 					resolve(JSON.parse(data.detail));
 
-					window.removeEventListener("PreMiD_Pageletiable", _listener, true);
+					window.removeEventListener('PreMiD_Pageletiable', _listener, true);
 				};
 
-			window.addEventListener("PreMiD_Pageletiable", _listener);
+			window.addEventListener('PreMiD_Pageletiable', _listener);
 
-			script.id = "PreMiD_Pageletiables";
+			script.id = 'PreMiD_Pageletiables';
 			script.appendChild(
 				document.createTextNode(`
         var pmdPL = new CustomEvent("PreMiD_Pageletiable", {detail: (typeof window["${letiable}"] === "string") ? window["${letiable}"] : JSON.stringify(window["${letiable}"])});
@@ -304,9 +318,7 @@ class Presence {
       `)
 			);
 
-			(document.body || document.head || document.documentElement).appendChild(
-				script
-			);
+			(document.body || document.head || document.documentElement).appendChild(script);
 		});
 	}
 
@@ -317,8 +329,7 @@ class Presence {
 	 * @since 2.1
 	 */
 	getExtensionVersion(onlyNumeric = true) {
-		if (onlyNumeric)
-			return parseInt(chrome.runtime.getManifest().version.replace(/\D/g, ""));
+		if (onlyNumeric) return parseInt(chrome.runtime.getManifest().version.replace(/\D/g, ''));
 		return chrome.runtime.getManifest().version;
 	}
 
@@ -330,23 +341,18 @@ class Presence {
 	 */
 	getSetting(setting: string) {
 		return new Promise<any>((resolve, reject) => {
-			chrome.storage.local.get(
-				`pSettings_${this.metadata.service}`,
-				settings => {
-					const settingValue = settings[
-						`pSettings_${this.metadata.service}`
-					].find(s => s.id === setting);
+			chrome.storage.local.get(`pSettings_${this.metadata.service}`, settings => {
+				const settingValue = settings[`pSettings_${this.metadata.service}`].find(s => s.id === setting);
 
-					const res =
-						settingValue !== undefined
-							? settingValue.value
-							: this.metadata.settings[setting]
-							? this.metadata.settings[setting].value
-							: undefined;
-					if (res !== undefined) resolve(res);
-					else reject(res);
-				}
-			);
+				const res =
+					settingValue !== undefined
+						? settingValue.value
+						: this.metadata.settings[setting]
+						? this.metadata.settings[setting].value
+						: undefined;
+				if (res !== undefined) resolve(res);
+				else reject(res);
+			});
 		});
 	}
 
@@ -358,29 +364,23 @@ class Presence {
 	 */
 	hideSetting(settings: string | Array<string>) {
 		return new Promise<void>((resolve, reject) => {
-			chrome.storage.local.get(
-				`pSettings_${this.metadata.service}`,
-				storageSettings => {
-					let errors = [];
+			chrome.storage.local.get(`pSettings_${this.metadata.service}`, storageSettings => {
+				let errors = [];
 
-					if (!Array.isArray(settings)) settings = [settings];
+				if (!Array.isArray(settings)) settings = [settings];
 
-					settings.forEach(setting => {
-						let settingToHide = storageSettings[
-							`pSettings_${this.metadata.service}`
-						].find(s => s.id === setting);
+				settings.forEach(setting => {
+					let settingToHide = storageSettings[`pSettings_${this.metadata.service}`].find(s => s.id === setting);
 
-						if (!settingToHide)
-							errors.push(`Setting "${setting}" does not exist.`);
-						else {
-							settingToHide.hidden = true;
-						}
-					});
+					if (!settingToHide) errors.push(`Setting "${setting}" does not exist.`);
+					else {
+						settingToHide.hidden = true;
+					}
+				});
 
-					chrome.storage.local.set(storageSettings, resolve);
-					if (errors.length > 0) reject(errors);
-				}
-			);
+				chrome.storage.local.set(storageSettings, resolve);
+				if (errors.length > 0) reject(errors);
+			});
 		});
 	}
 
@@ -392,29 +392,23 @@ class Presence {
 	 */
 	showSetting(settings: string | Array<string>) {
 		return new Promise<void>((resolve, reject) => {
-			chrome.storage.local.get(
-				`pSettings_${this.metadata.service}`,
-				storageSettings => {
-					let errors = [];
+			chrome.storage.local.get(`pSettings_${this.metadata.service}`, storageSettings => {
+				let errors = [];
 
-					if (!Array.isArray(settings)) settings = [settings];
+				if (!Array.isArray(settings)) settings = [settings];
 
-					settings.forEach(setting => {
-						let settingToShow = storageSettings[
-							`pSettings_${this.metadata.service}`
-						].find(s => s.id === setting);
+				settings.forEach(setting => {
+					let settingToShow = storageSettings[`pSettings_${this.metadata.service}`].find(s => s.id === setting);
 
-						if (!settingToShow)
-							errors.push(`Setting "${setting}" does not exist.`);
-						else {
-							settingToShow.hidden = false;
-						}
-					});
+					if (!settingToShow) errors.push(`Setting "${setting}" does not exist.`);
+					else {
+						settingToShow.hidden = false;
+					}
+				});
 
-					chrome.storage.local.set(storageSettings, resolve);
-					if (errors.length > 0) reject(errors);
-				}
-			);
+				chrome.storage.local.set(storageSettings, resolve);
+				if (errors.length > 0) reject(errors);
+			});
 		});
 	}
 
@@ -443,7 +437,7 @@ class Presence {
 	 */
 	timestampFromFormat(format: string) {
 		return format
-			.split(":")
+			.split(':')
 			.map(time => {
 				return parseInt(time);
 			})
@@ -484,9 +478,9 @@ class Presence {
 		const hsp = Math.sqrt(0.299 * (r * r) + 0.587 * (g * g) + 0.114 * (b * b));
 
 		if (hsp > 127.5) {
-			return "white";
+			return 'white';
 		} else {
-			return "black";
+			return 'black';
 		}
 	}
 
@@ -497,10 +491,10 @@ class Presence {
 	info(message: string) {
 		console.log(
 			`%cPreMiD%c${this.metadata.service}%cINFO%c ${message}`,
-			this.genericStyle + "border-radius: 25px 0 0 25px; background: #596cae;",
+			this.genericStyle + 'border-radius: 25px 0 0 25px; background: #596cae;',
 			this.genericStyle + this.presenceStyle,
-			this.genericStyle + "border-radius: 0 25px 25px 0; background: #5050ff;",
-			"color: unset;"
+			this.genericStyle + 'border-radius: 0 25px 25px 0; background: #5050ff;',
+			'color: unset;'
 		);
 	}
 
@@ -511,11 +505,10 @@ class Presence {
 	success(message: string) {
 		console.log(
 			`%cPreMiD%c${this.metadata.service}%cSUCCESS%c ${message}`,
-			this.genericStyle + "border-radius: 25px 0 0 25px; background: #596cae;",
+			this.genericStyle + 'border-radius: 25px 0 0 25px; background: #596cae;',
 			this.genericStyle + this.presenceStyle,
-			this.genericStyle +
-				"border-radius: 0 25px 25px 0; background: #50ff50; color: black;",
-			"color: unset;"
+			this.genericStyle + 'border-radius: 0 25px 25px 0; background: #50ff50; color: black;',
+			'color: unset;'
 		);
 	}
 
@@ -524,12 +517,12 @@ class Presence {
 	 * @param message The log message
 	 */
 	error(message: string) {
-		console.log(
+		console.error(
 			`%cPreMiD%c${this.metadata.service}%cERROR%c ${message}`,
-			this.genericStyle + "border-radius: 25px 0 0 25px; background: #596cae;",
+			this.genericStyle + 'border-radius: 25px 0 0 25px; background: #596cae;',
 			this.genericStyle + this.presenceStyle,
-			this.genericStyle + "border-radius: 0 25px 25px 0; background: #ff5050;",
-			"color: unset;"
+			this.genericStyle + 'border-radius: 0 25px 25px 0; background: #ff5050;',
+			'color: unset;'
 		);
 	}
 
@@ -547,7 +540,7 @@ class Presence {
 	 */
 	private sendData(data: Object) {
 		//* Send data to app
-		let pmdUP = new CustomEvent("PreMiD_UpdatePresence", {
+		let pmdUP = new CustomEvent('PreMiD_UpdatePresence', {
 			detail: data
 		});
 
@@ -560,18 +553,20 @@ class Presence {
 	 * @param callback Callback function for event
 	 * @link https://docs.premid.app/dev/presence/class#events
 	 */
-	on(eventName: "UpdateData" | "iFrameData", callback: Function) {
+	on(eventName: 'UpdateData' | 'iFrameData', callback: Function) {
 		this._events[eventName] = callback;
 
 		switch (eventName) {
-			case "UpdateData":
-				document.addEventListener("PreMiD_UpdateData", () => {
+			case 'UpdateData':
+				document.addEventListener('PreMiD_UpdateData', () => {
 					//* Run callback
+					if (this.injectOnComplete && document.readyState !== 'complete') return;
 					this._events[eventName]();
 				});
 				return;
-			case "iFrameData":
-				window.addEventListener("PreMiD_iFrameData", (data: CustomEvent) => {
+			case 'iFrameData':
+				window.addEventListener('PreMiD_iFrameData', (data: CustomEvent) => {
+					if (this.injectOnComplete && document.readyState !== 'complete') return;
 					this._events[eventName](data.detail);
 				});
 				return;
@@ -737,7 +732,7 @@ class iFrame {
 	 * @link https://docs.premid.app/dev/presence/class#iframedata
 	 */
 	send(data: any) {
-		let pmdIFD = new CustomEvent("PreMiD_iFrameData", {
+		let pmdIFD = new CustomEvent('PreMiD_iFrameData', {
 			detail: data
 		});
 
@@ -753,11 +748,11 @@ class iFrame {
 		return new Promise<string>(async resolve => {
 			let _listener = (data: CustomEvent) => {
 				resolve(data.detail);
-				document.removeEventListener("PreMiD_iFrameURL", _listener, true);
+				document.removeEventListener('PreMiD_iFrameURL', _listener, true);
 			};
-			document.addEventListener("PreMiD_iFrameURL", _listener);
+			document.addEventListener('PreMiD_iFrameURL', _listener);
 
-			let pmdGIFU = new CustomEvent("PreMiD_GETiFrameURL");
+			let pmdGIFU = new CustomEvent('PreMiD_GETiFrameURL');
 
 			document.dispatchEvent(pmdGIFU);
 		});
@@ -769,12 +764,12 @@ class iFrame {
 	 * @param callback
 	 * @link https://docs.premid.app/dev/presence/class#updatedata
 	 */
-	on(eventName: "UpdateData", callback: Function) {
+	on(eventName: 'UpdateData', callback: Function) {
 		this._events[eventName] = callback;
 
 		switch (eventName) {
-			case "UpdateData": {
-				document.addEventListener("PreMiD_UpdateData", () => {
+			case 'UpdateData': {
+				document.addEventListener('PreMiD_UpdateData', () => {
 					//* Run callback
 					this._events[eventName]();
 				});
