@@ -114,7 +114,7 @@
 					msg = msg.replace(
 						match,
 						// @ts-ignore
-						`<a class="link" target="_blank" href="https://docs.premid.app/${chrome.i18n.getUILanguage()}/troubleshooting">${match.slice(
+						`<a class="link" target="_blank" href="https://docs.premid.app/troubleshooting">${match.slice(
 							1,
 							match.length - 1
 						)}</a>`
