@@ -631,13 +631,13 @@
 						font-size: 20px;
 
 						&:hover,
-						&.active {
-							color: white;
-						}
+                        &.active {
+                            color: lighten($greyple, 10);
+                        }
 
-						&:active {
-							color: darken(white, 10);
-						}
+                        &:active {
+                            color: darken($greyple, 10);
+                        }
 					}
 				}
 			}
