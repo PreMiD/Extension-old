@@ -767,7 +767,7 @@
 
 				font-weight: 600;
 				width: 90%;
-				background-color: #7289da;
+				background-color: $blurple;
 				justify-self: center;
 				padding: 5px 5px;
 				font-size: 17px;
