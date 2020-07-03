@@ -184,8 +184,8 @@ export async function addPresence(name: string | Array<string>) {
 if (document.location.pathname !== "/_generated_background_page.html") {
 	//* Add extension
 	document.addEventListener("DOMContentLoaded", () => {
-		if (document.querySelector("#app"))
-			document.querySelector("#app").setAttribute("extension-ready", "true");
+		if (document.querySelector("#__nuxt"))
+			document.querySelector("#__nuxt").setAttribute("extension-ready", "true");
 	});
 
 	window.addEventListener("PreMiD_AddPresence", function(data: CustomEvent) {
