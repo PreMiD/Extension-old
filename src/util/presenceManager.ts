@@ -143,7 +143,7 @@ export async function addPresence(name: string | Array<string>) {
 				presences.push(res);
 				presences.map(p => {
 					if(p.metadata.settings) {
-						chrome.storage.local.set(JSON.parse(JSON.stringify({[`pSettings_${p.metadata.service}`]: p.metadata.settings })));
+						chrome.storage.local.set({[`pSettings_${p.metadata.service}`]: p.metadata.settings });
 					}
 				})
 				chrome.storage.local.set({ presences: presences });
@@ -184,7 +184,7 @@ export async function addPresence(name: string | Array<string>) {
 		chrome.storage.local.set({ presences: presences.concat(presencesToAdd) });
 		presences.concat(presencesToAdd).map(p => {
 			if(p.metadata.settings) {
-				chrome.storage.local.set(JSON.parse(JSON.stringify({[`pSettings_${p.metadata.service}`]: p.metadata.settings })));
+				chrome.storage.local.set({[`pSettings_${p.metadata.service}`]: p.metadata.settings });
 			}
 		})
 	}
