@@ -42,7 +42,5 @@
 		"webpack": "^4.42.1",
 		"webpack-cli": "^3.3.11",
 		"webpack-merge": "^4.2.2"
-	},
-	"main": "index.js",
-	"repository": "https://github.com/premid/extension.git"
+	}
 }
