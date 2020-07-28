@@ -341,7 +341,7 @@
 					JSON.parse(JSON.stringify({ presences: this.presences }))
 				);
 			},
-			deletePresence(i: number) {
+			async deletePresence(i: number) {
 				const presenceToRemove = this.filteredPresences[i];
 				this.presences = this.presences.filter(
 					p =>
@@ -356,6 +356,14 @@
 				chrome.storage.local.set(
 					JSON.parse(JSON.stringify({ presences: this.presences }))
 				);
+				// @ts-ignore
+				let settings = await pmd.getStorage(
+					"local",
+					`pSettings_${presenceToRemove.metadata.service}`
+				);
+				if(settings) {
+					chrome.storage.local.remove(`pSettings_${presenceToRemove.metadata.service}`);
+				}
 			},
 
 			async togglePresenceSettings(i: number) {

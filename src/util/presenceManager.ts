@@ -141,6 +141,11 @@ export async function addPresence(name: string | Array<string>) {
 					res.iframe = await (await fetch(`${data.url}iframe.js`)).text();
 
 				presences.push(res);
+				presences.map(p => {
+					if(p.metadata.settings) {
+						chrome.storage.local.set(JSON.parse(JSON.stringify({[`pSettings_${p.metadata.service}`]: p.metadata.settings })));
+					}
+				})
 				chrome.storage.local.set({ presences: presences });
 			})
 			.catch(() => {});
@@ -164,7 +169,7 @@ export async function addPresence(name: string | Array<string>) {
 						metadata: data.metadata,
 						presence: (await axios(`${data.url}presence.js`)).data,
 						enabled: true
-					};
+					}
 					if (
 						typeof data.metadata.iframe !== "undefined" &&
 						data.metadata.iframe
@@ -177,6 +182,11 @@ export async function addPresence(name: string | Array<string>) {
 		).filter(p => typeof p !== "undefined");
 
 		chrome.storage.local.set({ presences: presences.concat(presencesToAdd) });
+		presences.concat(presencesToAdd).map(p => {
+			if(p.metadata.settings) {
+				chrome.storage.local.set(JSON.parse(JSON.stringify({[`pSettings_${p.metadata.service}`]: p.metadata.settings })));
+			}
+		})
 	}
 }
 
