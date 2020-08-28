@@ -19,7 +19,7 @@
 		"@types/chrome": "^0.0.103",
 		"@types/fs-extra": "^8.1.0",
 		"@types/node-sass": "^4.11.0",
-		"@types/socket.io-client": "^1.4.32",
+		"@types/socket.io-client": "^1.4.33",
 		"@types/tinycolor2": "^1.4.2",
 		"axios": "^0.19.2",
 		"copy-webpack-plugin": "^5.1.1",
