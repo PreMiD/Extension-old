@@ -23,7 +23,7 @@
 		"@types/tinycolor2": "^1.4.2",
 		"axios": "^0.19.2",
 		"copy-webpack-plugin": "^5.1.1",
-		"css-loader": "^3.4.2",
+		"css-loader": "^4.2.2",
 		"file-loader": "^6.0.0",
 		"fs-extra": "^9.0.0",
 		"node-sass": "^4.13.1",
