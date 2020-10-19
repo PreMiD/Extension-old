@@ -1,13 +1,13 @@
 {
 	"compilerOptions": {
-		"target": "es2016",
+		"target": "es2020",
 		"moduleResolution": "Node",
 		"noUnusedParameters": true,
 		"noUnusedLocals": true,
 		"sourceMap": true,
 		"outDir": "dist/js",
 
-		"lib": ["es2016", "dom"]
+		"lib": ["es2020", "dom"]
 	},
 	"include": ["src/*", "@types/PreMiD/*.ts"]
 }
