@@ -1,7 +1,7 @@
 /**
  *
- * PreMiD by Timeraa
- * Copyright (c) 2018-2020
+ * @author <me@timeraa.dev> (Timeraa)
+ * @copyright Copyright (c) 2018-2020
  *
  */
 

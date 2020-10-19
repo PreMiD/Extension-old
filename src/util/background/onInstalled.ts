@@ -50,10 +50,7 @@ async function update() {
 				: 0
 		) <
 		parseInt(
-			chrome.runtime
-				.getManifest()
-				.version_name.replace(/\./g, "")
-				.slice(0, 3)
+			chrome.runtime.getManifest().version_name.replace(/\./g, "").slice(0, 3)
 		)
 	) {
 		chrome.storage.local.set({

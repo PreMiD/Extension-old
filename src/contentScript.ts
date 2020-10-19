@@ -8,7 +8,7 @@ window.addEventListener("PreMiD_UpdatePresence", (data: CustomEvent) =>
 	port.postMessage({ action: "updatePresence", presence: data.detail })
 );
 
-chrome.runtime.onMessage.addListener(function(data) {
+chrome.runtime.onMessage.addListener(function (data) {
 	if (port === null) return;
 
 	if (typeof data.iFrameData !== "undefined") {
@@ -40,7 +40,7 @@ chrome.runtime.onMessage.addListener(function(data) {
 	}
 });
 
-window.addEventListener("PreMiD_RequestExtensionData", async function(
+window.addEventListener("PreMiD_RequestExtensionData", async function (
 	data: CustomEvent
 ) {
 	let strings = data.detail.strings;

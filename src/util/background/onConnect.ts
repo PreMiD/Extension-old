@@ -11,7 +11,7 @@ export function setOldObject(object: any) {
 	oldObject = object;
 }
 
-chrome.runtime.onConnect.addListener(function(port) {
+chrome.runtime.onConnect.addListener(function (port) {
 	handleTabs(port);
 	handlePopup(port);
 	handlePresence(port);

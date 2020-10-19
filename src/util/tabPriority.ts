@@ -65,7 +65,9 @@ export async function tabPriority(info: any = undefined) {
 		if (!p.enabled) return false;
 
 		if (typeof p.metadata.regExp !== "undefined") {
-			res = activeTab.url.match(new RegExp("^(https?:|file:[/]?)[/]{2}" + p.metadata.regExp));
+			res = activeTab.url.match(
+				new RegExp("^(https?:|file:[/]?)[/]{2}" + p.metadata.regExp)
+			);
 
 			if (res === null) return false;
 			else return res.length > 0;
