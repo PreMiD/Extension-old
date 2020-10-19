@@ -123,10 +123,13 @@
 						v-for="(presence, i) in filteredPresences"
 						v-bind:key="`p${i}`"
 					>
-						<img :src="presence.metadata.logo" draggable="false" />
-						<h1>
-							{{ presence.metadata.service }}
-							<span v-if="presence.tmp">TMP</span>
+						<img :src="presence.metadata.logo" draggable="false"
+							:title="presence.metadata.service"
+						/>
+						<h1
+							:title="presence.metadata.service"
+						>
+							<span v-if="presence.tmp">TMP</span>{{ presence.metadata.service }}
 						</h1>
 						<i
 							v-if="
@@ -857,16 +860,19 @@
 						font-size: 17px;
 						font-weight: normal;
 						justify-content: center;
-
+						max-width: 100%;
+						overflow-x: hidden;
+						text-overflow: ellipsis;
+						white-space: nowrap;
 						span {
 							font-size: 10px;
-
 							background: rgb(200, 75, 75);
-
 							vertical-align: middle;
 							padding: 2px 4px;
 							border-radius: 5px;
 							position: relative;
+							margin-right: 5px;
+							top: -2px;
 						}
 					}
 
