@@ -398,7 +398,7 @@
 				);
 
 				// @ts-ignore
-				let settings = await pmd.getStorage(
+				const settings = await pmd.getStorage(
 					"local",
 					`pSettings_${presenceToRemove.metadata.service}`
 				);
