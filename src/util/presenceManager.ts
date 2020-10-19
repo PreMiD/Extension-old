@@ -141,6 +141,13 @@ export async function addPresence(name: string | Array<string>) {
 					res.iframe = await (await fetch(`${data.url}iframe.js`)).text();
 
 				presences.push(res);
+				presences.map(p => {
+					if (p.metadata.settings) {
+						chrome.storage.local.set({
+							[`pSettings_${p.metadata.service}`]: p.metadata.settings
+						});
+					}
+				});
 				chrome.storage.local.set({ presences: presences });
 			})
 			.catch(() => {});
@@ -177,6 +184,13 @@ export async function addPresence(name: string | Array<string>) {
 		).filter(p => typeof p !== "undefined");
 
 		chrome.storage.local.set({ presences: presences.concat(presencesToAdd) });
+		presences.concat(presencesToAdd).map(p => {
+			if (p.metadata.settings) {
+				chrome.storage.local.set({
+					[`pSettings_${p.metadata.service}`]: p.metadata.settings
+				});
+			}
+		});
 	}
 }
 
@@ -188,11 +202,11 @@ if (document.location.pathname !== "/_generated_background_page.html") {
 			document.querySelector("#app").setAttribute("extension-ready", "true");
 	});
 
-	window.addEventListener("PreMiD_AddPresence", function(data: CustomEvent) {
+	window.addEventListener("PreMiD_AddPresence", function (data: CustomEvent) {
 		addPresence([data.detail]);
 	});
 
-	window.addEventListener("PreMiD_RemovePresence", async function(
+	window.addEventListener("PreMiD_RemovePresence", async function (
 		data: CustomEvent
 	) {
 		let { presences } = await getStorage("local", "presences");

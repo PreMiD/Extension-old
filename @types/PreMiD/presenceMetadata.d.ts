@@ -11,6 +11,7 @@ declare type presenceMetadata = {
 	tags: Array<string>;
 	url: string | Array<string>;
 	version: string;
+	settings: Array<Object>;
 	regExp?: RegExp | string;
 	iFrameRegExp?: RegExp | string;
 };
