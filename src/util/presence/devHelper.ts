@@ -330,7 +330,7 @@ class Presence {
 			script.id = 'PreMiD_Pageletiables';
 			script.appendChild(
 				document.createTextNode(`
-        var pmdPL = new CustomEvent("PreMiD_Pageletiable", {detail: (typeof window["${letiable}"] === "string") ? window["${letiable}"] : JSON.stringify(window["${letiable}"])});
+        const pmdPL = new CustomEvent("PreMiD_Pageletiable", {detail: (typeof window["${letiable}"] === "string") ? window["${letiable}"] : JSON.stringify(window["${letiable}"])});
         window.dispatchEvent(pmdPL);
       `)
 			);
@@ -443,8 +443,8 @@ class Presence {
 	 * @param {Number} elementDuration Element duration seconds
 	 */
 	getTimestamps(elementTime: number, elementDuration: number) {
-		var startTime = Date.now();
-		var endTime = Math.floor(startTime / 1000) - elementTime + elementDuration;
+		const startTime = Date.now();
+		const endTime = Math.floor(startTime / 1000) - elementTime + elementDuration;
 		return [Math.floor(startTime / 1000), endTime];
 	}
 
@@ -466,12 +466,12 @@ class Presence {
 	 * @param hex The hex string
 	 */
 	private hexToRGB(hex: string) {
-		var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+		const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
 		hex = hex.replace(shorthandRegex, (_, r, g, b) => {
 			return r + r + g + g + b + b;
 		});
 
-		var result = hex.match(/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i);
+		const result = hex.match(/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i);
 		return result
 			? {
 					r: parseInt(result[1], 16),
@@ -711,7 +711,7 @@ class Slideshow {
 	 * @param interval Interval until next slide
 	 */
 	updateSlide(id: string, data: PresenceData = null, interval: number = null) {
-		for (var slide of this.slides) {
+		for (const slide of this.slides) {
 			if (slide.id === id) {
 				slide.updateData(data);
 				slide.updateInterval(interval);
