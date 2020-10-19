@@ -4,7 +4,7 @@
 	"description": "PreMiD Extension",
 	"scripts": {
 		"init": "yarn --silent && tsc fetchDescriptions && node fetchDescriptions.js && tsc --target ES2020 src/util/presence/devHelper.ts --out dist/js/devHelper.js",
-		"dev": "yarn --silent run init && webpack --config webpack/webpack.dev.js --watch",
+		"dev": "yarn --silent run init && webpack --config webpack/webpack.dev.js",
 		"build": "yarn --silent run init && webpack --config webpack/webpack.prod.js",
 		"genTypes": "tsc --emitDeclarationOnly src/util/presence/devHelper.ts --declaration --outFile ../Presences/@types/premid/index.d.ts"
 	},
