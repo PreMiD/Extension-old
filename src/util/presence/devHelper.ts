@@ -484,7 +484,7 @@ class Presence {
 			.map(time => {
 				return parseInt(time);
 			})
-			.reduce((prev, time) => 60 * prev + +time);
+			.reduce((prev, time) => 60 * prev + time);
 	}
 
 	/**
