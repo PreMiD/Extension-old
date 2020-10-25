@@ -1,12 +1,25 @@
+import { error, info } from "./util/debug";
+
+import aesjs from "aes-js";
+import { getStorage } from "./util/functions/asyncStorage";
 import { getString } from "./util/langManager";
-import { info } from "./util/debug";
 
 let tabPriority: number = null,
-	port = chrome.runtime.connect({ name: "contentScript" });
+	port = chrome.runtime.connect({ name: "contentScript" }),
+	decryptionKey: Uint8Array;
 
-window.addEventListener("PreMiD_UpdatePresence", (data: CustomEvent) =>
-	port.postMessage({ action: "updatePresence", presence: data.detail })
-);
+window.addEventListener("PreMiD_UpdatePresence", async (data: CustomEvent) => {
+	try {
+		const decryptedData = JSON.parse(await decryptData(data.detail));
+		port.postMessage({ action: "updatePresence", presence: decryptedData })
+	} catch (e) {
+		if (e instanceof SyntaxError) {
+			error("contentScript.ts", "Data could not be decrypted into JSON object.");
+		} else {
+			throw e;
+		}
+	}
+});
 
 chrome.runtime.onMessage.addListener(function (data) {
 	if (port === null) return;
@@ -60,3 +73,49 @@ window.addEventListener("PreMiD_RequestExtensionData", async function (
 		})
 	);
 });
+
+/**
+ * Generates a AES key from the app identifier
+ */
+async function getDecryptionKey(): Promise<Uint8Array> {
+	if (decryptionKey) {
+		return decryptionKey;
+	}
+
+	const key: string = (await getStorage("local", "identifier")).identifier;
+	let keySize: number;
+
+	if (key.length >= 32) {
+		keySize = 32;
+	} else if (key.length >= 24) {
+		keySize = 24;
+	} else if (key.length >= 16) {
+		keySize = 16;
+	} else {
+		error("contentScript.ts", "String is not long enough to create decryption key.");
+		return new Uint8Array();
+	}
+
+	decryptionKey = aesjs.utils.utf8.toBytes(key.substring(0, keySize));
+
+	return decryptionKey;
+}
+
+/**
+ * Decrypts hex into a string using the app identifier as the key
+ * @param data Encrypted hex string
+ */
+async function decryptData(data: string): Promise<string> {
+	const encryptionKey = await getDecryptionKey();
+
+	if (encryptionKey.length > 0) {
+		const aesCtr = new aesjs.ModeOfOperation.ctr(encryptionKey);
+		const encryptedBytes = aesjs.utils.hex.toBytes(data);
+		const decryptedBytes = aesCtr.decrypt(encryptedBytes);
+		const decryptedText = aesjs.utils.utf8.fromBytes(decryptedBytes);
+
+		return decryptedText;
+	}
+
+	return "";
+}

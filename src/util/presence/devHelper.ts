@@ -1,3 +1,5 @@
+import aesjs from "aes-js";
+
 /**
  * @link https://docs.premid.app/dev/presence/class#presencedata-interface
  */
@@ -174,6 +176,7 @@ interface Metadata {
  * Useful tools for developing presences
  * @link https://docs.premid.app/en/dev/presence/class
  */
+// @ts-ignore
 class Presence {
 	metadata: Metadata;
 	_events: any = {};
@@ -187,6 +190,7 @@ class Presence {
 	private genericStyle: string =
 		"font-weight: 800; padding: 2px 5px; color: white;";
 	private presenceStyle: string = "";
+	private encryptionKey: Uint8Array;
 
 	/**
 	 * Create a new Presence
@@ -583,10 +587,51 @@ class Presence {
 	private sendData(data: Object) {
 		//* Send data to app
 		let pmdUP = new CustomEvent("PreMiD_UpdatePresence", {
-			detail: data
+			detail: this.encryptData(JSON.stringify(data))
 		});
 
 		window.dispatchEvent(pmdUP);
+	}
+
+	/**
+	 * Generates a AES key from the app identifier
+	 */
+	private getEncryptionKey(): Uint8Array {
+		if (this.encryptionKey) {
+			return this.encryptionKey;
+		}
+
+		// @ts-ignore
+		const key: string = PreMiD_Identifier;
+		let keySize: number;
+
+		if (key.length >= 32) {
+			keySize = 32;
+		} else if (key.length >= 24) {
+			keySize = 24;
+		} else if (key.length >= 16) {
+			keySize = 16;
+		} else {
+			throw new Error("String is not long enough to create encryption key.");
+		}
+
+		this.encryptionKey = aesjs.utils.utf8.toBytes(key.substring(0, keySize))
+		return this.encryptionKey;
+	}
+
+	/**
+	 * Encrypts a string using AES algorithm
+	 * @param data String to be encrypted
+	 */
+	private encryptData(data: string): string {
+		const key = this.getEncryptionKey();
+
+		const aesCtr = new aesjs.ModeOfOperation.ctr(key);
+		const textBytes = aesjs.utils.utf8.toBytes(data);
+		const encryptedBytes = aesCtr.encrypt(textBytes);
+		const encryptedHex = aesjs.utils.hex.fromBytes(encryptedBytes);
+
+		return encryptedHex;
 	}
 
 	/**
@@ -767,6 +812,7 @@ class Slideshow {
  * Is used to gather information from iFrames
  * @link https://docs.premid.app/en/dev/presence/iframe
  */
+// @ts-ignore
 class iFrame {
 	_events: any = {};
 
@@ -822,3 +868,12 @@ class iFrame {
 		}
 	}
 }
+
+// @ts-ignore
+window.Presence = Presence;
+
+// @ts-ignore
+window.iFrame = iFrame;
+
+// @ts-ignore
+window.Slideshow = Slideshow;

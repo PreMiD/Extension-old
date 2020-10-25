@@ -16,7 +16,8 @@ module.exports = {
 			__dirname,
 			srcDir + "util/iFrameHandler.ts"
 		),
-		"html/popup/app.js": path.join(__dirname, srcDir + "html/popup/app.ts")
+		"html/popup/app.js": path.join(__dirname, srcDir + "html/popup/app.ts"),
+		"js/devHelper.js": path.join(__dirname, srcDir + "util/presence/devHelper.ts")
 	},
 	output: {
 		path: path.join(__dirname, "../dist/"),
