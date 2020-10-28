@@ -1,6 +1,7 @@
 import { error, info } from "./util/debug";
 
 import aesjs from "aes-js";
+import cleanObject from "./util/functions/cleanObject";
 import { getStorage } from "./util/functions/asyncStorage";
 import { getString } from "./util/langManager";
 
@@ -11,6 +12,7 @@ let tabPriority: number = null,
 window.addEventListener("PreMiD_UpdatePresence", async (data: CustomEvent) => {
 	try {
 		const decryptedData = JSON.parse(await decryptData(data.detail));
+		cleanObject(decryptedData);
 		port.postMessage({ action: "updatePresence", presence: decryptedData })
 	} catch (e) {
 		if (e instanceof SyntaxError) {
