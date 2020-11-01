@@ -1,15 +1,36 @@
-import aesjs from "aes-js";
+import * as aesjs from "aes-js";
 
 /**
  * @link https://docs.premid.app/dev/presence/class#presencedata-interface
  */
 interface PresenceData {
-	state?: string;
+	/**
+	 * Top row of the status
+	 */
 	details?: string;
+	/**
+	 * Bottom row of the status
+	 */
+	state?: string;
+	/**
+	 * epoch seconds for start - including will show time as "elapsed"
+	 */
 	startTimestamp?: number;
+	/**
+	 * epoch seconds for ending - including will show time as "remaining"
+	 */
 	endTimestamp?: number;
+	/**
+	 * name of the uploaded image for the large profile artwork
+	 */
 	largeImageKey?: string;
+	/**
+	 * name of the uploaded image for the small profile artwork
+	 */
 	smallImageKey?: string;
+	/**
+	 * tooltip for the smallImageKey
+	 */
 	smallImageText?: string;
 }
 
@@ -294,7 +315,6 @@ class Presence {
 		return new Promise<any>(resolve => {
 			const listener = function (detail: any) {
 				window.removeEventListener("PreMiD_ReceiveExtensionData", listener);
-
 				resolve(detail.strings);
 			};
 
@@ -667,6 +687,11 @@ class Presence {
 }
 
 /**
+ * Minimum amount of time in ms between slide updates
+ */
+const MIN_SLIDE_TIME: number = 5000;
+
+/**
  * Represents a slideshow slide
  */
 class SlideshowSlide {
@@ -685,8 +710,8 @@ class SlideshowSlide {
 	}
 
 	set interval(interval: number) {
-		if (interval <= 2000) {
-			interval = 2000;
+		if (interval <= MIN_SLIDE_TIME) {
+			interval = MIN_SLIDE_TIME;
 		}
 		this._interval = interval;
 	}
@@ -741,7 +766,7 @@ class Slideshow {
 			setTimeout(() => {
 				// necessary to keep 'this' bound
 				this.pollSlide();
-			}, 2000);
+			}, MIN_SLIDE_TIME);
 		}
 	}
 

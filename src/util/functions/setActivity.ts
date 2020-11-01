@@ -29,9 +29,13 @@ export default async function setActivity(
 	if (!settings.mediaKeys.value) pTS.mediaKeys = false;
 
 	if (pTS.presenceData.details)
-		pTS.presenceData.details = pTS.presenceData.details.slice(0, 128).trim();
+		pTS.presenceData.details.length < 3 ?
+			pTS.presenceData.details = "   " + pTS.presenceData.details :
+			pTS.presenceData.details = pTS.presenceData.details.slice(0, 128).trim();
 	if (pTS.presenceData.state)
-		pTS.presenceData.state = pTS.presenceData.state.slice(0, 128).trim();
+		pTS.presenceData.state.length < 3 ?
+			pTS.presenceData.state = "   " + pTS.presenceData.state :
+			pTS.presenceData.state = pTS.presenceData.state.slice(0, 128).trim();
 
 	if (socket.connected) socket.emit("setActivity", pTS);
 	info("setActivity.ts", "setActivity");

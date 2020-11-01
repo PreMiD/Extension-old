@@ -1,7 +1,7 @@
-import axios from "axios";
 import { error, success } from "./debug";
+import graphqlRequest, { getPresenceMetadata } from "./functions/graphql";
+
 import { getStorage } from "./functions/asyncStorage";
-import { apiBase } from "../config";
 import { v4 as uuidv4 } from "uuid";
 
 export async function presenceScience() {
@@ -14,23 +14,19 @@ export async function presenceScience() {
 		chrome.storage.local.set({ identifier: identifier });
 	}
 
-	const headers = new Headers();
-	headers.append("Content-Type", "application/json");
+	const platform: { os: string, arch: string } = await new Promise(resolve =>
+		chrome.runtime.getPlatformInfo(info =>
+			resolve({ os: info.os, arch: info.arch })
+		)
+	), presencesArray = presences.filter(p => !p.tmp).map(p => p.metadata.service);
 
-	axios("science", {
-		baseURL: apiBase,
-		data: {
-			identifier: identifier,
-			presences: presences.filter(p => !p.tmp).map(p => p.metadata.service),
-			platform: await new Promise(resolve =>
-				chrome.runtime.getPlatformInfo(info =>
-					resolve({ os: info.os, arch: info.arch })
-				)
-			)
-		},
-		method: "POST",
-		headers: headers
-	});
+	graphqlRequest(`
+	mutation {
+		addScience(identifier: "${identifier}", presences: ["${presencesArray.toString().split(",").join(`", "`)}"], os: "${platform.os}", arch:"${platform.arch}") {
+			identifier
+		}
+	}
+	`)
 }
 
 export async function updatePresences() {
@@ -44,8 +40,29 @@ export async function updatePresences() {
 
 	//* Catch fetch error
 	try {
-		presenceVersions = (await axios("presences/versions", { baseURL: apiBase }))
-			.data;
+		const graphqlResult = (await graphqlRequest(`
+			query {
+  			presences {
+    			url
+    			metadata {
+      			service
+      			version
+    			}
+  			}
+			}
+		`)).data
+
+		let result = [];
+
+		graphqlResult.presences.forEach(element => {
+			result.push({
+				name: element.metadata.service,
+				url: element.url,
+				version: element.metadata.version
+			})
+		});
+
+		presenceVersions = result;
 	} catch (e) {
 		error("presenceManager.ts", `Error while updating presences: ${e.message}`);
 		return;
@@ -67,18 +84,58 @@ export async function updatePresences() {
 				p1 => p1.metadata.service === p.name && !p.tmp
 			);
 
-			const metadata = (
-				await axios(`presences/${p.name}`, { baseURL: apiBase })
-			).data.metadata;
+			const graphqlResult = (await graphqlRequest(`
+			query {
+  			presences(service: "${p.name}") {
+    			presenceJs
+					iframeJs
+					metadata {
+						author {
+							name
+							id
+						}
+						contributors {
+							name
+							id
+						}
+						altnames
+						service
+						description
+						url
+						version
+						logo
+						thumbnail
+						color
+						tags
+						category
+						iframe
+						regExp
+						iframeRegExp
+						button
+						warning
+						settings {
+							id
+							title
+							icon
+							if {
+								propretyNames
+								patternProprties
+							}
+							placeholder
+							value
+							values
+							multiLanguage
+						}
+					}
+				}
+			}
+			`)).data
 
-			let files = (
-				await Promise.all([
-					(await axios(`${apiBase}presences/${p.name}/presence.js`)).data,
-					metadata.iframe
-						? (await axios(`${apiBase}presences/${p.name}/iframe.js`)).data
-						: undefined
-				])
-			).filter(f => f);
+			const metadata = graphqlResult.presences[0].metadata;
+			let files = [
+				graphqlResult.presences[0].presenceJs,
+				metadata.iframe ? graphqlResult.presences[0].iframeJs : undefined
+			].filter(f => f);
 
 			presences[presenceIndex].metadata = metadata;
 			presences[presenceIndex].presence = files[0];
@@ -123,22 +180,32 @@ export async function addPresence(name: string | Array<string>) {
 	}
 
 	if (typeof name === "string") {
-		axios(`presences/${name}`, { baseURL: apiBase })
+		getPresenceMetadata(name)
 			.then(async ({ data }) => {
+
 				if (
 					typeof data.metadata.button !== "undefined" &&
 					!data.metadata.button
 				)
 					return;
+				const presenceAndIframe = (await graphqlRequest(`
+						query {
+							presences(service: "${data.metadata.service}") {
+    					presenceJs
+    					iframeJs
+    					}
+						}
+						`)).data.presences[0];
+
 
 				let res: any = {
 					metadata: data.metadata,
-					presence: await (await fetch(`${data.url}presence.js`)).text(),
+					presence: presenceAndIframe.presenceJs,
 					enabled: true
 				};
 
 				if (typeof data.metadata.iframe !== "undefined" && data.metadata.iframe)
-					res.iframe = await (await fetch(`${data.url}iframe.js`)).text();
+					res.iframe = presenceAndIframe.iframeJs;
 
 				presences.push(res);
 				presences.map(p => {
@@ -157,7 +224,7 @@ export async function addPresence(name: string | Array<string>) {
 				(
 					await Promise.all(
 						name.map(name => {
-							return axios(`presences/${name}`, { baseURL: apiBase });
+							return getPresenceMetadata(name);
 						})
 					)
 				).map(async ({ data }) => {
@@ -167,16 +234,25 @@ export async function addPresence(name: string | Array<string>) {
 					)
 						return;
 
+					const presenceAndIframe = (await graphqlRequest(`
+						query {
+							presences(service: "${data.metadata.service}") {
+    					presenceJs
+    					iframeJs
+    					}
+						}
+						`)).data.presences[0];
+
 					let res: any = {
 						metadata: data.metadata,
-						presence: (await axios(`${data.url}presence.js`)).data,
+						presence: presenceAndIframe.presenceJs,
 						enabled: true
 					};
 					if (
 						typeof data.metadata.iframe !== "undefined" &&
 						data.metadata.iframe
 					)
-						res.iframe = (await axios(`${data.url}iframe.js`)).data;
+						res.iframe = presenceAndIframe.iframeJs;
 
 					return res;
 				})

@@ -1,6 +1,6 @@
-import axios from "axios";
 import { error, success } from "./debug";
-import { apiBase } from "../config";
+
+import graphqlRequest from "./functions/graphql";
 
 /**
  * Default language code
@@ -15,26 +15,28 @@ let languages: object = {};
  * @param languageCode language code following ISO639-1 spec
  */
 export async function updateStrings(languageCode?: string) {
-	if (typeof languageCode === "undefined") languageCode = DEFAULT_LOCALE;
+	if (!languageCode) languageCode = DEFAULT_LOCALE;
 
 	try {
+		const graphqlResult = await graphqlRequest(`
+			query {
+				website: langFiles(project: "website", lang: "${languageCode}") {
+					translations
+				}
+				extension: langFiles(project: "extension", lang: "${languageCode}") {
+					translations
+				}
+				presence: langFiles(project: "presence", lang: "${languageCode}") {
+					translations
+				}
+			}
+		`);
+
 		languages[languageCode] = {
-			name: (
-				await axios(`langFile/website/${languageCode}`, {
-					baseURL: apiBase
-				})
-			).data["header.language"],
-			extension: (
-				await axios(`langFile/extension/${languageCode}`, {
-					baseURL: apiBase
-				})
-			).data,
-			presence: (
-				await axios(`langFile/presence/${languageCode}`, {
-					baseURL: apiBase
-				})
-			).data
-		};
+			name: graphqlResult.data.website[0].translations["header.language"],
+			extension: graphqlResult.data.extension[0].translations,
+			presence: graphqlResult.data.presence[0].translations
+		}
 
 		success("langManager.ts", `Updated ${languageCode} translations`);
 	} catch (e) {
@@ -59,10 +61,10 @@ const loadingLangs = [];
  * Load the strings from the browser local storage, if they are not found in the storage they will be
  * fetch from the API.
  *
- * @param languageCode language code ISO639-1 if not speficied DEFAULT_LOCALE is used
+ * @param languageCode language code ISO639-1 if not specified DEFAULT_LOCALE is used
  */
 export async function loadStrings(languageCode?: string) {
-	if (typeof languageCode === "undefined") languageCode = DEFAULT_LOCALE;
+	if (!languageCode) languageCode = DEFAULT_LOCALE;
 
 	return new Promise(resolve => {
 		if (typeof languages[languageCode] !== "undefined") resolve();
@@ -104,10 +106,10 @@ export async function loadStrings(languageCode?: string) {
 /**
  * Get all the translations in the given language and DEFAULT_LOCALE
  *
- * @param languageCode language code ISO639-1 if not speficied DEFAULT_LOCALE is used
+ * @param languageCode language code ISO639-1 if not specified DEFAULT_LOCALE is used
  */
 export function getStrings(languageCode?: string) {
-	if (typeof languageCode === "undefined") languageCode = DEFAULT_LOCALE;
+	if (!languageCode) languageCode = DEFAULT_LOCALE;
 
 	return new Promise(async resolve => {
 		await loadStrings(languageCode);
@@ -138,10 +140,10 @@ export function getStrings(languageCode?: string) {
  * Get translation of a specific key
  *
  * @param string name of the string, to get the name of the language use "name" or "header.language"
- * @param languageCode language code ISO639-1 if not speficied DEFAULT_LOCALE is used
+ * @param languageCode language code ISO639-1 if not specified DEFAULT_LOCALE is used
  */
 export function getString(string: string, languageCode?: string) {
-	if (typeof languageCode === "undefined") languageCode = DEFAULT_LOCALE;
+	if (!languageCode) languageCode = DEFAULT_LOCALE;
 
 	return new Promise(async resolve => {
 		await loadStrings(languageCode);
@@ -181,14 +183,22 @@ export function getString(string: string, languageCode?: string) {
  */
 export async function getPresenceLanguages(presenceName: string) {
 	try {
-		return (
-			await axios(
-				`langFile/${encodeURIComponent(presenceName.toLowerCase())}/list`,
-				{
-					baseURL: apiBase
+		const langs = await graphqlRequest(`
+			query {
+				langFiles(presence: "${presenceName.toLowerCase()}") {
+					lang
 				}
-			)
-		).data;
+			}
+		`);
+
+		const finalArray = [];
+		if (langs.data.langFiles.length > 0) {
+			langs.data.langFiles[0].forEach(lang => {
+				finalArray.push(lang.lang);
+			});
+		}
+
+		return finalArray;
 	} catch (e) {
 		// 404 error code
 	}

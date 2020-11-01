@@ -1,6 +1,7 @@
+import * as aesjs from "aes-js";
+
 import { error, info } from "./util/debug";
 
-import aesjs from "aes-js";
 import cleanObject from "./util/functions/cleanObject";
 import { getStorage } from "./util/functions/asyncStorage";
 import { getString } from "./util/langManager";
@@ -111,10 +112,10 @@ async function decryptData(data: string): Promise<string> {
 	const encryptionKey = await getDecryptionKey();
 
 	if (encryptionKey.length > 0) {
-		const aesCtr = new aesjs.ModeOfOperation.ctr(encryptionKey);
-		const encryptedBytes = aesjs.utils.hex.toBytes(data);
-		const decryptedBytes = aesCtr.decrypt(encryptedBytes);
-		const decryptedText = aesjs.utils.utf8.fromBytes(decryptedBytes);
+		const aesCtr = new aesjs.ModeOfOperation.ctr(encryptionKey),
+		encryptedBytes = aesjs.utils.hex.toBytes(data),
+		decryptedBytes = aesCtr.decrypt(encryptedBytes),
+		decryptedText = aesjs.utils.utf8.fromBytes(decryptedBytes);
 
 		return decryptedText;
 	}

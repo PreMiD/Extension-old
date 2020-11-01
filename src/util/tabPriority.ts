@@ -1,9 +1,9 @@
-import axios from "axios";
 import clearActivity from "./functions/clearActivity";
+import { getPresenceMetadata } from "./functions/graphql";
+import { getStorage } from "./functions/asyncStorage";
+import graphql from "./functions/graphql";
 import injectPresence from "./functions/injectPresence";
 import tabHasPresence from "./functions/tabHasPresence";
-import { getStorage } from "./functions/asyncStorage";
-import { apiBase } from "../config";
 
 export let priorityTab: number = null;
 export let oldPresence: any = null;
@@ -37,7 +37,7 @@ export async function tabPriority(info: any = undefined) {
 		return;
 
 	//* Check if this website uses the PreMiD_Presence meta tag
-	let pmdMetaTag = await new Promise(resolve =>
+	let pmdMetaTag: string = await new Promise(resolve =>
 		chrome.tabs.executeScript(
 			activeTab.id,
 			{
@@ -84,27 +84,28 @@ export async function tabPriority(info: any = undefined) {
 
 	//* If PreMiD has no presence to inject here, inject one if pmdMetaTag has one
 	if (presence.length === 0 && pmdMetaTag) {
-		let { metadata } = (
-				await axios(`presences/${pmdMetaTag}`, {
-					baseURL: apiBase
-				})
-			).data,
+		let metadata = (await getPresenceMetadata(pmdMetaTag)).data.metadata,
 			prs: any = {
 				metadata: metadata,
-				presence: (
-					await axios(`presences/${pmdMetaTag}/presence.js`, {
-						baseURL: apiBase
-					})
-				).data,
+				presence: null,
 				enabled: true,
 				metaTag: true,
 				hidden: false
 			};
-		if (metadata.iframe)
-			prs.iframe = (
-				await axios(`presences/${pmdMetaTag}/iframe.js`, { baseURL: apiBase })
-			).data;
 
+		const presenceJsCode = (await graphql(`
+			query {
+				presences(service: "${pmdMetaTag}") {
+					presenceJs
+					${metadata.iframe ? 'iframeJs' : ''}
+				}
+			}
+		`)).data.presences[0];
+		prs.presence = presenceJsCode.presenceJs;
+
+		if (metadata.iframe) {
+			prs.iframe = presenceJsCode.iframeJs;
+		}
 		presence = [prs];
 
 		chrome.storage.local.get("presences", data => {

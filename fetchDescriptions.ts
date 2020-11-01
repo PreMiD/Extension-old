@@ -1,17 +1,23 @@
-import axios from "axios";
 import { ensureDirSync, removeSync, writeFileSync } from "fs-extra";
 
-let base = axios.create({ baseURL: "https://api.premid.app/v2/" });
+import graphqlRequest from "./src/util/functions/graphql";
 
-base.get("langFile/list").then(({ data }) => {
+let langList = [];
+graphqlRequest(`
+	query {
+		langFiles(project: "extension") {
+			lang
+		}
+	}
+`).then(res => res.data.langFiles.forEach(lang => {
+	langList.push(lang.lang);
+	})).finally(() => {
 	removeSync("src/_locales");
 	Promise.all(
-		data.map(async langCode => {
+		langList.map(async langCode => {
 			return [
 				langCode,
-				(await base.get(`langFile/extension/${langCode}`)).data[
-					"extension.description.short"
-				]
+				await translationsInLanguage(langCode, "extension.description.short")
 			];
 		})
 	).then(data => {
@@ -66,3 +72,42 @@ base.get("langFile/list").then(({ data }) => {
 		});
 	});
 });
+
+// Obtain extension strings, whole project or specific string (if given) fallbacks to english
+async function translationsInLanguage(langCode: string, string?: string): Promise<object|string> {
+	const FALLBACK_LOCALE = "en";
+
+	const langFiles = (await graphqlRequest(`
+		query {
+			langFiles(project: "extension", lang: "${langCode}") {
+				translations
+			}
+		}
+	`)).data.langFiles;
+
+	if (langFiles.length === 0) {
+		if (langCode !== FALLBACK_LOCALE) {
+			return !string
+				? await translationsInLanguage(FALLBACK_LOCALE)
+				: await translationsInLanguage(FALLBACK_LOCALE, string);
+
+		} else {
+			return string ?? {};
+		}
+	}
+
+	const translations = langFiles[0].translations;
+
+	if (!string) {
+		return translations;
+	}
+
+	if (translations[string]) {
+		return translations[string];
+
+	} else if (langCode !== FALLBACK_LOCALE) {
+		return await translationsInLanguage(FALLBACK_LOCALE, string);
+	}
+
+	return string;
+}

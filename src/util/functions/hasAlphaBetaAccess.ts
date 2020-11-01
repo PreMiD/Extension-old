@@ -1,6 +1,7 @@
 import axios from "axios";
 import { getStorage } from "./asyncStorage";
-import { apiBase, releaseType } from "../../config";
+import graphqlRequest from "./graphql";
+import { releaseType } from "../../config";
 
 export default async function hasAlphaBetaAccess() {
 	const { authorizedBetaAlpha } = await getStorage(
@@ -42,13 +43,20 @@ export default async function hasAlphaBetaAccess() {
 						})
 					).data;
 
+					const accessType = (await graphqlRequest(`
+						query {
+							alphaBetaAccess(userId: "${dUser.id}") {
+								betaAccess
+								alphaAccess
+							}
+						}
+					`)).data.alphaBetaAccess[0];
+
 					let allowedAccess: boolean;
 					if (releaseType === "BETA") {
-						allowedAccess = (await axios(apiBase + "betaAccess/" + dUser.id))
-							.data.access;
+						allowedAccess = accessType.betaAccess
 					} else if (releaseType === "ALPHA")
-						allowedAccess = (await axios(apiBase + "alphaAccess/" + dUser.id))
-							.data.access;
+						allowedAccess = accessType.alphaAccess
 
 					resolve(allowedAccess);
 				}
