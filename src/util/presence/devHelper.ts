@@ -542,7 +542,7 @@ class Presence {
 			b = rgb.b,
 			hsp = Math.sqrt(0.299 * (r * r) + 0.587 * (g * g) + 0.114 * (b * b));
 
-		if (hsp > 127.5) {
+		if (hsp < 127.5) {
 			return "white";
 		} else {
 			return "black";
