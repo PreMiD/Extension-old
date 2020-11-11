@@ -160,6 +160,10 @@ interface Metadata {
 	 * @link https://docs.premid.app/dev/presence/metadata#regular-expressions
 	 */
 	iframeRegExp?: RegExp;
+	/**
+	 * Defines whether `getLogs()` is used.
+	 */
+	readLogs?: boolean;
 	button?: boolean;
 	warning?: boolean;
 	/**
@@ -360,7 +364,7 @@ class Presence {
 			script.id = "PreMiD_Pageletiables";
 			script.appendChild(
 				document.createTextNode(`
-        const pmdPL = new CustomEvent("PreMiD_Pageletiable", {detail: (typeof window["${letiable}"] === "string") ? window["${letiable}"] : JSON.stringify(window["${letiable}"])});
+        var pmdPL = new CustomEvent("PreMiD_Pageletiable", {detail: (typeof window["${letiable}"] === "string") ? window["${letiable}"] : JSON.stringify(window["${letiable}"])});
         window.dispatchEvent(pmdPL);
       `)
 			);
@@ -369,6 +373,19 @@ class Presence {
 				script
 			);
 		});
+	}
+
+	/**
+	 * Returns an array of the past 100 logs, you can filter these logs with a RegExp.
+	 * @param regExp Filter of the logs
+	 */
+	async getLogs(regExp?: RegExp): Promise<Array<any>> {
+		let logs = (await this.getPageletiable("console")).logs;
+		if (regExp) {
+			logs = logs.filter(l => typeof l === "string" && new RegExp(regExp).test(l));
+		}
+		if (logs == undefined) logs = [];
+		return logs;
 	}
 
 	/**

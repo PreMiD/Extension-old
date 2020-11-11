@@ -99,6 +99,8 @@ export async function updatePresences() {
 							id
 						}
 						altnames
+						warning
+						readLogs
 						service
 						description
 						url

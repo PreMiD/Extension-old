@@ -16,6 +16,24 @@ let languages: object = {};
  */
 export async function updateStrings(languageCode?: string) {
 	if (!languageCode) languageCode = DEFAULT_LOCALE;
+	if (languageCode.startsWith("en-")) languageCode = DEFAULT_LOCALE;
+
+	let extensionLanguage = languageCode;
+
+	switch (languageCode) {
+		case "ja_JP":
+			extensionLanguage = "ja";
+			break;
+		case "ko_KR":
+			extensionLanguage = "ko";
+			break;
+		case "zh_CN":
+			extensionLanguage = "zh-CN";
+			break;
+		case "zh_TW":
+			extensionLanguage = "zh-TW";
+			break;
+	}
 
 	try {
 		const graphqlResult = await graphqlRequest(`
@@ -23,7 +41,7 @@ export async function updateStrings(languageCode?: string) {
 				website: langFiles(project: "website", lang: "${languageCode}") {
 					translations
 				}
-				extension: langFiles(project: "extension", lang: "${languageCode}") {
+				extension: langFiles(project: "extension", lang: "${extensionLanguage}") {
 					translations
 				}
 				presence: langFiles(project: "presence", lang: "${languageCode}") {
@@ -40,7 +58,7 @@ export async function updateStrings(languageCode?: string) {
 
 		success("langManager.ts", `Updated ${languageCode} translations`);
 	} catch (e) {
-		error("langManager.ts", `Error while fetching langFiles: ${e.message}`);
+		error("langManager.ts", `Error while fetching langFiles of ${languageCode} language: ${e.message}`);
 		return;
 	}
 
@@ -193,7 +211,7 @@ export async function getPresenceLanguages(presenceName: string) {
 
 		const finalArray = [];
 		if (langs.data.langFiles.length > 0) {
-			langs.data.langFiles[0].forEach(lang => {
+			langs.data.langFiles.forEach(lang => {
 				finalArray.push(lang.lang);
 			});
 		}

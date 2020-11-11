@@ -30,6 +30,8 @@ export async function getPresenceMetadata(presence: string) {
             name
           }
           altnames
+          warning
+          readLogs
           button
           service
           description

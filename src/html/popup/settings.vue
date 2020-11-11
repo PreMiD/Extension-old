@@ -551,7 +551,7 @@
 
 				if (
 					!presenceSettings ||
-					!presenceSettings.find(s => s.id === lngSetting.id)
+					!presenceSettings.find(s => s.id === lngSetting.id && s.values && s.values.length > 0)
 				) {
 					const uiLang = chrome.i18n.getUILanguage();
 					let preferredValue = languages.find(l => l.value === uiLang);
@@ -608,6 +608,12 @@
 							`pSettings_${this.pSettingsPresence.metadata.service}`
 						].newValue;
 
+				this.presences.filter(p =>
+					p.metadata.settings &&
+					p.metadata.settings.find(s => Object.keys(s).includes("multiLanguage"))
+				).forEach(async p => {
+					await this.initPresenceLanguages(p);
+				});
 				this.$forceUpdate();
 			});
 

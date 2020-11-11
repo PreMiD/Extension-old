@@ -14,4 +14,5 @@ declare type presenceMetadata = {
 	settings: Array<Object>;
 	regExp?: RegExp | string;
 	iFrameRegExp?: RegExp | string;
+	readLogs?: boolean;
 };
