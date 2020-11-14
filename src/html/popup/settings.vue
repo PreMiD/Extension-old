@@ -25,7 +25,15 @@
 				<div id="settings" class="container">
 					<h1>{{ $t("popup.headings.settings") }}</h1>
 					<div id="settingsContainer">
-						<div id="setting" v-for="(setting, i) in settingsFiltered" :key="i">
+						<div id="setting" v-for="(setting, i) in settingsFiltered" :key="i"
+							:class="
+								typeof setting.value === 'number' ||
+									(setting.multiLanguage &&
+										setting.values &&
+										setting.values.length > 1)
+										? 'select' : ''
+							"
+						>
 							<span>
 								<i :class="setting.icon" />
 								{{ setting.title }}
@@ -117,7 +125,13 @@
 						</span>
 					</div>
 				</transition>
-				<div id="presences" v-if="this.presences.length > 0">
+				<div v-if="loadingPresences" id="loader-container">
+					<div class="loader">
+						<img src="/assets/images/icon.svg" />
+						<p>{{ loadingString }}</p>
+					</div>
+				</div>
+				<div id="presences" v-else-if="this.filteredPresences.length > 0">
 					<div
 						id="presence"
 						v-for="(presence, i) in filteredPresences"
@@ -235,7 +249,9 @@
 				inPresenceSettingsView: false,
 				pSettingsPresence: null,
 				pSettings: null,
-				presenceSettings: []
+				presenceSettings: [],
+				loadingPresences: true,
+				loadingString: ''
 			};
 		},
 		watch: {
@@ -246,7 +262,7 @@
 					);
 
 					for (const newPresence of newPresences) {
-						await this.initPresenceLanguages(newPresence);
+						this.initPresenceLanguages(newPresence);
 
 						if (newPresence.metadata.settings) {
 							newPresence.noCog = !(
@@ -569,9 +585,17 @@
 
 					this.updatePresenceSetting(lngSetting.id, lngSetting.value);
 				}
+			},
+			async randomLoadingString() {
+				const textArray = (await getString("header.loader.phrases")).split(";");
+				const randomNumber = Math.floor(Math.random() * textArray.length);
+
+				this.loadingString = textArray[randomNumber];
 			}
 		},
 		created: async function () {
+			this.randomLoadingString();
+
 			// @ts-ignore
 			(this.presences = (await pmd.getStorage("local", "presences")).presences),
 				(this.presenceSettings = await Promise.all(
@@ -583,7 +607,7 @@
 								`pSettings_${p.metadata.service}`
 							);
 
-							await this.initPresenceLanguages(p);
+							this.initPresenceLanguages(p);
 
 							return !(
 								presenceSettings[`pSettings_${p.metadata.service}`] &&
@@ -594,6 +618,8 @@
 						} else return false;
 					})
 				));
+
+			this.loadingPresences = false;
 
 			//* Presence hot reload
 			// @ts-ignore
@@ -633,7 +659,18 @@
 	#mainWrapper {
 		display: grid;
 
+		#presenceSettings{
+			max-height: 470px;
+		}
+
+		#presenceWrapper {
+			max-height: 450px;
+		}
+
 		#presenceSettings {
+			overflow-y: scroll;
+			overflow-x: hidden;
+
 			* {
 				position: relative;
 				z-index: 1;
@@ -724,6 +761,10 @@
 				margin-top: 0;
 				grid-gap: 5px;
 
+				&.select {
+					z-index: 100;
+				}
+
 				span {
 					white-space: nowrap;
 					font-size: 14px;
@@ -762,7 +803,6 @@
 			padding: 5px;
 			border-radius: 5px;
 
-			max-height: 450px;
 			overflow: auto;
 			overflow-x: hidden;
 
@@ -858,6 +898,37 @@
 
 					&:active {
 						background-color: darken($blurple, 5);
+					}
+				}
+			}
+
+			#loader-container {
+				text-align: center;
+				margin-bottom: 10px;
+
+				.loader {
+					img {
+						width: 50px;
+						height: 50px;
+
+						transform: translateX(10px);
+						animation: loaderAnimation 0.5s ease-out infinite;
+					}
+
+					p {
+						color: rgba(255, 255, 255, 1);
+						font-size: 1.2em;
+						font-weight: bold;
+					}
+
+					@keyframes loaderAnimation {
+						50% {
+							transform: translateX(-10px);
+						}
+
+						100% {
+							transform: translateX(10px);
+						}
 					}
 				}
 			}
