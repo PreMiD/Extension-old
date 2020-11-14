@@ -52,6 +52,7 @@ export async function updateStrings(languageCode?: string) {
 
 		languages[languageCode] = {
 			name: graphqlResult.data.website[0].translations["header.language"],
+			loading: graphqlResult.data.website[0].translations["header.loader.phrases"],
 			extension: graphqlResult.data.extension[0].translations,
 			presence: graphqlResult.data.presence[0].translations
 		}
@@ -172,6 +173,11 @@ export function getString(string: string, languageCode?: string) {
 				typeof languages[languageCode].name !== "undefined"
 			) {
 				return resolve(languages[languageCode].name);
+			} else if (
+				["loading", "header.loader.phrases"].includes(string) &&
+				typeof languages[languageCode].loading !== "undefined"
+			) {
+					return resolve(languages[languageCode].loading);
 			} else if (
 				typeof languages[languageCode].extension !== "undefined" &&
 				typeof languages[languageCode].extension[string] !== "undefined"
