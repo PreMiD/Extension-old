@@ -559,14 +559,17 @@
 					s => typeof s.multiLanguage !== "undefined"
 				);
 
-				const presenceSettings =
+				let presenceSettings =
 					// @ts-ignore
 					(await pmd.getStorage("local", `pSettings_${p.metadata.service}`))[
 						`pSettings_${p.metadata.service}`
 					];
 
+				if (!presenceSettings) {
+					presenceSettings = this.pSettingsPresence.metadata.settings;
+				}
+
 				if (
-					!presenceSettings ||
 					!presenceSettings.find(s => s.id === lngSetting.id && s.values && s.values.length > 0)
 				) {
 					const uiLang = chrome.i18n.getUILanguage();
@@ -578,10 +581,13 @@
 						? preferredValue.value
 						: DEFAULT_LOCALE;
 					lngSetting.values = languages;
+
 					this.presenceSettings[this.presences.indexOf(p)] = false;
 
 					this.pSettingsPresence = p;
-					this.pSettings = this.pSettingsPresence.metadata.settings;
+					const lngSettingIdx = presenceSettings.findIndex(s => s.id === lngSetting.id);
+					presenceSettings[lngSettingIdx] = lngSetting;
+					this.pSettings = presenceSettings;
 
 					this.updatePresenceSetting(lngSetting.id, lngSetting.value);
 				}

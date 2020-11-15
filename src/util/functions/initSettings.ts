@@ -1,9 +1,9 @@
 import clearActivity from "./clearActivity";
-import setActivity from "./setActivity";
 import { getStorage } from "./asyncStorage";
 import { info } from "../debug";
 import { oldActivity } from "../background/onConnect";
 import { priorityTab } from "../tabPriority";
+import setActivity from "./setActivity";
 import { socket } from "../socketManager";
 
 let settings: any = null;
@@ -44,6 +44,50 @@ chrome.storage.onChanged.addListener(changes => {
 
 		if (socket.connected) socket.emit("settingUpdate", nSettings);
 		info("initSettings.ts", "Settings update");
+	}
+
+	if (changes.presences?.newValue && changes.presences?.oldValue) {
+		const oldValue = changes.presences.oldValue;
+		const changedPresences = changes.presences.newValue.filter(np =>
+			oldValue.find(ov => ov.metadata.service === np.metadata.service).metadata.version !== np.metadata.version
+		);
+
+		changedPresences.forEach(updatedPresence => {
+			const settings = updatedPresence.metadata.settings;
+
+			chrome.storage.local.get(`pSettings_${updatedPresence.metadata.service}`, storageSettings => {
+				storageSettings =
+					storageSettings[`pSettings_${updatedPresence.metadata.service}`] ||
+					[];
+
+				settings.forEach(setting => {
+					const storageSetting = storageSettings.find(s => s.id === setting.id);
+
+					if (
+						storageSetting &&
+						storageSetting.value !== null
+					) {
+						if (typeof setting.value === typeof storageSetting.value) {
+							setting.value = storageSetting.value;
+
+						} else if (storageSetting.multiLanguage) {
+							setting = storageSetting;
+						}
+					}
+
+				});
+
+				chrome.storage.local.set(
+					JSON.parse(
+						JSON.stringify({
+							[`pSettings_${updatedPresence.metadata.service}`]: settings
+						})
+					),
+					() => {
+					info("initSettings.ts", `Updated setting storage of ${updatedPresence.metadata.service}`)
+				});
+			});
+		});
 	}
 });
 
