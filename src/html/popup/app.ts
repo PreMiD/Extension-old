@@ -1,8 +1,7 @@
 import Vue from "vue";
-import VueRouter from "vue-router";
 import VueI18n from "vue-i18n";
+import VueRouter from "vue-router";
 import Vuex from "vuex";
-
 // @ts-ignore
 import appView from "./app.vue";
 // @ts-ignore
@@ -34,7 +33,7 @@ window.onload = async () => {
 				port: null,
 				connected: true,
 				appVersionSupported: true,
-				userAvatar: discordUser
+				userAvatar: discordUser && discordUser.avatar !== null
 					? `https://cdn.discordapp.com/avatars/${discordUser.id}/${discordUser.avatar}?size=128`
 					: "https://cdn.discordapp.com/embed/avatars/0.png?size=128",
 				// @ts-ignore
