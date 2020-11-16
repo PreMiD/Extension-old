@@ -86,6 +86,8 @@ export default {
   }
 
   &.active {
+    position: relative;
+		z-index: 1;
     span {
       display: block;
     }

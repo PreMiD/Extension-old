@@ -677,11 +677,6 @@
 			overflow-y: scroll;
 			overflow-x: hidden;
 
-			* {
-				position: relative;
-				z-index: 1;
-			}
-
 			#presenceInfo {
 				p {
 					max-width: 300px;
