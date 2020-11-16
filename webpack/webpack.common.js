@@ -90,7 +90,7 @@ module.exports = {
 				{ from: "_locales", to: "_locales", context: "src" },
 				{ from: "assets", to: "assets", context: "src" },
 				{ from: "html", to: "html", context: "src" },
-				{ from: "js", to: "js", context: "dist" },
+				{ from: "js", to: "js", context: "src" },
 				{ from: "manifest.json", to: "manifest.json", context: "src" }
 			]
 		})
