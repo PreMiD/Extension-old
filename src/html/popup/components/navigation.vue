@@ -5,10 +5,8 @@
 		<transition name="pop">
 			<span
 				id="info"
-				:class="this.$store.state.appVersionSupported ? 'warning' : 'error'"
-				v-if="
-					!this.$store.state.connected || !this.$store.state.appVersionSupported
-				"
+				:class="!this.$store.state.connected ? 'warning' : 'error'"
+				v-if="showWarningError"
 				@mouseenter="hoverInfo = true"
 				@mouseleave="hoverInfo = false"
 				>!</span
@@ -23,9 +21,11 @@
 			>
 				<h1
 					v-t="
-						this.$store.state.appVersionSupported
-							? 'popup.info.notConnected'
-							: 'popup.info.unsupportedAppVersion'
+						!onLine
+							? 'popup.info.noInternet'
+							: !this.$store.state.appVersionSupported
+								? 'popup.info.unsupportedAppVersion'
+								: 'popup.info.notConnected'
 					"
 				/>
 				<p v-html="infoMessage" />
@@ -93,34 +93,41 @@
 					...Object.keys(this.$store.state.settings).map(k => {
 						return { [k]: this.$store.state.settings[k].value };
 					})
-				)
+				),
+				onLine: navigator.onLine
 			};
 		},
 		created() {
 			document.addEventListener("click", this.settingsPopup);
+			window.addEventListener('online',  this.updateOnlineStatus);
+			window.addEventListener('offline', this.updateOnlineStatus);
 		},
 		beforeDestroy() {
 			document.removeEventListener("click", this.settingsPopup);
+			window.removeEventListener('online',  this.updateOnlineStatus);
+  		window.removeEventListener('offline', this.updateOnlineStatus);
 		},
 		components: {
 			checkbox
 		},
 		computed: {
 			infoMessage() {
-				if (this.$store.state.appVersionSupported) {
-					let msg = this.$t("popup.info.notConnected.message");
-					const match = msg.match(/(\*.*?\*)/g)[0];
+				if (!this.onLine) return this.$t("popup.info.noInternet.message");
+				if (!this.$store.state.appVersionSupported) return this.$t("popup.info.unsupportedAppVersion.message");
 
-					msg = msg.replace(
-						match,
-						`<a class="link" target="_blank" href="https://docs.premid.app/troubleshooting">${match.slice(
-							1,
-							match.length - 1
-						)}</a>`
-					);
-
-					return msg;
-				} else return this.$t("popup.info.unsupportedAppVersion.message");
+				let msg = this.$t("popup.info.notConnected.message");
+				const match = msg.match(/(\*.*?\*)/g)[0];
+				msg = msg.replace(
+					match,
+					`<a class="link" target="_blank" href="https://docs.premid.app/troubleshooting">${match.slice(
+						1,
+						match.length - 1
+					)}</a>`
+				);
+				return msg;
+			},
+			showWarningError() {
+				return !(this.$store.state.connected && this.$store.state.appVersionSupported && this.onLine)
 			}
 		},
 		methods: {
@@ -135,6 +142,9 @@
 						return { [k]: this.$store.state.settings[k].value };
 					})
 				);
+			},
+			updateOnlineStatus() {
+				this.onLine = navigator.onLine;
 			}
 		}
 	};
