@@ -23,7 +23,7 @@ window.onload = async () => {
 		i18n: new VueI18n({
 			locale: chrome.i18n.getUILanguage(),
 			// @ts-ignore#
-			messages: await pmd.getStrings(),
+			messages: await pmd.getStrings(chrome.i18n.getUILanguage() || "en"),
 			fallbackLocale: "en",
 			silentTranslationWarn: true
 		}),

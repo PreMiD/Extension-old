@@ -1,10 +1,11 @@
+import { hideMetaTagPresences, priorityTab, tabPriority } from "../tabPriority";
+
 import addDefaultPresences from "../functions/addDefaultPresences";
 import clearActivity from "../functions/clearActivity";
+import { connect } from "../socketManager";
 import consoleHeader from "../functions/consoleHeader";
 import hasAlphaBetaAccess from "../functions/hasAlphaBetaAccess";
 import initSettings from "../functions/initSettings";
-import { connect } from "../socketManager";
-import { hideMetaTagPresences, priorityTab, tabPriority } from "../tabPriority";
 import { releaseType } from "../../config";
 import { updatePresences } from "../presenceManager";
 import { updateStrings } from "../langManager";
@@ -25,7 +26,7 @@ export async function start() {
 	await Promise.all([
 		initSettings(),
 		addDefaultPresences(),
-		updateStrings(),
+		updateStrings(chrome.i18n.getUILanguage()),
 		updatePresences()
 	]);
 	setInterval(updateStrings, 15 * 60 * 1000);
