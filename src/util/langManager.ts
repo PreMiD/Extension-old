@@ -210,7 +210,6 @@ export function getString(string: string, languageCode?: string) {
  * @param presenceName name of the presence as specified in the "service" key of the metadata.json file
  */
 export async function getPresenceLanguages(presenceName: string) {
-	console.log(presenceName);
 	try {
 		const langs = await graphqlRequest(`
 			query {
