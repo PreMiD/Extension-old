@@ -25,13 +25,17 @@
 				<div id="settings" class="container">
 					<h1>{{ $t("popup.headings.settings") }}</h1>
 					<div id="settingsContainer">
-						<div id="setting" v-for="(setting, i) in settingsFiltered" :key="i"
+						<div
+							id="setting"
+							v-for="(setting, i) in settingsFiltered"
+							:key="i"
 							:class="
 								typeof setting.value === 'number' ||
-									(setting.multiLanguage &&
-										setting.values &&
-										setting.values.length > 1)
-										? 'select' : ''
+								(setting.multiLanguage &&
+									setting.values &&
+									setting.values.length > 1)
+									? 'select'
+									: ''
 							"
 						>
 							<span>
@@ -60,9 +64,9 @@
 							<customSelect
 								v-if="
 									typeof setting.value === 'number' ||
-									(setting.multiLanguage &&
-										setting.values &&
-										setting.values.length > 1)
+										(setting.multiLanguage &&
+											setting.values &&
+											setting.values.length > 1)
 								"
 								@change="updatePresenceSetting(setting.id, $event)"
 								:options="setting.values"
@@ -149,9 +153,9 @@
 						<i
 							v-if="
 								!presence.noCog &&
-								presence.metadata.settings &&
-								presence.metadata.settings.length > 0 &&
-								!showDelete
+									presence.metadata.settings &&
+									presence.metadata.settings.length > 0 &&
+									!showDelete
 							"
 							class="fas fa-cog action"
 							id="settings"
@@ -251,7 +255,7 @@
 				pSettings: null,
 				presenceSettings: [],
 				loadingPresences: true,
-				loadingString: ''
+				loadingString: ""
 			};
 		},
 		watch: {
@@ -311,7 +315,7 @@
 						return 0;
 					});
 			},
-			filteredCategories: function () {
+			filteredCategories: function() {
 				let filtered = [];
 
 				const catNames = this.categories.filter(cat => {
@@ -497,7 +501,8 @@
 						let lngSetting = p.metadata.settings[lngSettingIdx];
 
 						const languages = await this.presenceMultiLanguageLanguages(
-							lngSetting.multiLanguage
+							lngSetting.multiLanguage,
+							p.metadata.service
 						);
 
 						if (Object.keys(languages).length > 1) {
@@ -521,11 +526,11 @@
 
 				return values;
 			},
-			async presenceMultiLanguageLanguages(multiLanguage) {
+			async presenceMultiLanguageLanguages(multiLanguage, service) {
 				switch (typeof multiLanguage) {
 					case "boolean":
 						if (multiLanguage === true)
-							return await this.getPresenceLanguages("general");
+							return await this.getPresenceLanguages(service);
 						break;
 					case "string":
 						return await this.getPresenceLanguages(multiLanguage);
@@ -543,7 +548,7 @@
 										commonLngs = lngs;
 									} else {
 										commonLngs = commonLngs.filter(
-											cl => lngs.findIndex(l => l.value === cl.value) >= 0
+											cl => lngs.findIndex(l => l === cl) >= 0
 										);
 									}
 								}
@@ -570,7 +575,9 @@
 				}
 
 				if (
-					!presenceSettings.find(s => s.id === lngSetting.id && s.values && s.values.length > 0)
+					!presenceSettings.find(
+						s => s.id === lngSetting.id && s.values && s.values.length > 0
+					)
 				) {
 					const uiLang = chrome.i18n.getUILanguage();
 					let preferredValue = languages.find(l => l.value === uiLang);
@@ -585,7 +592,9 @@
 					this.presenceSettings[this.presences.indexOf(p)] = false;
 
 					this.pSettingsPresence = p;
-					const lngSettingIdx = presenceSettings.findIndex(s => s.id === lngSetting.id);
+					const lngSettingIdx = presenceSettings.findIndex(
+						s => s.id === lngSetting.id
+					);
 					presenceSettings[lngSettingIdx] = lngSetting;
 					this.pSettings = presenceSettings;
 
@@ -599,7 +608,7 @@
 				this.loadingString = textArray[randomNumber];
 			}
 		},
-		created: async function () {
+		created: async function() {
 			this.randomLoadingString();
 
 			// @ts-ignore
@@ -640,12 +649,17 @@
 							`pSettings_${this.pSettingsPresence.metadata.service}`
 						].newValue;
 
-				this.presences.filter(p =>
-					p.metadata.settings &&
-					p.metadata.settings.find(s => Object.keys(s).includes("multiLanguage"))
-				).forEach(async p => {
-					await this.initPresenceLanguages(p);
-				});
+				this.presences
+					.filter(
+						p =>
+							p.metadata.settings &&
+							p.metadata.settings.find(s =>
+								Object.keys(s).includes("multiLanguage")
+							)
+					)
+					.forEach(async p => {
+						await this.initPresenceLanguages(p);
+					});
 				this.$forceUpdate();
 			});
 
@@ -653,7 +667,7 @@
 			window.addEventListener("keydown", this.kDown);
 			window.addEventListener("keyup", this.kDown);
 		},
-		beforeDestroy: function () {
+		beforeDestroy: function() {
 			window.removeEventListener("keydown", this.kDown);
 			window.removeEventListener("keyup", this.kDown);
 		}
@@ -665,7 +679,7 @@
 	#mainWrapper {
 		display: grid;
 
-		#presenceSettings{
+		#presenceSettings {
 			max-height: 470px;
 		}
 

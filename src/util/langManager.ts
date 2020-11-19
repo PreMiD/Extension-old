@@ -52,14 +52,18 @@ export async function updateStrings(languageCode?: string) {
 
 		languages[languageCode] = {
 			name: graphqlResult.data.website[0].translations["header.language"],
-			loading: graphqlResult.data.website[0].translations["header.loader.phrases"],
+			loading:
+				graphqlResult.data.website[0].translations["header.loader.phrases"],
 			extension: graphqlResult.data.extension[0].translations,
 			presence: graphqlResult.data.presence[0].translations
-		}
+		};
 
 		success("langManager.ts", `Updated ${languageCode} translations`);
 	} catch (e) {
-		error("langManager.ts", `Error while fetching langFiles of ${languageCode} language: ${e.message}`);
+		error(
+			"langManager.ts",
+			`Error while fetching langFiles of ${languageCode} language: ${e.message}`
+		);
 		return;
 	}
 
@@ -177,7 +181,7 @@ export function getString(string: string, languageCode?: string) {
 				["loading", "header.loader.phrases"].includes(string) &&
 				typeof languages[languageCode].loading !== "undefined"
 			) {
-					return resolve(languages[languageCode].loading);
+				return resolve(languages[languageCode].loading);
 			} else if (
 				typeof languages[languageCode].extension !== "undefined" &&
 				typeof languages[languageCode].extension[string] !== "undefined"
@@ -201,31 +205,40 @@ export function getString(string: string, languageCode?: string) {
 }
 
 /**
- * Obtain all languages that are 100% translated for a presence
+ * Obtain all languages that are 100% translated for a presence and that also have the general file 100% translated
  *
  * @param presenceName name of the presence as specified in the "service" key of the metadata.json file
  */
 export async function getPresenceLanguages(presenceName: string) {
+	console.log(presenceName);
 	try {
 		const langs = await graphqlRequest(`
 			query {
 				langFiles(presence: "${presenceName.toLowerCase()}") {
 					lang
 				}
+				generalLangFiles: langFiles(presence: "general") {
+					lang
+				}
 			}
 		`);
 
 		const finalArray = [];
-		if (langs.data.langFiles.length > 0) {
-			langs.data.langFiles.forEach(lang => {
+		if (
+			langs.data.langFiles.length > 0 &&
+			langs.data.generalLangFiles.length > 0
+		) {
+			langs.data.generalLangFiles.forEach(lang => {
+				const found = langs.data.langFiles.find(p => p.lang === lang.lang);
+				if (found) finalArray.push(lang.lang);
+			});
+		} else if (langs.data.generalLangFiles.length > 0) {
+			langs.data.generalLangFiles.forEach(lang => {
 				finalArray.push(lang.lang);
 			});
 		}
-
 		return finalArray;
 	} catch (e) {
-		// 404 error code
+		return [];
 	}
-
-	return [];
 }
