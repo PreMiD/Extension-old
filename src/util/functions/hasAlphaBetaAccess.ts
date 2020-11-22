@@ -17,7 +17,6 @@ export default async function hasAlphaBetaAccess() {
 			// @ts-ignore
 			redirectURL = await browser.identity.getRedirectURL();
 
-		console.log("redirectURL 1", redirectURL);
 		const allowedAccess = await new Promise(resolve =>
 			chrome.identity.launchWebAuthFlow(
 				{
@@ -25,9 +24,6 @@ export default async function hasAlphaBetaAccess() {
 					interactive: true
 				},
 				async responseUrl => {
-					console.log("responseUrl 1", responseUrl);
-					console.log("hi");
-					console.log("responseUrl 2", responseUrl);
 					if (!responseUrl || !responseUrl.match(/(&access_token=[\d\w]+)/g)) {
 						//* So chrome shuts up
 						chrome.runtime.lastError;

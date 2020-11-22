@@ -1,5 +1,5 @@
 <template>
-  <div id="select" :class="active ? 'active' : null" @click="active = !active">
+  <div id="select" :class="active ? 'active' : null" @click="toggleActive">
     <div id="wrapper" :style="{ maxHeight: selectHeight + 'px'}" ref="wrapper">
       <template v-if="$props.options && typeof $props.options[0] === 'object'">
           <p id="show" v-text="$props.options.find(l => l.value === (($props.selected && $props.selected !== true) ? $props.selected : DEFAULT_LOCALE)).name" />
@@ -17,6 +17,7 @@
 import { DEFAULT_LOCALE } from '../../../util/langManager';
 export default {
   props: ["options", "selected"],
+  events: ["active", "inactive"],
   data() {
     return {
       active: false,
@@ -24,10 +25,27 @@ export default {
       selectHeight: null
     };
   },
+  methods: {
+    toggleActive() {
+      this.active = !this.active;
+
+      let eventType;
+      if (this.active) {
+        eventType = "active";
+      } else {
+        eventType = "inactive";
+      }
+
+      // let first redraw the element to the browser
+      setTimeout(() => {
+        this.$emit(eventType, eventType, this.$refs.wrapper);
+      }, 0);
+    }
+  },
   mounted: function() {
     let wrapper = this.$refs.wrapper,
       clientRect = wrapper.getBoundingClientRect();
-      this.selectHeight = Math.max(75, window.innerHeight - (clientRect.y + 10));
+      this.selectHeight = Math.max(85, window.innerHeight - (clientRect.y + 10));
   }
 };
 </script>

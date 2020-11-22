@@ -22,7 +22,7 @@
 					<h1>{{ $t("popup.headings.description") }}</h1>
 					<p v-html="presenceDescription" />
 				</div>
-				<div id="settings" class="container">
+				<div id="settings" class="container" ref="settingsContainer">
 					<h1>{{ $t("popup.headings.settings") }}</h1>
 					<div id="settingsContainer">
 						<div
@@ -71,6 +71,8 @@
 								@change="updatePresenceSetting(setting.id, $event)"
 								:options="setting.values"
 								:selected="setting.value"
+								@active="selectToggle"
+								@inactive="selectToggle"
 							/>
 						</div>
 					</div>
@@ -608,6 +610,18 @@
 
 				this.loadingString = textArray[randomNumber];
 			},
+			selectToggle(eventType, wrapper) {
+				if (eventType === "active") {
+					const diff = wrapper.getBoundingClientRect().bottom - this.$refs.settingsContainer.getBoundingClientRect().bottom;
+
+					if (diff > 0) {
+						this.$refs.settingsContainer.style.paddingBottom = diff + 8 + "px";
+					}
+
+				} else if (eventType === "inactive") {
+					this.$refs.settingsContainer.style.paddingBottom = null;
+				}
+			}
 		},
 		created: async function() {
 			this.randomLoadingString();
@@ -780,10 +794,6 @@
 				margin: 5px 0;
 				margin-top: 0;
 				grid-gap: 5px;
-
-				&.select {
-					z-index: 100;
-				}
 
 				span {
 					white-space: nowrap;
