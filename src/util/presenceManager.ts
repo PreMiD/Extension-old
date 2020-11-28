@@ -1,8 +1,8 @@
-import { error, success } from "./debug";
-import graphqlRequest, { getPresenceMetadata } from "./functions/graphql";
-
-import { getStorage } from "./functions/asyncStorage";
 import { v4 as uuidv4 } from "uuid";
+
+import { error, success } from "./debug";
+import { getStorage } from "./functions/asyncStorage";
+import graphqlRequest, { getPresenceMetadata } from "./functions/graphql";
 
 export async function presenceScience() {
 	let identifier = (await getStorage("local", "identifier")).identifier,
@@ -14,19 +14,23 @@ export async function presenceScience() {
 		chrome.storage.local.set({ identifier: identifier });
 	}
 
-	const platform: { os: string, arch: string } = await new Promise(resolve =>
-		chrome.runtime.getPlatformInfo(info =>
-			resolve({ os: info.os, arch: info.arch })
-		)
-	), presencesArray = presences.filter(p => !p.tmp).map(p => p.metadata.service);
+	const platform: { os: string; arch: string } = await new Promise(resolve =>
+			chrome.runtime.getPlatformInfo(info =>
+				resolve({ os: info.os, arch: info.arch })
+			)
+		),
+		presencesArray = presences.filter(p => !p.tmp).map(p => p.metadata.service);
 
 	graphqlRequest(`
 	mutation {
-		addScience(identifier: "${identifier}", presences: ["${presencesArray.toString().split(",").join(`", "`)}"], os: "${platform.os}", arch:"${platform.arch}") {
+		addScience(identifier: "${identifier}", presences: ["${presencesArray
+		.toString()
+		.split(",")
+		.join(`", "`)}"], os: "${platform.os}", arch:"${platform.arch}") {
 			identifier
 		}
 	}
-	`)
+	`);
 }
 
 export async function updatePresences() {
@@ -40,7 +44,8 @@ export async function updatePresences() {
 
 	//* Catch fetch error
 	try {
-		const graphqlResult = (await graphqlRequest(`
+		const graphqlResult = (
+			await graphqlRequest(`
 			query {
   			presences {
     			url
@@ -50,7 +55,8 @@ export async function updatePresences() {
     			}
   			}
 			}
-		`)).data
+		`)
+		).data;
 
 		let result = [];
 
@@ -59,7 +65,7 @@ export async function updatePresences() {
 				name: element.metadata.service,
 				url: element.url,
 				version: element.metadata.version
-			})
+			});
 		});
 
 		presenceVersions = result;
@@ -84,7 +90,8 @@ export async function updatePresences() {
 				p1 => p1.metadata.service === p.name && !p.tmp
 			);
 
-			const graphqlResult = (await graphqlRequest(`
+			const graphqlResult = (
+				await graphqlRequest(`
 			query {
   			presences(service: "${p.name}") {
     			presenceJs
@@ -131,7 +138,8 @@ export async function updatePresences() {
 					}
 				}
 			}
-			`)).data
+			`)
+			).data;
 
 			const metadata = graphqlResult.presences[0].metadata;
 			let files = [
@@ -184,21 +192,21 @@ export async function addPresence(name: string | Array<string>) {
 	if (typeof name === "string") {
 		getPresenceMetadata(name)
 			.then(async ({ data }) => {
-
 				if (
 					typeof data.metadata.button !== "undefined" &&
 					!data.metadata.button
 				)
 					return;
-				const presenceAndIframe = (await graphqlRequest(`
+				const presenceAndIframe = (
+					await graphqlRequest(`
 						query {
 							presences(service: "${data.metadata.service}") {
     					presenceJs
     					iframeJs
     					}
 						}
-						`)).data.presences[0];
-
+						`)
+				).data.presences[0];
 
 				let res: any = {
 					metadata: data.metadata,
@@ -236,14 +244,16 @@ export async function addPresence(name: string | Array<string>) {
 					)
 						return;
 
-					const presenceAndIframe = (await graphqlRequest(`
+					const presenceAndIframe = (
+						await graphqlRequest(`
 						query {
 							presences(service: "${data.metadata.service}") {
     					presenceJs
     					iframeJs
     					}
 						}
-						`)).data.presences[0];
+						`)
+					).data.presences[0];
 
 					let res: any = {
 						metadata: data.metadata,
@@ -280,11 +290,11 @@ if (document.location.pathname !== "/_generated_background_page.html") {
 			document.querySelector("#app").setAttribute("extension-ready", "true");
 	});
 
-	window.addEventListener("PreMiD_AddPresence", function (data: CustomEvent) {
+	window.addEventListener("PreMiD_AddPresence", function(data: CustomEvent) {
 		addPresence([data.detail]);
 	});
 
-	window.addEventListener("PreMiD_RemovePresence", async function (
+	window.addEventListener("PreMiD_RemovePresence", async function(
 		data: CustomEvent
 	) {
 		let { presences } = await getStorage("local", "presences");

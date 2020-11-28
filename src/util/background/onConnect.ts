@@ -1,7 +1,7 @@
 import cpObj from "../functions/cpObj";
 import isEquivalent from "../functions/isEquivalent";
 import setActivity from "../functions/setActivity";
-import { socket, supportedAppVersion } from "../socketManager";
+import { appVersion, socket, supportedAppVersion } from "../socketManager";
 
 //* Some debug stuff to prevent timestamp jumping
 export let oldObject: any = null;
@@ -11,7 +11,17 @@ export function setOldObject(object: any) {
 	oldObject = object;
 }
 
-chrome.runtime.onConnect.addListener(function (port) {
+const formatNum = n =>
+	Array.from(String(n))
+		.reverse()
+		.map((a, i) => {
+			if (i % 1 == 0 && i > 0) return a + ".";
+			return a;
+		})
+		.reverse()
+		.join("");
+
+chrome.runtime.onConnect.addListener(function(port) {
 	handleTabs(port);
 	handlePopup(port);
 	handlePresence(port);
@@ -73,9 +83,10 @@ function handlePresence(port: chrome.runtime.Port) {
 				return;
 
 			if (typeof msg.presence.presenceData.largeImageKey !== "undefined")
-				msg.presence.presenceData.largeImageText = `${
-					chrome.runtime.getManifest().name
-				} v${chrome.runtime.getManifest().version_name}`;
+				msg.presence.presenceData.largeImageText =
+					`PreMiD • v${formatNum(appVersion)}` +
+					"⁣   " +
+					`⁣⁣Extension • v${chrome.runtime.getManifest().version_name}`;
 
 			if (oldObject == null) {
 				oldObject = cpObj(msg.presence.presenceData);

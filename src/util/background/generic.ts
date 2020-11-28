@@ -1,14 +1,13 @@
-import { hideMetaTagPresences, priorityTab, tabPriority } from "../tabPriority";
-
+import { releaseType } from "../../config";
 import addDefaultPresences from "../functions/addDefaultPresences";
 import clearActivity from "../functions/clearActivity";
-import { connect } from "../socketManager";
 import consoleHeader from "../functions/consoleHeader";
 import hasAlphaBetaAccess from "../functions/hasAlphaBetaAccess";
 import initSettings from "../functions/initSettings";
-import { releaseType } from "../../config";
-import { updatePresences } from "../presenceManager";
 import { updateStrings } from "../langManager";
+import { updatePresences } from "../presenceManager";
+import { connect } from "../socketManager";
+import { hideMetaTagPresences, priorityTab, tabPriority } from "../tabPriority";
 
 export async function start() {
 	await consoleHeader();
