@@ -28,8 +28,6 @@ export async function start() {
 		updateStrings(chrome.i18n.getUILanguage()),
 		updatePresences()
 	]);
-	setInterval(updateStrings, 15 * 60 * 1000);
-	setInterval(updatePresences, 15 * 60 * 1000);
 	connect();
 }
 
@@ -62,3 +60,5 @@ chrome.windows.onFocusChanged.addListener(windowId => {
 	if (windowId === -1) return;
 	tabPriority();
 });
+
+updateStrings(chrome.i18n.getUILanguage()), updatePresences();

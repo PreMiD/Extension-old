@@ -292,6 +292,7 @@ if (document.location.pathname !== "/_generated_background_page.html") {
 
 	window.addEventListener("PreMiD_AddPresence", function(data: CustomEvent) {
 		addPresence([data.detail]);
+		updatePresences();
 	});
 
 	window.addEventListener("PreMiD_RemovePresence", async function(
@@ -304,6 +305,7 @@ if (document.location.pathname !== "/_generated_background_page.html") {
 				p => p.metadata.service !== data.detail
 			)
 		});
+		updatePresences();
 	});
 
 	window.addEventListener("PreMiD_GetPresenceList", sendBackPresences);
