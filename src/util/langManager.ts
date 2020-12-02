@@ -1,5 +1,4 @@
 import { error, success } from "./debug";
-
 import graphqlRequest from "./functions/graphql";
 
 /**
@@ -55,7 +54,7 @@ export async function updateStrings(languageCode?: string) {
 			loading:
 				graphqlResult.data.website[0].translations["header.loader.phrases"],
 			extension: graphqlResult.data.extension[0].translations,
-			presence: graphqlResult.data.presence[0].translations,
+			presence: graphqlResult.data.presence[0].translations
 		};
 
 		success("langManager.ts", `Updated ${languageCode} translations`);
@@ -89,13 +88,13 @@ const loadingLangs = [];
 export async function loadStrings(languageCode?: string) {
 	if (!languageCode) languageCode = DEFAULT_LOCALE;
 
-	return new Promise((resolve) => {
+	return new Promise(resolve => {
 		if (typeof languages[languageCode] !== "undefined") resolve();
 
 		if (!loadingLangs.includes(languageCode)) {
 			loadingLangs.push(languageCode);
 
-			chrome.storage.local.get("languages", async (lngs) => {
+			chrome.storage.local.get("languages", async lngs => {
 				if (typeof lngs.languages[DEFAULT_LOCALE] === "undefined") {
 					await updateStrings(DEFAULT_LOCALE);
 				}
@@ -134,26 +133,26 @@ export async function loadStrings(languageCode?: string) {
 export function getStrings(languageCode?: string) {
 	if (!languageCode) languageCode = DEFAULT_LOCALE;
 
-	return new Promise(async (resolve) => {
+	return new Promise(async resolve => {
 		await loadStrings(languageCode);
 
 		if (typeof languages[languageCode] === "undefined") {
 			resolve({
 				[DEFAULT_LOCALE]: {
 					...languages[DEFAULT_LOCALE].extension,
-					...languages[DEFAULT_LOCALE].presence,
-				},
+					...languages[DEFAULT_LOCALE].presence
+				}
 			});
 		} else {
 			resolve({
 				[languageCode]: {
 					...languages[languageCode].extension,
-					...languages[languageCode].presence,
+					...languages[languageCode].presence
 				},
 				[DEFAULT_LOCALE]: {
 					...languages[DEFAULT_LOCALE].extension,
-					...languages[DEFAULT_LOCALE].presence,
-				},
+					...languages[DEFAULT_LOCALE].presence
+				}
 			});
 		}
 	});
@@ -168,7 +167,7 @@ export function getStrings(languageCode?: string) {
 export function getString(string: string, languageCode?: string) {
 	if (!languageCode) languageCode = DEFAULT_LOCALE;
 
-	return new Promise(async (resolve) => {
+	return new Promise(async resolve => {
 		await loadStrings(languageCode);
 
 		if (typeof languages[languageCode] !== "undefined") {
@@ -227,12 +226,12 @@ export async function getPresenceLanguages(presenceName: string) {
 			langs.data.langFiles.length > 0 &&
 			langs.data.generalLangFiles.length > 0
 		) {
-			langs.data.generalLangFiles.forEach((lang) => {
-				const found = langs.data.langFiles.find((p) => p.lang === lang.lang);
+			langs.data.generalLangFiles.forEach(lang => {
+				const found = langs.data.langFiles.find(p => p.lang === lang.lang);
 				if (found) finalArray.push(lang.lang);
 			});
 		} else if (langs.data.generalLangFiles.length > 0) {
-			langs.data.generalLangFiles.forEach((lang) => {
+			langs.data.generalLangFiles.forEach(lang => {
 				finalArray.push(lang.lang);
 			});
 		}

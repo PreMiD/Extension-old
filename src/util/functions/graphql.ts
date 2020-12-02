@@ -9,8 +9,7 @@ export default async function graphqlRequest(query: string) {
 		method: "post",
 		data: {
 			query: query
-		},
-		timeout: 160000
+		}
 	});
 	cleanObject(res.data);
 
