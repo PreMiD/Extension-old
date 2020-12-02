@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 import { error, success } from "./debug";
 import { getStorage } from "./functions/asyncStorage";
 import graphqlRequest, { getPresenceMetadata } from "./functions/graphql";
+import { updateStrings } from "./langManager";
 
 export async function presenceScience() {
 	let identifier = (await getStorage("local", "identifier")).identifier,
@@ -35,6 +36,7 @@ export async function presenceScience() {
 
 export async function updatePresences() {
 	presenceScience();
+	updateStrings(chrome.i18n.getUILanguage());
 
 	let presenceVersions: Array<{ name: string; version: string; url: string }>,
 		presences: presenceStorage = (await getStorage("local", "presences"))
