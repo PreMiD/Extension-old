@@ -1,18 +1,20 @@
-import { apiBase } from "../../config";
 import axios from "axios";
+
+import { apiBase } from "../../config";
 import cleanObject from "./cleanObject";
 
 export default async function graphqlRequest(query: string) {
-  const res = (await axios({
-    url: apiBase,
-    method: "post",
-    data: {
-      query: query
-    }
-  }));
-  cleanObject(res.data);
+	const res = await axios({
+		url: apiBase,
+		method: "post",
+		data: {
+			query: query
+		},
+		timeout: 160000
+	});
+	cleanObject(res.data);
 
-  return res.data;
+	return res.data;
 }
 
 export async function getPresenceMetadata(presence: string) {
@@ -60,15 +62,14 @@ export async function getPresenceMetadata(presence: string) {
           }
         }
       }
-    }`
-  );
-  cleanObject(result.data);
-  const final = {
-    data: {
-      name: result.data.presences[0].metadata.service,
-      url: result.data.presences[0].url,
-      metadata: result.data.presences[0].metadata
-    }
-  }
-  return final;
+    }`);
+	cleanObject(result.data);
+	const final = {
+		data: {
+			name: result.data.presences[0].metadata.service,
+			url: result.data.presences[0].url,
+			metadata: result.data.presences[0].metadata
+		}
+	};
+	return final;
 }
