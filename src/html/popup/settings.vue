@@ -490,7 +490,7 @@
 				);
 			},
 			async randomLoadingString() {
-				const textArray = (await getString("header.loader.phrases")).split(";");
+				const textArray = (await getString("header.loader.phrases", chrome.i18n.getUILanguage())).split(";");
 				const randomNumber = Math.floor(Math.random() * textArray.length);
 
 				this.loadingString = textArray[randomNumber];

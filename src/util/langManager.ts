@@ -1,4 +1,5 @@
 import { error, success } from "./debug";
+
 import graphqlRequest from "./functions/graphql";
 
 /**
@@ -17,7 +18,9 @@ export async function updateStrings(languageCode?: string) {
 	if (!languageCode) languageCode = DEFAULT_LOCALE;
 	if (languageCode.startsWith("en-")) languageCode = DEFAULT_LOCALE;
 
-	let extensionLanguage: string = languageCode;
+	let websiteLanguage: string = languageCode,
+		extensionLanguage: string = languageCode,
+		presenceLanguage: string = languageCode;
 
 	switch (languageCode) {
 		case "ja_JP":
@@ -32,18 +35,42 @@ export async function updateStrings(languageCode?: string) {
 		case "zh_TW":
 			extensionLanguage = "zh-TW";
 			break;
+		default:
+			const responseLangs = await graphqlRequest(`
+			query {
+				langFiles(project: "extension") {
+					lang
+				}
+			}
+			`),
+				availableLangs: string[] = [];
+			responseLangs.data.langFiles.forEach(lang => {
+				availableLangs.push(lang.lang);
+			});
+
+			extensionLanguage = extensionLanguage.split("-")[0];
+
+			if (availableLangs.findIndex(c => c == extensionLanguage) < 0) {
+				const index = availableLangs.findIndex(c => c.includes(extensionLanguage + "_"));
+				if (index >= 0) {
+					websiteLanguage = availableLangs[index];
+					extensionLanguage = availableLangs[index];
+					presenceLanguage = availableLangs[index];
+				}
+			}
+			break;
 	}
 
 	try {
 		const graphqlResult = await graphqlRequest(`
 			query {
-				website: langFiles(project: "website", lang: "${languageCode}") {
+				website: langFiles(project: "website", lang: "${websiteLanguage}") {
 					translations
 				}
 				extension: langFiles(project: "extension", lang: "${extensionLanguage}") {
 					translations
 				}
-				presence: langFiles(project: "presence", lang: "${languageCode}") {
+				presence: langFiles(project: "presence", lang: "${presenceLanguage}") {
 					translations
 				}
 			}
