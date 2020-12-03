@@ -197,13 +197,13 @@
 	import {
 		getPresenceLanguages,
 		getString,
-		DEFAULT_LOCALE,
+		DEFAULT_LOCALE
 	} from "../../util/langManager";
 
 	export default {
 		components: {
 			checkbox,
-			customSelect,
+			customSelect
 		},
 		data() {
 			return {
@@ -219,53 +219,52 @@
 					{
 						icon: "fas fa-map",
 						text: this.$i18n.t("popup.category.all"),
-						id: "all",
+						id: "all"
 					},
 					{
 						icon: "fas fa-star",
 						text: this.$i18n.t("popup.category.anime"),
-						id: "anime",
+						id: "anime"
 					},
 					{
 						icon: "fas fa-leaf",
 						text: this.$i18n.t("popup.category.games"),
-						id: "games",
+						id: "games"
 					},
 					{
 						icon: "fas fa-music",
 						text: this.$i18n.t("popup.category.music"),
-						id: "music",
+						id: "music"
 					},
 					{
 						icon: "fas fa-comments",
 						text: this.$i18n.t("popup.category.socials"),
-						id: "socials",
+						id: "socials"
 					},
 					{
 						icon: "fas fa-play",
 						text: this.$i18n.t("popup.category.videos"),
-						id: "videos",
+						id: "videos"
 					},
 					{
 						icon: "fas fa-box",
 						text: this.$i18n.t("popup.category.other"),
-						id: "other",
-					},
+						id: "other"
+					}
 				],
 				inPresenceSettingsView: false,
 				pSettingsPresence: null,
 				pSettings: null,
 				presenceSettings: [],
 				loadingPresences: true,
-				loadingString: "",
+				loadingString: ""
 			};
 		},
 		watch: {
 			async presences(newValue, oldValue) {
 				if (oldValue.length > 0 && newValue.length > oldValue.length) {
 					let newPresences = newValue.filter(
-						(p) =>
-							!oldValue.find((o) => o.metadata.service == p.metadata.service)
+						p => !oldValue.find(o => o.metadata.service == p.metadata.service)
 					);
 
 					for (const newPresence of newPresences) {
@@ -274,14 +273,14 @@
 						if (newPresence.metadata.settings) {
 							newPresence.noCog = !(
 								newPresence.metadata.settings.findIndex(
-									(s) => s.multiLanguage && s.values.length > 1
+									s => s.multiLanguage && s.values.length > 1
 								) >= 0
 							);
 							this.$forceUpdate();
 						}
 					}
 				}
-			},
+			}
 		},
 		computed: {
 			filteredPresences() {
@@ -292,13 +291,13 @@
 						p.noCog = !this.presenceSettings[i];
 
 						if (
-							this.categories.find((c) => c.id === this.activeCategory).id ==
+							this.categories.find(c => c.id === this.activeCategory).id ==
 							"all"
 						)
 							return p;
 						return (
 							p.metadata.category ==
-							this.categories.find((c) => c.id === this.activeCategory).id
+							this.categories.find(c => c.id === this.activeCategory).id
 						);
 					})
 					.sort((a, b) => {
@@ -321,13 +320,13 @@
 			filteredCategories: function() {
 				let filtered = [];
 
-				const catNames = this.categories.filter((cat) => {
+				const catNames = this.categories.filter(cat => {
 					if (cat.id === "all") return true;
-					return this.presences.some((p) => p.metadata.category === cat.id);
+					return this.presences.some(p => p.metadata.category === cat.id);
 				});
 
-				catNames.map((c) => {
-					filtered.push(this.categories.find((cat) => cat.id === c.id));
+				catNames.map(c => {
+					filtered.push(this.categories.find(cat => cat.id === c.id));
 				});
 
 				return filtered;
@@ -361,12 +360,12 @@
 			},
 			settingsFiltered() {
 				return this.pSettings
-					? this.pSettings.filter((s) => {
+					? this.pSettings.filter(s => {
 							if (s.if) {
 								if (
 									Object.keys(s.if).every(
 										(k, i) =>
-											this.pSettings.find((si) => si.id === k).value ===
+											this.pSettings.find(si => si.id === k).value ===
 											Object.values(s.if)[i]
 									) &&
 									!s.hidden
@@ -375,7 +374,7 @@
 							} else if (!s.hidden) return s;
 					  })
 					: this.pSettings;
-			},
+			}
 		},
 		methods: {
 			loadPresence() {
@@ -407,7 +406,7 @@
 			async deletePresence(i: number) {
 				const presenceToRemove = this.filteredPresences[i];
 				this.presences = this.presences.filter(
-					(p) =>
+					p =>
 						!(
 							p.metadata.service === presenceToRemove.metadata.service &&
 							p.tmp === presenceToRemove.tmp
@@ -447,10 +446,10 @@
 
 				if (settings) {
 					let storageLngsSettingsIdx = settings.findIndex(
-						(s) => typeof s.multiLanguage !== "undefined"
+						s => typeof s.multiLanguage !== "undefined"
 					);
 					let presenceLngsSettings = this.pSettingsPresence.metadata.settings.find(
-						(s) => typeof s.multiLanguage !== "undefined"
+						s => typeof s.multiLanguage !== "undefined"
 					);
 
 					if (storageLngsSettingsIdx >= 0) {
@@ -473,14 +472,14 @@
 			updatePresenceSetting(setting, value) {
 				if (typeof value === "string" && value.trim() === "") {
 					value = this.pSettingsPresence.metadata.settings.find(
-						(s) => s.id === setting
+						s => s.id === setting
 					).value;
 
 					//* Debug for input sometimes not updating
 					this.$refs[setting][0].value = value;
 				}
 
-				this.pSettings.find((s) => s.id === setting).value = value;
+				this.pSettings.find(s => s.id === setting).value = value;
 
 				//* You may be wondering, why the fuck do you stringify and parse this? Guess what because Firefox sucks and breaks its storage
 				//@ts-ignore
@@ -488,7 +487,7 @@
 					JSON.parse(
 						JSON.stringify({
 							[`pSettings_${this.pSettingsPresence.metadata.service}`]: this
-								.pSettings,
+								.pSettings
 						})
 					)
 				);
@@ -497,7 +496,7 @@
 			async initPresenceLanguages(p) {
 				if (p.metadata.settings) {
 					let lngSettingIdx = p.metadata.settings.findIndex(
-						(s) => typeof s.multiLanguage !== "undefined"
+						s => typeof s.multiLanguage !== "undefined"
 					);
 
 					if (lngSettingIdx >= 0) {
@@ -523,7 +522,7 @@
 				for (const language of languages) {
 					values.push({
 						name: await getString("name", language),
-						value: language,
+						value: language
 					});
 				}
 
@@ -551,7 +550,7 @@
 										commonLngs = lngs;
 									} else {
 										commonLngs = commonLngs.filter(
-											(cl) => lngs.findIndex((l) => l === cl) >= 0
+											cl => lngs.findIndex(l => l === cl) >= 0
 										);
 									}
 								}
@@ -564,7 +563,7 @@
 			},
 			async storeDefaultLanguageOfPresence(p, languages) {
 				let lngSetting = p.metadata.settings.find(
-					(s) => typeof s.multiLanguage !== "undefined"
+					s => typeof s.multiLanguage !== "undefined"
 				);
 
 				let presenceSettings =
@@ -573,17 +572,17 @@
 						`pSettings_${p.metadata.service}`
 					];
 
-				if (!presenceSettings) {
+				if (!presenceSettings && this.pSettingsPresence) {
 					presenceSettings = this.pSettingsPresence.metadata.settings;
 				}
 
 				if (
 					!presenceSettings.find(
-						(s) => s.id === lngSetting.id && s.values && s.values.length > 0
+						s => s.id === lngSetting.id && s.values && s.values.length > 0
 					)
 				) {
 					const uiLang = chrome.i18n.getUILanguage();
-					let preferredValue = languages.find((l) => l.value === uiLang);
+					let preferredValue = languages.find(l => l.value === uiLang);
 
 					lngSetting.title = await getString("general.language", uiLang);
 					lngSetting.icon = "fas fa-language";
@@ -596,7 +595,7 @@
 
 					this.pSettingsPresence = p;
 					const lngSettingIdx = presenceSettings.findIndex(
-						(s) => s.id === lngSetting.id
+						s => s.id === lngSetting.id
 					);
 					presenceSettings[lngSettingIdx] = lngSetting;
 					this.pSettings = presenceSettings;
@@ -612,12 +611,13 @@
 			},
 			selectToggle(eventType, wrapper) {
 				if (eventType === "active") {
-					const diff = wrapper.getBoundingClientRect().bottom - this.$refs.settingsContainer.getBoundingClientRect().bottom;
+					const diff =
+						wrapper.getBoundingClientRect().bottom -
+						this.$refs.settingsContainer.getBoundingClientRect().bottom;
 
 					if (diff > 0) {
 						this.$refs.settingsContainer.style.paddingBottom = diff + 8 + "px";
 					}
-
 				} else if (eventType === "inactive") {
 					this.$refs.settingsContainer.style.paddingBottom = null;
 				}
@@ -629,7 +629,7 @@
 			// @ts-ignore
 			(this.presences = (await pmd.getStorage("local", "presences")).presences),
 				(this.presenceSettings = await Promise.all(
-					this.presences.map(async (p) => {
+					this.presences.map(async p => {
 						if (p.metadata.settings) {
 							// @ts-ignore
 							const presenceSettings = await pmd.getStorage(
@@ -642,7 +642,7 @@
 							return !(
 								presenceSettings[`pSettings_${p.metadata.service}`] &&
 								presenceSettings[`pSettings_${p.metadata.service}`].filter(
-									(s) => !s.hidden
+									s => !s.hidden
 								).length === 0
 							);
 						} else return false;
@@ -653,7 +653,7 @@
 
 			//* Presence hot reload
 			// @ts-ignore
-			chrome.storage.onChanged.addListener((storage) => {
+			chrome.storage.onChanged.addListener(storage => {
 				if (storage.presences) this.presences = storage.presences.newValue;
 				if (
 					this.pSettingsPresence &&
@@ -666,13 +666,13 @@
 
 				this.presences
 					.filter(
-						(p) =>
+						p =>
 							p.metadata.settings &&
-							p.metadata.settings.find((s) =>
+							p.metadata.settings.find(s =>
 								Object.keys(s).includes("multiLanguage")
 							)
 					)
-					.forEach(async (p) => {
+					.forEach(async p => {
 						await this.initPresenceLanguages(p);
 					});
 				this.$forceUpdate();
@@ -685,7 +685,7 @@
 		beforeDestroy: function() {
 			window.removeEventListener("keydown", this.kDown);
 			window.removeEventListener("keyup", this.kDown);
-		},
+		}
 	};
 </script>
 
