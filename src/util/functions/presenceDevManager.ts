@@ -1,6 +1,5 @@
 import { error, info } from "../debug";
-import { updateStrings } from "../langManager";
-import { updatePresences } from "../presenceManager";
+
 import { getStorage } from "./asyncStorage";
 
 // import { oldPresence, priorityTab } from "../tabPriority";
@@ -79,7 +78,6 @@ export default async function(files: any) {
 	presences.push(tmpPr);
 
 	chrome.storage.local.set({ presences: presences });
-	updateStrings(chrome.i18n.getUILanguage());
 
 	// reload all tabs of any presence in development mode
 	for (let i = 0; i < presences.length; i++) {
