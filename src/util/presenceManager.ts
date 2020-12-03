@@ -1,9 +1,9 @@
-import { v4 as uuidv4 } from "uuid";
-
+import { DEFAULT_LOCALE, getString, getPresenceLanguages as presenceLanguages, updateStrings } from "./langManager";
 import { error, success } from "./debug";
-import { getStorage } from "./functions/asyncStorage";
 import graphqlRequest, { getPresenceMetadata } from "./functions/graphql";
-import { updateStrings } from "./langManager";
+
+import { getStorage } from "./functions/asyncStorage";
+import { v4 as uuidv4 } from "uuid";
 
 export async function presenceScience() {
 	let identifier = (await getStorage("local", "identifier")).identifier,
@@ -164,6 +164,10 @@ export async function updatePresences() {
 				)
 			);
 		});
+		presencesToUpdate.forEach(p => {
+			// not awaiting it, it could take a lot of time
+			initPresenceLanguages(p);
+		});
 	});
 }
 
@@ -278,6 +282,8 @@ export async function addPresence(name: string | Array<string>) {
 				chrome.storage.local.set({
 					[`pSettings_${p.metadata.service}`]: p.metadata.settings
 				});
+				// not awaiting it, it could take a lot of time
+				initPresenceLanguages(p);
 			}
 		});
 	}
@@ -333,4 +339,120 @@ async function sendBackPresences() {
 
 	let event = new CustomEvent("PreMiD_GetWebisteFallback", data);
 	window.dispatchEvent(event);
+}
+
+export async function initPresenceLanguages(p) {
+	if (p.metadata.settings) {
+		let lngSettingIdx = p.metadata.settings.findIndex(
+			s => typeof s.multiLanguage !== "undefined"
+		);
+
+		if (lngSettingIdx >= 0) {
+			const lngSetting = p.metadata.settings[lngSettingIdx],
+				languages = await presenceMultiLanguageLanguages(
+					lngSetting.multiLanguage,
+					p.metadata.service
+				);
+
+			if (Object.keys(languages).length > 1) {
+				await storeDefaultLanguageOfPresence(p, languages);
+			} else {
+				p.metadata.settings.splice(lngSettingIdx, 1);
+			}
+		}
+	}
+}
+
+async function getPresenceLanguages(serviceName) {
+	const values = [],
+		languages = await presenceLanguages(serviceName);
+
+	for (const language of languages) {
+		values.push({
+			name: await getString("name", language),
+			value: language
+		});
+	}
+
+	return values;
+}
+
+async function presenceMultiLanguageLanguages(multiLanguage, service) {
+	switch (typeof multiLanguage) {
+		case "boolean":
+			if (multiLanguage === true)
+				return await getPresenceLanguages(service);
+			break;
+		case "string":
+			return await getPresenceLanguages(multiLanguage);
+			break;
+		case "object":
+			if (multiLanguage instanceof Array) {
+				let commonLngs = [];
+
+				for (const prefix of multiLanguage) {
+					if (typeof prefix === "string" && prefix.trim().length > 0) {
+						const lngs = await getPresenceLanguages(prefix);
+
+						// only load common languages
+						if (commonLngs.length === 0) {
+							commonLngs = lngs;
+						} else {
+							commonLngs = commonLngs.filter(
+								cl => lngs.findIndex(l => l === cl) >= 0
+							);
+						}
+					}
+				}
+
+				return commonLngs;
+			}
+			break;
+	}
+}
+
+async function storeDefaultLanguageOfPresence(p, languages) {
+	const lngSetting = p.metadata.settings.find(
+		s => typeof s.multiLanguage !== "undefined"
+	);
+
+	let presenceSettings =
+		(await getStorage("local", `pSettings_${p.metadata.service}`))[
+			`pSettings_${p.metadata.service}`
+		];
+
+	if (!presenceSettings && p.metadata.settings) {
+		presenceSettings = p.metadata.settings;
+	}
+
+	if (
+		!presenceSettings.find(
+			s => s.id === lngSetting.id && s.values && s.values.length > 0
+		)
+	) {
+		const uiLang = chrome.i18n.getUILanguage();
+		let preferredValue = languages.find(l => l.value === uiLang);
+
+		lngSetting.title = await getString("general.language", uiLang);
+		lngSetting.icon = "fas fa-language";
+		lngSetting.value = preferredValue
+			? preferredValue.value
+			: DEFAULT_LOCALE;
+		lngSetting.values = languages;
+
+		const lngSettingIdx = presenceSettings.findIndex(
+			s => s.id === lngSetting.id
+		);
+		presenceSettings[lngSettingIdx] = lngSetting;
+
+		//* You may be wondering, why the fuck do you stringify and parse this? Guess what because Firefox sucks and breaks its storage
+		//@ts-ignore
+		chrome.storage.local.set(
+			JSON.parse(
+				JSON.stringify({
+					[`pSettings_${p.metadata.service}`]: presenceSettings
+				})
+			)
+		);
+	}
 }

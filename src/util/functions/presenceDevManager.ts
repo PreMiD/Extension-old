@@ -1,5 +1,7 @@
 import { error, info } from "../debug";
+
 import { getStorage } from "./asyncStorage";
+import { initPresenceLanguages } from "../presenceManager";
 
 // import { oldPresence, priorityTab } from "../tabPriority";
 //TODO RECODE
@@ -69,10 +71,12 @@ export default async function(files: any) {
 	if (typeof metadata.iframe !== "undefined" && metadata.iframe)
 		tmpPr.iframe = iframe.contents;
 
-	if (tmpPr.metadata.settings)
+	if (tmpPr.metadata.settings) {
 		chrome.storage.local.set({
 			[`pSettings_${tmpPr.metadata.service}`]: tmpPr.metadata.settings
 		});
+		initPresenceLanguages(tmpPr);
+	}
 
 	presences.push(tmpPr);
 

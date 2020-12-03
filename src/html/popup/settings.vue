@@ -194,11 +194,8 @@
 	import checkbox from "./components/checkbox";
 	// @ts-ignore
 	import customSelect from "./components/customSelect";
-	import {
-		getPresenceLanguages,
-		getString,
-		DEFAULT_LOCALE
-	} from "../../util/langManager";
+	import { getString } from "../../util/langManager";
+	import { initPresenceLanguages } from '../../util/presenceManager';
 
 	export default {
 		components: {
@@ -268,7 +265,7 @@
 					);
 
 					for (const newPresence of newPresences) {
-						this.initPresenceLanguages(newPresence);
+						initPresenceLanguages(newPresence);
 
 						if (newPresence.metadata.settings) {
 							newPresence.noCog = !(
@@ -492,117 +489,6 @@
 					)
 				);
 			},
-
-			async initPresenceLanguages(p) {
-				if (p.metadata.settings) {
-					let lngSettingIdx = p.metadata.settings.findIndex(
-						s => typeof s.multiLanguage !== "undefined"
-					);
-
-					if (lngSettingIdx >= 0) {
-						let lngSetting = p.metadata.settings[lngSettingIdx];
-
-						const languages = await this.presenceMultiLanguageLanguages(
-							lngSetting.multiLanguage,
-							p.metadata.service
-						);
-
-						if (Object.keys(languages).length > 1) {
-							await this.storeDefaultLanguageOfPresence(p, languages);
-						} else {
-							p.metadata.settings.splice(lngSettingIdx, 1);
-						}
-					}
-				}
-			},
-			async getPresenceLanguages(serviceName) {
-				let values = [];
-				let languages = await getPresenceLanguages(serviceName);
-
-				for (const language of languages) {
-					values.push({
-						name: await getString("name", language),
-						value: language
-					});
-				}
-
-				return values;
-			},
-			async presenceMultiLanguageLanguages(multiLanguage, service) {
-				switch (typeof multiLanguage) {
-					case "boolean":
-						if (multiLanguage === true)
-							return await this.getPresenceLanguages(service);
-						break;
-					case "string":
-						return await this.getPresenceLanguages(multiLanguage);
-						break;
-					case "object":
-						if (multiLanguage instanceof Array) {
-							let commonLngs = [];
-
-							for (const prefix of multiLanguage) {
-								if (typeof prefix === "string" && prefix.trim().length > 0) {
-									let lngs = await this.getPresenceLanguages(prefix);
-
-									// only load common languages
-									if (commonLngs.length === 0) {
-										commonLngs = lngs;
-									} else {
-										commonLngs = commonLngs.filter(
-											cl => lngs.findIndex(l => l === cl) >= 0
-										);
-									}
-								}
-							}
-
-							return commonLngs;
-						}
-						break;
-				}
-			},
-			async storeDefaultLanguageOfPresence(p, languages) {
-				let lngSetting = p.metadata.settings.find(
-					s => typeof s.multiLanguage !== "undefined"
-				);
-
-				let presenceSettings =
-					// @ts-ignore
-					(await pmd.getStorage("local", `pSettings_${p.metadata.service}`))[
-						`pSettings_${p.metadata.service}`
-					];
-
-				if (!presenceSettings && this.pSettingsPresence) {
-					presenceSettings = this.pSettingsPresence.metadata.settings;
-				}
-
-				if (
-					!presenceSettings.find(
-						s => s.id === lngSetting.id && s.values && s.values.length > 0
-					)
-				) {
-					const uiLang = chrome.i18n.getUILanguage();
-					let preferredValue = languages.find(l => l.value === uiLang);
-
-					lngSetting.title = await getString("general.language", uiLang);
-					lngSetting.icon = "fas fa-language";
-					lngSetting.value = preferredValue
-						? preferredValue.value
-						: DEFAULT_LOCALE;
-					lngSetting.values = languages;
-
-					this.presenceSettings[this.presences.indexOf(p)] = false;
-
-					this.pSettingsPresence = p;
-					const lngSettingIdx = presenceSettings.findIndex(
-						s => s.id === lngSetting.id
-					);
-					presenceSettings[lngSettingIdx] = lngSetting;
-					this.pSettings = presenceSettings;
-
-					this.updatePresenceSetting(lngSetting.id, lngSetting.value);
-				}
-			},
 			async randomLoadingString() {
 				const textArray = (await getString("header.loader.phrases")).split(";");
 				const randomNumber = Math.floor(Math.random() * textArray.length);
@@ -637,7 +523,7 @@
 								`pSettings_${p.metadata.service}`
 							);
 
-							this.initPresenceLanguages(p);
+							initPresenceLanguages(p);
 
 							return !(
 								presenceSettings[`pSettings_${p.metadata.service}`] &&
@@ -673,7 +559,7 @@
 							)
 					)
 					.forEach(async p => {
-						await this.initPresenceLanguages(p);
+						await initPresenceLanguages(p);
 					});
 				this.$forceUpdate();
 			});
