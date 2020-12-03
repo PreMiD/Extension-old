@@ -46,12 +46,17 @@ chrome.storage.onChanged.addListener(changes => {
 		info("initSettings.ts", "Settings update");
 	}
 
-	if (changes.presences?.newValue && changes.presences?.oldValue) {
+	if (
+		changes.presences &&
+		changes.presences.newValue !== changes.presences.oldValue
+	) {
 		const oldValue = changes.presences.oldValue,
-			changedPresences = changes.presences.newValue.filter(
-				np =>
-					oldValue.find(ov => ov.metadata.service === np.metadata.service)
-						.metadata.version !== np.metadata.version
+			changedPresences = changes.presences.newValue.filter(np =>
+				oldValue.find(
+					ov =>
+						ov.metadata.service === np.metadata.service &&
+						(ov.metadata.version !== np.metadata.version || ov.tmp)
+				)
 			);
 
 		changedPresences.forEach(updatedPresence => {

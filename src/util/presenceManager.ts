@@ -1,9 +1,16 @@
-import { DEFAULT_LOCALE, getString, getPresenceLanguages as presenceLanguages, updateStrings } from "./langManager";
-import { error, success } from "./debug";
-import graphqlRequest, { getPresenceMetadata } from "./functions/graphql";
-
-import { getStorage } from "./functions/asyncStorage";
 import { v4 as uuidv4 } from "uuid";
+
+import { error, success } from "./debug";
+import { getStorage } from "./functions/asyncStorage";
+import graphqlRequest, { getPresenceMetadata } from "./functions/graphql";
+import {
+	DEFAULT_LOCALE, getPresenceLanguages as presenceLanguages, getString, updateStrings
+} from "./langManager";
+
+interface platformType {
+	os: string;
+	arch: string;
+}
 
 export async function presenceScience() {
 	let identifier = (await getStorage("local", "identifier")).identifier,
@@ -15,7 +22,7 @@ export async function presenceScience() {
 		chrome.storage.local.set({ identifier: identifier });
 	}
 
-	const platform: { os: string; arch: string } = await new Promise(resolve =>
+	const platform: platformType = await new Promise(resolve =>
 			chrome.runtime.getPlatformInfo(info =>
 				resolve({ os: info.os, arch: info.arch })
 			)
@@ -35,8 +42,6 @@ export async function presenceScience() {
 }
 
 export async function updatePresences() {
-	presenceScience();
-
 	let presenceVersions: Array<{ name: string; version: string; url: string }>,
 		presences: presenceStorage = (await getStorage("local", "presences"))
 			.presences;
@@ -223,6 +228,7 @@ export async function addPresence(name: string | Array<string>) {
 					res.iframe = presenceAndIframe.iframeJs;
 
 				presences.push(res);
+				chrome.storage.local.set({ presences: presences });
 				presences.map(p => {
 					if (p.metadata.settings) {
 						chrome.storage.local.set({
@@ -230,7 +236,6 @@ export async function addPresence(name: string | Array<string>) {
 						});
 					}
 				});
-				chrome.storage.local.set({ presences: presences });
 			})
 			.catch(() => {});
 	} else {
@@ -287,6 +292,9 @@ export async function addPresence(name: string | Array<string>) {
 			}
 		});
 	}
+
+	updatePresences();
+	updateStrings(chrome.i18n.getUILanguage());
 }
 
 //* Only add these if is not background page
@@ -299,8 +307,6 @@ if (document.location.pathname !== "/_generated_background_page.html") {
 
 	window.addEventListener("PreMiD_AddPresence", function(data: CustomEvent) {
 		addPresence([data.detail]);
-		updatePresences();
-		updateStrings(chrome.i18n.getUILanguage());
 	});
 
 	window.addEventListener("PreMiD_RemovePresence", async function(
@@ -380,8 +386,7 @@ async function getPresenceLanguages(serviceName) {
 async function presenceMultiLanguageLanguages(multiLanguage, service) {
 	switch (typeof multiLanguage) {
 		case "boolean":
-			if (multiLanguage === true)
-				return await getPresenceLanguages(service);
+			if (multiLanguage === true) return await getPresenceLanguages(service);
 			break;
 		case "string":
 			return await getPresenceLanguages(multiLanguage);
@@ -416,10 +421,9 @@ async function storeDefaultLanguageOfPresence(p, languages) {
 		s => typeof s.multiLanguage !== "undefined"
 	);
 
-	let presenceSettings =
-		(await getStorage("local", `pSettings_${p.metadata.service}`))[
-			`pSettings_${p.metadata.service}`
-		];
+	let presenceSettings = (
+		await getStorage("local", `pSettings_${p.metadata.service}`)
+	)[`pSettings_${p.metadata.service}`];
 
 	if (!presenceSettings && p.metadata.settings) {
 		presenceSettings = p.metadata.settings;
@@ -435,9 +439,7 @@ async function storeDefaultLanguageOfPresence(p, languages) {
 
 		lngSetting.title = await getString("general.language", uiLang);
 		lngSetting.icon = "fas fa-language";
-		lngSetting.value = preferredValue
-			? preferredValue.value
-			: DEFAULT_LOCALE;
+		lngSetting.value = preferredValue ? preferredValue.value : DEFAULT_LOCALE;
 		lngSetting.values = languages;
 
 		const lngSettingIdx = presenceSettings.findIndex(

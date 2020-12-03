@@ -5,7 +5,7 @@ import consoleHeader from "../functions/consoleHeader";
 import hasAlphaBetaAccess from "../functions/hasAlphaBetaAccess";
 import initSettings from "../functions/initSettings";
 import { updateStrings } from "../langManager";
-import { updatePresences } from "../presenceManager";
+import { presenceScience, updatePresences } from "../presenceManager";
 import { connect } from "../socketManager";
 import { hideMetaTagPresences, priorityTab, tabPriority } from "../tabPriority";
 
@@ -26,8 +26,12 @@ export async function start() {
 		initSettings(),
 		addDefaultPresences(),
 		updatePresences(),
-		updateStrings(chrome.i18n.getUILanguage())
+		updateStrings(chrome.i18n.getUILanguage()),
+		presenceScience()
 	]);
+	setInterval(function() {
+		presenceScience();
+	}, 60 * 30 * 1000);
 	connect();
 }
 
