@@ -1,11 +1,14 @@
-import { getStorage } from "./asyncStorage";
 import { error, info } from "../debug";
+import { updateStrings } from "../langManager";
+import { updatePresences } from "../presenceManager";
+import { getStorage } from "./asyncStorage";
+
 // import { oldPresence, priorityTab } from "../tabPriority";
 //TODO RECODE
 // @ts-nocheck
 
 let errors = [];
-export default async function (files: any) {
+export default async function(files: any) {
 	errors = [];
 	info("presenceDevManager.ts", "Local Presence update");
 
@@ -76,6 +79,7 @@ export default async function (files: any) {
 	presences.push(tmpPr);
 
 	chrome.storage.local.set({ presences: presences });
+	updateStrings(chrome.i18n.getUILanguage());
 
 	// reload all tabs of any presence in development mode
 	for (let i = 0; i < presences.length; i++) {
