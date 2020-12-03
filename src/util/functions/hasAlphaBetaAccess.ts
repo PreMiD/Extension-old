@@ -54,10 +54,14 @@ export default async function hasAlphaBetaAccess() {
 						).data.alphaBetaAccess[0];
 
 					let allowedAccess: boolean;
-					if (releaseType === "BETA") {
-						allowedAccess = accessType.betaAccess;
-					} else if (releaseType === "ALPHA")
-						allowedAccess = accessType.alphaAccess;
+					switch (releaseType) {
+						case "BETA":
+							allowedAccess = accessType.betaAccess;
+							break;
+						case "ALPHA":
+							allowedAccess = accessType.alphaAccess;
+							break;
+					}
 
 					resolve(allowedAccess);
 				}
