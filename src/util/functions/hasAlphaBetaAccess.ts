@@ -1,7 +1,8 @@
 import axios from "axios";
+
+import { releaseType } from "../../config";
 import { getStorage } from "./asyncStorage";
 import graphqlRequest from "./graphql";
-import { releaseType } from "../../config";
 
 export default async function hasAlphaBetaAccess() {
 	const { authorizedBetaAlpha } = await getStorage(
@@ -32,31 +33,31 @@ export default async function hasAlphaBetaAccess() {
 					}
 
 					const accessToken = responseUrl
-						.match(/(&access_token=[\d\w]+)/g)[0]
-						.replace("&access_token=", "");
-
-					const dUser = (
-						await axios("https://discordapp.com/api/users/@me", {
-							headers: {
-								Authorization: `Bearer ${accessToken}`
-							}
-						})
-					).data;
-
-					const accessType = (await graphqlRequest(`
+							.match(/(&access_token=[\d\w]+)/g)[0]
+							.replace("&access_token=", ""),
+						dUser = (
+							await axios("https://discordapp.com/api/users/@me", {
+								headers: {
+									Authorization: `Bearer ${accessToken}`
+								}
+							})
+						).data,
+						accessType = (
+							await graphqlRequest(`
 						query {
 							alphaBetaAccess(userId: "${dUser.id}") {
 								betaAccess
 								alphaAccess
 							}
 						}
-					`)).data.alphaBetaAccess[0];
+					`)
+						).data.alphaBetaAccess[0];
 
 					let allowedAccess: boolean;
 					if (releaseType === "BETA") {
-						allowedAccess = accessType.betaAccess
+						allowedAccess = accessType.betaAccess;
 					} else if (releaseType === "ALPHA")
-						allowedAccess = accessType.alphaAccess
+						allowedAccess = accessType.alphaAccess;
 
 					resolve(allowedAccess);
 				}

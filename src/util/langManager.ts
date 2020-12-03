@@ -17,7 +17,7 @@ export async function updateStrings(languageCode?: string) {
 	if (!languageCode) languageCode = DEFAULT_LOCALE;
 	if (languageCode.startsWith("en-")) languageCode = DEFAULT_LOCALE;
 
-	let extensionLanguage = languageCode;
+	let extensionLanguage: string = languageCode;
 
 	switch (languageCode) {
 		case "ja_JP":

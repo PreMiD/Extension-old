@@ -1,11 +1,12 @@
 import * as socketIo from "socket.io-client";
-import presenceDevManager from "./functions/presenceDevManager";
-import setActivity from "./functions/setActivity";
+
+import { requiredAppVersion } from "../config";
+import { oldActivity } from "./background/onConnect";
 import { error, info, success } from "./debug";
 import { getStorage } from "./functions/asyncStorage";
-import { oldActivity } from "./background/onConnect";
+import presenceDevManager from "./functions/presenceDevManager";
+import setActivity from "./functions/setActivity";
 import { priorityTab } from "./tabPriority";
-import { requiredAppVersion } from "../config";
 
 //* Create socket
 export let socket = socketIo.connect("http://localhost:3020", {
@@ -91,6 +92,7 @@ socket.on(
 		} | null
 	) => {
 		if (!user) return;
+		delete user.premium_type;
 		chrome.storage.local.set({ discordUser: user });
 	}
 );
