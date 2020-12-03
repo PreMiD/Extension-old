@@ -1,5 +1,4 @@
 import { error, info } from "../debug";
-
 import { getStorage } from "./asyncStorage";
 
 // import { oldPresence, priorityTab } from "../tabPriority";
