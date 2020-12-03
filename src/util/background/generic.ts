@@ -4,6 +4,7 @@ import clearActivity from "../functions/clearActivity";
 import consoleHeader from "../functions/consoleHeader";
 import hasAlphaBetaAccess from "../functions/hasAlphaBetaAccess";
 import initSettings from "../functions/initSettings";
+import { updateStrings } from "../langManager";
 import { updatePresences } from "../presenceManager";
 import { connect } from "../socketManager";
 import { hideMetaTagPresences, priorityTab, tabPriority } from "../tabPriority";
@@ -24,7 +25,8 @@ export async function start() {
 	await Promise.all([
 		initSettings(),
 		addDefaultPresences(),
-		updatePresences() //* updatePresences has updateStrings function inside already.
+		updatePresences(),
+		updateStrings(chrome.i18n.getUILanguage())
 	]);
 	connect();
 }
@@ -59,4 +61,4 @@ chrome.windows.onFocusChanged.addListener(windowId => {
 	tabPriority();
 });
 
-updatePresences();
+updatePresences(), updateStrings(chrome.i18n.getUILanguage());

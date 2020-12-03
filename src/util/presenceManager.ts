@@ -36,7 +36,6 @@ export async function presenceScience() {
 
 export async function updatePresences() {
 	presenceScience();
-	updateStrings(chrome.i18n.getUILanguage());
 
 	let presenceVersions: Array<{ name: string; version: string; url: string }>,
 		presences: presenceStorage = (await getStorage("local", "presences"))
@@ -295,6 +294,7 @@ if (document.location.pathname !== "/_generated_background_page.html") {
 	window.addEventListener("PreMiD_AddPresence", function(data: CustomEvent) {
 		addPresence([data.detail]);
 		updatePresences();
+		updateStrings(chrome.i18n.getUILanguage());
 	});
 
 	window.addEventListener("PreMiD_RemovePresence", async function(
@@ -308,6 +308,7 @@ if (document.location.pathname !== "/_generated_background_page.html") {
 			)
 		});
 		updatePresences();
+		updateStrings(chrome.i18n.getUILanguage());
 	});
 
 	window.addEventListener("PreMiD_GetPresenceList", sendBackPresences);
