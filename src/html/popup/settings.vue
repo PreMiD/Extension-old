@@ -58,7 +58,7 @@
 										updatePresenceSetting(setting.id, $event.target.value)
 									"
 									:ref="setting.id"
-									:placeholde="setting.placeholder"
+									:placeholder="setting.placeholder"
 								/>
 							</template>
 							<customSelect
