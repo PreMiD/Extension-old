@@ -7,7 +7,9 @@
       </template>
       <template v-else>
         <p id="show" v-text="$props.options[$props.selected]" />
-        <span v-for="(s, i) in $props.options.filter(o => o !== $props.options[$props.selected])" :key="i" v-text="s" @click="$emit('change',i)" />
+        <template v-for="(s, i) in $props.options">
+          <span v-if="s != $props.options[$props.selected]" :key="i" v-text="s" @click="$emit('change',i)" />
+        </template>
       </template>
     </div>
   </div>
