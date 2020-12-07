@@ -16,7 +16,7 @@ let languages: object = {};
  */
 export async function updateStrings(languageCode?: string) {
 	if (!languageCode) languageCode = DEFAULT_LOCALE;
-	if (languageCode.startsWith("en-")) languageCode = DEFAULT_LOCALE;
+	if (languageCode.includes("-")) languageCode = languageCode.split("-")[0];
 
 	let websiteLanguage: string = languageCode,
 		extensionLanguage: string = languageCode,
@@ -43,14 +43,9 @@ export async function updateStrings(languageCode?: string) {
 				}
 			}
 			`),
-				availableLangs: string[] = [];
-			responseLangs.data.langFiles.forEach(lang => {
-				availableLangs.push(lang.lang);
-			});
+				availableLangs: string[] = responseLangs.data.langFiles.map(lf => lf.lang);
 
-			extensionLanguage = extensionLanguage.split("-")[0];
-
-			if (availableLangs.findIndex(c => c == extensionLanguage) < 0) {
+			if (!availableLangs.includes(extensionLanguage)) {
 				const index = availableLangs.findIndex(c => c.includes(extensionLanguage + "_"));
 				if (index >= 0) {
 					websiteLanguage = availableLangs[index];
