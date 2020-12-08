@@ -4,10 +4,13 @@ import { error, success } from "./debug";
 import { getStorage } from "./functions/asyncStorage";
 import graphqlRequest, { getPresenceMetadata } from "./functions/graphql";
 import {
-	DEFAULT_LOCALE, getPresenceLanguages as presenceLanguages, getString, updateStrings
+	DEFAULT_LOCALE,
+	getPresenceLanguages as presenceLanguages,
+	getString,
+	updateStrings
 } from "./langManager";
 
-interface platformType {
+export interface platformType {
 	os: string;
 	arch: string;
 }

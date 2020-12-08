@@ -1,6 +1,7 @@
 import cpObj from "../functions/cpObj";
 import isEquivalent from "../functions/isEquivalent";
 import setActivity from "../functions/setActivity";
+import { platformType } from "../presenceManager";
 import { appVersion, socket, supportedAppVersion } from "../socketManager";
 
 //* Some debug stuff to prevent timestamp jumping
@@ -73,20 +74,30 @@ function handlePopup(port: chrome.runtime.Port) {
 	}
 }
 
-function handlePresence(port: chrome.runtime.Port) {
+async function handlePresence(port: chrome.runtime.Port) {
 	if (port.name === "contentScript") {
-		port.onMessage.addListener(msg => {
+		port.onMessage.addListener(async msg => {
 			if (
 				typeof msg.presence === "undefined" ||
 				typeof msg.presence.presenceData === "undefined"
 			)
 				return;
 
+			const platform: platformType = await new Promise(resolve =>
+				chrome.runtime.getPlatformInfo(info =>
+					resolve({ os: info.os, arch: info.arch })
+				)
+			);
+
 			if (typeof msg.presence.presenceData.largeImageKey !== "undefined")
 				msg.presence.presenceData.largeImageText =
-					`PreMiD • v${formatNum(appVersion)}` +
-					"⁣   " +
-					`⁣⁣Extension • v${chrome.runtime.getManifest().version_name}`;
+					platform.os === "win"
+						? `PreMiD • v${formatNum(appVersion)}` +
+						  "⁣   " +
+						  `⁣⁣Extension • v${chrome.runtime.getManifest().version_name}`
+						: `PreMiD 🐧 • v${formatNum(appVersion)}` +
+						  "⁣   " +
+						  `⁣⁣Extension • v${chrome.runtime.getManifest().version_name}`;
 
 			if (oldObject == null) {
 				oldObject = cpObj(msg.presence.presenceData);
