@@ -9,6 +9,10 @@ export const DEFAULT_LOCALE = "en";
 
 let languages: object = {};
 
+function normalizeLanguageCode(languageCode: string): string {
+	return languageCode.split("-")[0];
+}
+
 /**
  * Update strings values (extension and presence endpoints) from the API website
  *
@@ -16,7 +20,7 @@ let languages: object = {};
  */
 export async function updateStrings(languageCode?: string) {
 	if (!languageCode) languageCode = DEFAULT_LOCALE;
-	if (languageCode.includes("-")) languageCode = languageCode.split("-")[0];
+	languageCode = normalizeLanguageCode(languageCode);
 
 	let websiteLanguage: string = languageCode,
 		extensionLanguage: string = languageCode,
@@ -109,6 +113,7 @@ const loadingLangs = [];
  */
 export async function loadStrings(languageCode?: string) {
 	if (!languageCode) languageCode = DEFAULT_LOCALE;
+	languageCode = normalizeLanguageCode(languageCode);
 
 	return new Promise(resolve => {
 		if (typeof languages[languageCode] !== "undefined") resolve();
@@ -154,6 +159,7 @@ export async function loadStrings(languageCode?: string) {
  */
 export function getStrings(languageCode?: string) {
 	if (!languageCode) languageCode = DEFAULT_LOCALE;
+	languageCode = normalizeLanguageCode(languageCode);
 
 	return new Promise(async resolve => {
 		await loadStrings(languageCode);
@@ -188,6 +194,7 @@ export function getStrings(languageCode?: string) {
  */
 export function getString(string: string, languageCode?: string) {
 	if (!languageCode) languageCode = DEFAULT_LOCALE;
+	languageCode = normalizeLanguageCode(languageCode);
 
 	return new Promise(async resolve => {
 		await loadStrings(languageCode);

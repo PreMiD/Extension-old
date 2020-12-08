@@ -194,7 +194,6 @@
 	import checkbox from "./components/checkbox";
 	// @ts-ignore
 	import customSelect from "./components/customSelect";
-	import { getString } from "../../util/langManager";
 	import { initPresenceLanguages } from '../../util/presenceManager';
 
 	export default {
@@ -490,7 +489,9 @@
 				);
 			},
 			async randomLoadingString() {
-				const textArray = (await getString("header.loader.phrases", chrome.i18n.getUILanguage())).split(";");
+				// @ts-ignore
+				const textArray = (await pmd.getStorage("local", "languages"))
+					.languages.en.loading.split(";");
 				const randomNumber = Math.floor(Math.random() * textArray.length);
 
 				this.loadingString = textArray[randomNumber];
