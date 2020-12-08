@@ -1,8 +1,9 @@
+import { appVersion, socket, supportedAppVersion } from "../socketManager";
+
 import cpObj from "../functions/cpObj";
 import isEquivalent from "../functions/isEquivalent";
-import setActivity from "../functions/setActivity";
 import { platformType } from "../presenceManager";
-import { appVersion, socket, supportedAppVersion } from "../socketManager";
+import setActivity from "../functions/setActivity";
 
 //* Some debug stuff to prevent timestamp jumping
 export let oldObject: any = null;
@@ -91,13 +92,11 @@ async function handlePresence(port: chrome.runtime.Port) {
 
 			if (typeof msg.presence.presenceData.largeImageKey !== "undefined")
 				msg.presence.presenceData.largeImageText =
-					platform.os === "win"
-						? `PreMiD • v${formatNum(appVersion)}` +
-						  "⁣   " +
-						  `⁣⁣Extension • v${chrome.runtime.getManifest().version_name}`
-						: `PreMiD 🐧 • v${formatNum(appVersion)}` +
-						  "⁣   " +
-						  `⁣⁣Extension • v${chrome.runtime.getManifest().version_name}`;
+					`PreMiD ${platform.os === "linux" ? "🐧 " : ""}• v${formatNum(
+						appVersion
+					)}` +
+					"⁣   " +
+					`⁣⁣Extension • v${chrome.runtime.getManifest().version_name}`;
 
 			if (oldObject == null) {
 				oldObject = cpObj(msg.presence.presenceData);
