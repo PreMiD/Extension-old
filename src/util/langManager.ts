@@ -1,4 +1,5 @@
 import { error, success } from "./debug";
+
 import graphqlRequest from "./functions/graphql";
 
 /**
@@ -125,6 +126,11 @@ export async function loadStrings(languageCode?: string) {
 			loadingLangs.push(languageCode);
 
 			chrome.storage.local.get("languages", async lngs => {
+				if (!lngs.languages) {
+					resolve();
+					return;
+				}
+
 				if (typeof lngs.languages[DEFAULT_LOCALE] === "undefined") {
 					await updateStrings(DEFAULT_LOCALE);
 				}

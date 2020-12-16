@@ -1,8 +1,10 @@
+import { appVersion, socket, supportedAppVersion } from "../socketManager";
+
 import cpObj from "../functions/cpObj";
 import isEquivalent from "../functions/isEquivalent";
-import setActivity from "../functions/setActivity";
 import { platformType } from "../presenceManager";
-import { appVersion, socket, supportedAppVersion } from "../socketManager";
+import setActivity from "../functions/setActivity";
+import { start } from "./generic";
 
 //* Some debug stuff to prevent timestamp jumping
 export let oldObject: any = null;
@@ -26,6 +28,7 @@ chrome.runtime.onConnect.addListener(function(port) {
 	handleTabs(port);
 	handlePopup(port);
 	handlePresence(port);
+	handleAppTs(port);
 });
 
 function handleTabs(port: chrome.runtime.Port) {
@@ -145,6 +148,32 @@ async function handlePresence(port: chrome.runtime.Port) {
 
 			oldObject = cpObj(msg.presence.presenceData);
 			return;
+		});
+	}
+}
+
+function handleAppTs(port: chrome.runtime.Port) {
+	if (port.name === "app.ts") {
+		port.onMessage.addListener(async msg => {
+			if (msg.action === "reinit") {
+				chrome.storage.local.set({ defaultAdded: false }, async () => {
+					let success = false;
+
+					if (navigator.onLine) {
+						try {
+							await start();
+							success = true;
+						} catch (e) {
+							// error
+						}
+					}
+
+					port.postMessage({
+						action: "reinit",
+						success
+					});
+				});
+			}
 		});
 	}
 }
