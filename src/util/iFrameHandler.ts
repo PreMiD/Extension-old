@@ -1,5 +1,8 @@
 let waitResponse: any = setInterval(() => {
-		chrome.runtime.sendMessage({ iFrame: true });
+		//TODO Find a way to prevent console error spam (context invalidated) > Most likely using runtime.connect()
+		chrome.runtime.sendMessage({
+			iFrame: true
+		});
 	}, 1000),
 	scriptInjected = false;
 
@@ -13,7 +16,7 @@ chrome.runtime.onMessage.addListener(async msg => {
 		if (window.location.href.match(new RegExp(msg.iFrameRegExp)) !== null) {
 			scriptInjected = true;
 
-			let script = document.createElement("script");
+			const script = document.createElement("script");
 
 			script.textContent = String(
 				(await Promise.resolve(
@@ -27,7 +30,7 @@ chrome.runtime.onMessage.addListener(async msg => {
 	}
 
 	if (msg.iFrameUpdateData && scriptInjected) {
-		let evt = new CustomEvent("PreMiD_UpdateData");
+		const evt = new CustomEvent("PreMiD_UpdateData");
 		document.dispatchEvent(evt);
 	}
 });

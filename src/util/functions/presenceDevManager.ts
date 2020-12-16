@@ -1,7 +1,6 @@
 import { error, info } from "../debug";
-
-import { getStorage } from "./asyncStorage";
 import { initPresenceLanguages } from "../presenceManager";
+import { getStorage } from "./asyncStorage";
 
 // import { oldPresence, priorityTab } from "../tabPriority";
 //TODO RECODE
@@ -56,19 +55,19 @@ export default async function(files: any) {
 
 	presences = presences.filter(p => !p.tmp);
 
-	let addedPresence = presences.find(
+	const addedPresence = presences.find(
 		p => p.metadata.service === metadata.service
 	);
 	if (addedPresence) addedPresence.enabled = false;
 
-	let tmpPr: any = {
+	const tmpPr: any = {
 		enabled: true,
 		metadata: metadata,
-		presence: presence.contents,
+		presence: presence?.contents,
 		tmp: true
 	};
 
-	if (typeof metadata.iframe !== "undefined" && metadata.iframe)
+	if (typeof metadata?.iframe !== "undefined" && metadata?.iframe)
 		tmpPr.iframe = iframe.contents;
 
 	if (tmpPr.metadata.settings) {
@@ -85,7 +84,7 @@ export default async function(files: any) {
 	// reload all tabs of any presence in development mode
 	for (let i = 0; i < presences.length; i++) {
 		if (presences[i].tmp) {
-			let updatedPresence = presences[i];
+			const updatedPresence = presences[i];
 
 			chrome.tabs.query(
 				{

@@ -9,9 +9,9 @@ import setActivity from "./setActivity";
 let settings: any = null;
 
 export default async function() {
-	let presences = (await getStorage("local", "presences")).presences;
+	const presences = (await getStorage("local", "presences")).presences;
 	if (!presences)
-		await new Promise(resolve =>
+		await new Promise<void>(resolve =>
 			chrome.storage.local.set({ presences: [] }, resolve)
 		);
 
@@ -23,7 +23,7 @@ export default async function() {
 	initSetting("mediaKeys", "popup.setting.mediaControl", 2);
 	initSetting("titleMenubar", "popup.setting.titleMenubar", 3);
 
-	await new Promise(resolve =>
+	await new Promise<void>(resolve =>
 		chrome.storage.sync.set({ settings: settings }, resolve)
 	);
 
@@ -32,7 +32,7 @@ export default async function() {
 
 chrome.storage.onChanged.addListener(changes => {
 	if (changes.settings) {
-		let nSettings = Object.assign(
+		const nSettings = Object.assign(
 			{},
 			...Object.keys(changes.settings.newValue).map(k => {
 				return { [k]: changes.settings.newValue[k].value };

@@ -317,7 +317,7 @@ class Presence {
 	 */
 	getStrings(strings: Object, language?: string) {
 		return new Promise<any>(resolve => {
-			const listener = function (detail: any) {
+			const listener = function(detail: any) {
 				window.removeEventListener("PreMiD_ReceiveExtensionData", listener);
 				resolve(detail.strings);
 			};
@@ -331,7 +331,7 @@ class Presence {
 				(detail: CustomEvent) => listener(detail.detail)
 			);
 
-			let pmdRED = new CustomEvent("PreMiD_RequestExtensionData", {
+			const pmdRED = new CustomEvent("PreMiD_RequestExtensionData", {
 				detail: {
 					strings: strings,
 					language: language ?? null
@@ -382,7 +382,9 @@ class Presence {
 	async getLogs(regExp?: RegExp): Promise<Array<any>> {
 		let logs = (await this.getPageletiable("console")).logs;
 		if (regExp) {
-			logs = logs.filter(l => typeof l === "string" && new RegExp(regExp).test(l));
+			logs = logs.filter(
+				l => typeof l === "string" && new RegExp(regExp).test(l)
+			);
 		}
 		if (logs == undefined) logs = [];
 		return logs;
@@ -439,7 +441,7 @@ class Presence {
 			chrome.storage.local.get(
 				`pSettings_${this.metadata.service}`,
 				storageSettings => {
-					let errors = [];
+					const errors = [];
 
 					if (!Array.isArray(settings)) settings = [settings];
 
@@ -473,7 +475,7 @@ class Presence {
 			chrome.storage.local.get(
 				`pSettings_${this.metadata.service}`,
 				storageSettings => {
-					let errors = [];
+					const errors = [];
 
 					if (!Array.isArray(settings)) settings = [settings];
 
@@ -623,7 +625,7 @@ class Presence {
 	 */
 	private sendData(data: Object) {
 		//* Send data to app
-		let pmdUP = new CustomEvent("PreMiD_UpdatePresence", {
+		const pmdUP = new CustomEvent("PreMiD_UpdatePresence", {
 			detail: this.encryptData(JSON.stringify(data))
 		});
 
@@ -652,7 +654,7 @@ class Presence {
 			throw new Error("String is not long enough to create encryption key.");
 		}
 
-		this.encryptionKey = aesjs.utils.utf8.toBytes(key.substring(0, keySize))
+		this.encryptionKey = aesjs.utils.utf8.toBytes(key.substring(0, keySize));
 		return this.encryptionKey;
 	}
 
@@ -864,7 +866,7 @@ class iFrame {
 	 * @link https://docs.premid.app/dev/presence/class#iframedata
 	 */
 	send(data: any) {
-		let pmdIFD = new CustomEvent("PreMiD_iFrameData", {
+		const pmdIFD = new CustomEvent("PreMiD_iFrameData", {
 			detail: data
 		});
 
@@ -878,13 +880,13 @@ class iFrame {
 	 */
 	getUrl() {
 		return new Promise<string>(async resolve => {
-			let _listener = (data: CustomEvent) => {
+			const _listener = (data: CustomEvent) => {
 				resolve(data.detail);
 				document.removeEventListener("PreMiD_iFrameURL", _listener, true);
 			};
 			document.addEventListener("PreMiD_iFrameURL", _listener);
 
-			let pmdGIFU = new CustomEvent("PreMiD_GETiFrameURL");
+			const pmdGIFU = new CustomEvent("PreMiD_GETiFrameURL");
 
 			document.dispatchEvent(pmdGIFU);
 		});

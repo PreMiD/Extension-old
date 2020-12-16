@@ -1,8 +1,8 @@
 import { releaseType } from "../config";
 
-let genericStyle = "font-weight: 800; padding: 2px 5px; color: white;",
-	debugging = releaseType !== "RELEASE",
-	lastFile: string;
+const genericStyle = "font-weight: 800; padding: 2px 5px; color: white;",
+	debugging = releaseType !== "RELEASE";
+let lastFile: string;
 
 export function info(file: string, message: string, force = false) {
 	if (!debugging && !force) return;

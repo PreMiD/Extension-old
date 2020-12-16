@@ -18,7 +18,7 @@ export default async function hasAlphaBetaAccess() {
 			// @ts-ignore
 			redirectURL = await browser.identity.getRedirectURL();
 
-		const allowedAccess = await new Promise(resolve =>
+		const allowedAccess = await new Promise<void | boolean>(resolve =>
 			chrome.identity.launchWebAuthFlow(
 				{
 					url: `https://discordapp.com/api/oauth2/authorize?response_type=token&client_id=503557087041683458&scope=identify&redirect_uri=${redirectURL}`,

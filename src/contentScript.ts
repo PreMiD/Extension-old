@@ -1,30 +1,32 @@
 import * as aesjs from "aes-js";
 
 import { error, info } from "./util/debug";
-
-import cleanObject from "./util/functions/cleanObject";
 import { getStorage } from "./util/functions/asyncStorage";
+import cleanObject from "./util/functions/cleanObject";
 import { getString } from "./util/langManager";
 
 let tabPriority: number = null,
-	port = chrome.runtime.connect({ name: "contentScript" }),
 	decryptionKey: Uint8Array;
+const port = chrome.runtime.connect({ name: "contentScript" });
 
 window.addEventListener("PreMiD_UpdatePresence", async (data: CustomEvent) => {
 	try {
 		const decryptedData = JSON.parse(await decryptData(data.detail));
 		cleanObject(decryptedData);
-		port.postMessage({ action: "updatePresence", presence: decryptedData })
+		port.postMessage({ action: "updatePresence", presence: decryptedData });
 	} catch (e) {
 		if (e instanceof SyntaxError) {
-			error("contentScript.ts", "Data could not be decrypted into JSON object.");
+			error(
+				"contentScript.ts",
+				"Data could not be decrypted into JSON object."
+			);
 		} else {
 			throw e;
 		}
 	}
 });
 
-chrome.runtime.onMessage.addListener(function (data) {
+chrome.runtime.onMessage.addListener(function(data) {
 	if (port === null) return;
 
 	if (typeof data.iFrameData !== "undefined") {
@@ -41,7 +43,6 @@ chrome.runtime.onMessage.addListener(function (data) {
 			if (tabPriority === null) {
 				info("contentScript.ts", `Tab Priority: ${data.tabPriority}`);
 				tabPriority = window.setInterval(() => {
-					//TODO Find a way to prevent console error spam (context invalidated) > Most likely using runtime.connect()
 					chrome.runtime.sendMessage({ iFrameUpdateData: true });
 
 					document.dispatchEvent(new CustomEvent("PreMiD_UpdateData"));
@@ -56,7 +57,7 @@ chrome.runtime.onMessage.addListener(function (data) {
 	}
 });
 
-window.addEventListener("PreMiD_RequestExtensionData", async function (
+window.addEventListener("PreMiD_RequestExtensionData", async function(
 	data: CustomEvent
 ) {
 	let strings = data.detail.strings;
@@ -95,7 +96,10 @@ async function getDecryptionKey(): Promise<Uint8Array> {
 	} else if (key.length >= 16) {
 		keySize = 16;
 	} else {
-		error("contentScript.ts", "String is not long enough to create decryption key.");
+		error(
+			"contentScript.ts",
+			"String is not long enough to create decryption key."
+		);
 		return new Uint8Array();
 	}
 
@@ -113,9 +117,9 @@ async function decryptData(data: string): Promise<string> {
 
 	if (encryptionKey.length > 0) {
 		const aesCtr = new aesjs.ModeOfOperation.ctr(encryptionKey),
-		encryptedBytes = aesjs.utils.hex.toBytes(data),
-		decryptedBytes = aesCtr.decrypt(encryptedBytes),
-		decryptedText = aesjs.utils.utf8.fromBytes(decryptedBytes);
+			encryptedBytes = aesjs.utils.hex.toBytes(data),
+			decryptedBytes = aesCtr.decrypt(encryptedBytes),
+			decryptedText = aesjs.utils.utf8.fromBytes(decryptedBytes);
 
 		return decryptedText;
 	}

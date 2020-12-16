@@ -1,7 +1,6 @@
-import clearActivity from "./functions/clearActivity";
-import { getPresenceMetadata } from "./functions/graphql";
 import { getStorage } from "./functions/asyncStorage";
-import graphql from "./functions/graphql";
+import clearActivity from "./functions/clearActivity";
+import graphql, { getPresenceMetadata } from "./functions/graphql";
 import injectPresence from "./functions/injectPresence";
 import tabHasPresence from "./functions/tabHasPresence";
 
@@ -84,7 +83,7 @@ export async function tabPriority(info: any = undefined) {
 
 	//* If PreMiD has no presence to inject here, inject one if pmdMetaTag has one
 	if (presence.length === 0 && pmdMetaTag) {
-		let metadata = (await getPresenceMetadata(pmdMetaTag)).data.metadata,
+		const metadata = (await getPresenceMetadata(pmdMetaTag)).data.metadata,
 			prs: any = {
 				metadata: metadata,
 				presence: null,
@@ -93,14 +92,16 @@ export async function tabPriority(info: any = undefined) {
 				hidden: false
 			};
 
-		const presenceJsCode = (await graphql(`
+		const presenceJsCode = (
+			await graphql(`
 			query {
 				presences(service: "${pmdMetaTag}") {
 					presenceJs
-					${metadata.iframe ? 'iframeJs' : ''}
+					${metadata.iframe ? "iframeJs" : ""}
 				}
 			}
-		`)).data.presences[0];
+		`)
+		).data.presences[0];
 		prs.presence = presenceJsCode.presenceJs;
 
 		if (metadata.iframe) {
@@ -109,15 +110,15 @@ export async function tabPriority(info: any = undefined) {
 		presence = [prs];
 
 		chrome.storage.local.get("presences", data => {
-			let exPresence = data.presences.findIndex(
+			const exPresence = data.presences.findIndex(
 				p =>
 					p.metadata.service === prs.metadata.service &&
 					p.metaTag === prs.metaTag
 			);
 
 			if (exPresence > -1) {
-				const enabled = data.presences[exPresence].enabled;
-				let presence1 = prs;
+				const enabled = data.presences[exPresence].enabled,
+					presence1 = prs;
 				presence1.enabled = enabled;
 				presence1.hidden = false;
 				data.presences[exPresence] = presence1;
@@ -129,7 +130,7 @@ export async function tabPriority(info: any = undefined) {
 	//* Presence available for currUrl
 	if (presence.length > 0) {
 		//* Check if this tab already has a presence injected
-		let tabHasPrs = await tabHasPresence(activeTab.id);
+		const tabHasPrs = await tabHasPresence(activeTab.id);
 
 		//* If a tab is already prioritized, run 5 sec timeout
 		if (priorityTab) {
@@ -207,7 +208,7 @@ export function setPriorityTab(value: any) {
 
 function updatePopupVisibility() {
 	chrome.storage.local.get("presences", ({ presences }) => {
-		let presenceToShow = presences.findIndex(
+		const presenceToShow = presences.findIndex(
 				p =>
 					p.metaTag &&
 					p.hidden &&
@@ -229,7 +230,7 @@ function updatePopupVisibility() {
 
 export function hideMetaTagPresences() {
 	chrome.storage.local.get("presences", ({ presences }) => {
-		let presenceToHide = presences.findIndex(p => p.metaTag && !p.hidden);
+		const presenceToHide = presences.findIndex(p => p.metaTag && !p.hidden);
 
 		if (presenceToHide > -1) presences[presenceToHide].hidden = true;
 

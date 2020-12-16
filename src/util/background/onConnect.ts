@@ -1,9 +1,8 @@
-import { appVersion, socket, supportedAppVersion } from "../socketManager";
-
 import cpObj from "../functions/cpObj";
 import isEquivalent from "../functions/isEquivalent";
-import { platformType } from "../presenceManager";
 import setActivity from "../functions/setActivity";
+import { platformType } from "../presenceManager";
+import { appVersion, socket, supportedAppVersion } from "../socketManager";
 
 //* Some debug stuff to prevent timestamp jumping
 export let oldObject: any = null;
@@ -107,11 +106,11 @@ async function handlePresence(port: chrome.runtime.Port) {
 
 			//* Check differences and if there aren't any return
 
-			let check = cpObj(oldObject);
+			const check = cpObj(oldObject);
 			delete check.startTimestamp;
 			delete check.endTimestamp;
 
-			let check1 = cpObj(msg.presence.presenceData);
+			const check1 = cpObj(msg.presence.presenceData);
 			delete check1.startTimestamp;
 			delete check1.endTimestamp;
 

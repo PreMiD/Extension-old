@@ -1,5 +1,4 @@
 import { error, success } from "./debug";
-
 import graphqlRequest from "./functions/graphql";
 
 /**
@@ -47,10 +46,14 @@ export async function updateStrings(languageCode?: string) {
 				}
 			}
 			`),
-				availableLangs: string[] = responseLangs.data.langFiles.map(lf => lf.lang);
+				availableLangs: string[] = responseLangs.data.langFiles.map(
+					lf => lf.lang
+				);
 
 			if (!availableLangs.includes(extensionLanguage)) {
-				const index = availableLangs.findIndex(c => c.includes(extensionLanguage + "_"));
+				const index = availableLangs.findIndex(c =>
+					c.includes(extensionLanguage + "_")
+				);
 				if (index >= 0) {
 					websiteLanguage = availableLangs[index];
 					extensionLanguage = availableLangs[index];
@@ -115,7 +118,7 @@ export async function loadStrings(languageCode?: string) {
 	if (!languageCode) languageCode = DEFAULT_LOCALE;
 	languageCode = normalizeLanguageCode(languageCode);
 
-	return new Promise(resolve => {
+	return new Promise<void>(resolve => {
 		if (typeof languages[languageCode] !== "undefined") resolve();
 
 		if (!loadingLangs.includes(languageCode)) {
