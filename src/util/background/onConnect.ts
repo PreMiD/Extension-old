@@ -4,6 +4,7 @@ import cpObj from "../functions/cpObj";
 import isEquivalent from "../functions/isEquivalent";
 import { platformType } from "../presenceManager";
 import setActivity from "../functions/setActivity";
+import { setStorage } from "../functions/asyncStorage";
 import { start } from "./generic";
 
 //* Some debug stuff to prevent timestamp jumping
@@ -156,22 +157,24 @@ function handleAppTs(port: chrome.runtime.Port) {
 	if (port.name === "app.ts") {
 		port.onMessage.addListener(async msg => {
 			if (msg.action === "reinit") {
-				chrome.storage.local.set({ defaultAdded: false }, async () => {
-					let success = false;
+				await setStorage("local", {
+					defaultAdded: false
+				});
 
-					if (navigator.onLine) {
-						try {
-							await start();
-							success = true;
-						} catch (e) {
-							// error
-						}
+				let success = false;
+
+				if (navigator.onLine) {
+					try {
+						await start();
+						success = true;
+					} catch (e) {
+						// error
 					}
+				}
 
-					port.postMessage({
-						action: "reinit",
-						success
-					});
+				port.postMessage({
+					action: "reinit",
+					success
 				});
 			}
 		});

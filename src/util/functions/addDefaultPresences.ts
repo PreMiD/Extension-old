@@ -1,21 +1,35 @@
-import { getStorage } from "./asyncStorage";
+import { getStorage, setStorage } from "./asyncStorage";
+
 import { addPresence } from "../presenceManager";
 
-export default function addDefaultPresences() {
+export default async function addDefaultPresences() {
 	//* Add default presences
-	getStorage("local", "defaultAdded").then(({ defaultAdded }) => {
-		//* return if already added
-		//* Add default presences
-		if (defaultAdded) return;
-		addPresence([
-			"YouTube",
-			"YouTube Music",
-			"Netflix",
-			"Twitch",
-			"SoundCloud"
-		]);
-		chrome.storage.local.set({
-			defaultAdded: true
-		});
+	let defaultAdded = (await getStorage("local", "defaultAdded")).defaultAdded
+	//* return if already added
+	//* Add default presences
+	if (defaultAdded) return;
+	const defaultPresences = [
+		"YouTube",
+		"YouTube Music",
+		"Netflix",
+		"Twitch",
+		"SoundCloud"
+	];
+	await addPresence(defaultPresences);
+	defaultAdded = true;
+
+	let presences = (await getStorage("local", "presences")).presences
+		.map(p => p.metadata.service);
+
+	//* check that all requested presences have been installed
+	for (const presence of defaultPresences) {
+		if (!presences.includes(presence)) {
+			defaultAdded = false;
+			break;
+		}
+	}
+
+	setStorage("local", {
+		defaultAdded
 	});
 }

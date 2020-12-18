@@ -174,6 +174,10 @@ export function getStrings(languageCode?: string) {
 		await loadStrings(languageCode);
 
 		if (typeof languages[languageCode] === "undefined") {
+			if (!languages[DEFAULT_LOCALE]) {
+				resolve({});
+			}
+
 			resolve({
 				[DEFAULT_LOCALE]: {
 					...languages[DEFAULT_LOCALE].extension,

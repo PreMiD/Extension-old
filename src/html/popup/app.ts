@@ -16,42 +16,13 @@ Vue.use(Vuex);
 
 window.onload = async () => {
 	// @ts-ignore
-	const discordUser = (await pmd.getStorage("local", "discordUser"))
-		.discordUser,
-		// @ts-ignore
-		messages = await pmd.getStrings(chrome.i18n.getUILanguage() || "en"),
-		// @ts-ignore
-		presences = (await pmd.getStorage("local", "presences")).presences;
-
-	if (presences.filter(p => !p.metaTag).length === 0 || !messages) {
-		const p = document.createElement("p");
-		p.innerText = "Extension did not initialize correctly, press on this message to reinitialize it."
-		p.style.color = "white";
-		p.style.cursor = "pointer";
-		p.style.textAlign = "center";
-		p.style.lineHeight = "1.25rem";
-		document.body.appendChild(p);
-
-		const port = chrome.runtime.connect({ name: "app.ts" });
-		p.onclick = () => {
-			port.postMessage({ action: "reinit" });
-		};
-
-		port.onMessage.addListener(msg => {
-			if (msg.success) {
-				location.reload();
-			} else {
-				alert("Couldn't initialize");
-			}
-		});
-
-		return;
-	}
+	const discordUser = (await pmd.getStorage("local", "discordUser")).discordUser;
 
 	new Vue({
 		i18n: new VueI18n({
 			locale: chrome.i18n.getUILanguage(),
-			messages,
+			// @ts-ignore
+			messages: await pmd.getStrings(chrome.i18n.getUILanguage() || "en"),
 			fallbackLocale: "en",
 			silentTranslationWarn: true
 		}),

@@ -81,7 +81,7 @@
 
 			<div v-else id="presenceWrapper" key="2">
 				<div id="titleWrapper">
-					<h1 id="title">{{ $t("popup.headings.presences") }}</h1>
+					<h1 id="title" v-if="defaultAdded">{{ $t("popup.headings.presences") }}</h1>
 					<transition name="slideRight" mode="out-in">
 						<span v-if="shiftPressed && $store.state.connected">
 							<a id="loadPresence" @click="loadPresence">
@@ -176,8 +176,19 @@
 						</transition>
 					</div>
 				</div>
-				<p v-else id="noPresences">{{ $t("popup.presences.noPresences") }}</p>
+				<div v-else id="noPresences">
+					<p v-if="defaultAdded" >{{ $t("popup.presences.noPresences") }}</p>
+					<div v-else>
+						<p>
+							Extension did not initialize correctly.
+						</p>
+						<span id="reinit" @click="reinit">Reinitialize</span>
+
+					</div>
+
+				</div>
 				<a
+					v-if="defaultAdded"
 					id="presenceStoreBtn"
 					href="https://premid.app/store"
 					target="_blank"
@@ -195,6 +206,7 @@
 	// @ts-ignore
 	import customSelect from "./components/customSelect";
 	import { initPresenceLanguages } from '../../util/presenceManager';
+	import { getStorage } from '../../util/functions/asyncStorage';
 
 	export default {
 		components: {
@@ -253,7 +265,8 @@
 				pSettings: null,
 				presenceSettings: [],
 				loadingPresences: true,
-				loadingString: ""
+				loadingString: "",
+				defaultAdded: false
 			};
 		},
 		watch: {
@@ -508,10 +521,26 @@
 				} else if (eventType === "inactive") {
 					this.$refs.settingsContainer.style.paddingBottom = null;
 				}
+			},
+			async reinit() {
+				this.loadingPresences = true;
+				const port = chrome.runtime.connect({ name: "app.ts" });
+
+				port.onMessage.addListener(msg => {
+					if (msg.success) {
+						location.reload();
+					} else {
+						this.loadingPresences = false;
+					}
+				});
+
+				port.postMessage({ action: "reinit" });
 			}
 		},
 		created: async function() {
 			this.randomLoadingString();
+
+			this.defaultAdded = (await getStorage("local", "defaultAdded")).defaultAdded;
 
 			// @ts-ignore
 			(this.presences = (await pmd.getStorage("local", "presences")).presences),
@@ -919,6 +948,15 @@
 				margin-bottom: 5px;
 				font-weight: 600;
 				color: $greyple;
+
+				#reinit {
+					color: $blurple;
+					cursor: pointer;
+
+					&:hover {
+						text-decoration: underline;
+					}
+				}
 			}
 
 			#presenceStoreBtn {
