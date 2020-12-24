@@ -1,6 +1,6 @@
 {
 	"name": "premid",
-	"version": "2.2.0.6",
+	"version": "2.2.0",
 	"description": "PreMiD Extension",
 	"scripts": {
 		"init": "yarn --silent && tsc fetchDescriptions && node fetchDescriptions.js",
