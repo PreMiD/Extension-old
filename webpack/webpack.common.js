@@ -16,7 +16,8 @@ module.exports = {
 			__dirname,
 			srcDir + "util/iFrameHandler.ts"
 		),
-		"html/popup/app.js": path.join(__dirname, srcDir + "html/popup/app.ts")
+		"html/popup/app.js": path.join(__dirname, srcDir + "html/popup/app.ts"),
+		"js/devHelper.js": path.join(__dirname, srcDir + "util/presence/devHelper.ts")
 	},
 	output: {
 		path: path.join(__dirname, "../dist/"),
@@ -46,12 +47,19 @@ module.exports = {
 		rules: [
 			{
 				test: /\.vue$/,
-				loaders: "vue-loader"
+				loader: "vue-loader"
 			},
 
 			{
 				test: /\.(png|woff|woff2|eot|ttf|svg)$/,
-				loader: "url-loader?limit=100000"
+				use: [
+					{
+						loader: "url-loader",
+						options: {
+							limit: 100000
+						}
+					}
+				]
 			},
 
 			{
@@ -60,9 +68,15 @@ module.exports = {
 			},
 			{
 				test: /\.ts?$/,
-				loader: "ts-loader",
-				exclude: /node_modules/,
-				options: { appendTsSuffixTo: [/\.vue$/] }
+				use: [
+					{
+						loader: "ts-loader",
+						options: {
+							appendTsSuffixTo: [/\.vue$/]
+						}
+					}
+				],
+				exclude: /node_modules/
 			}
 		]
 	},
@@ -71,15 +85,14 @@ module.exports = {
 	},
 	plugins: [
 		new VueLoaderPlugin(),
-		new CopyPlugin(
-			[
-				{ from: "_locales", to: "_locales" },
-				{ from: "assets", to: "assets" },
-				{ from: "html", to: "html" },
-				{ from: "js", to: "js" },
-				{ from: "manifest.json", to: "manifest.json" }
-			],
-			{ context: "src" }
-		)
+		new CopyPlugin({
+			patterns: [
+				{ from: "_locales", to: "_locales", context: "src" },
+				{ from: "assets", to: "assets", context: "src" },
+				{ from: "html", to: "html", context: "src" },
+				{ from: "js", to: "js", context: "src" },
+				{ from: "manifest.json", to: "manifest.json", context: "src" }
+			]
+		})
 	]
 };

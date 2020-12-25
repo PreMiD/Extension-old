@@ -4,8 +4,8 @@
 	"name": "PreMiD",
 	"description": "__MSG_description__",
 
-	"version": "2.1.1",
-	"version_name": "2.1.1",
+	"version": "2.2.1",
+	"version_name": "2.2.1",
 
 	"icons": {
 		"16": "assets/images/icon_16x16.png",
@@ -44,14 +44,14 @@
 		}
 	],
 
-	"content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
+	"content_security_policy": "script-src 'self' 'unsafe-eval' https://kit.fontawesome.com/; object-src 'self'",
 
-	"permissions": ["<all_urls>", "storage"],
+	"permissions": ["tabs", "<all_urls>", "storage", "identity"],
 
 	"applications": {
 		"gecko": {
 			"id": "support@premid.app",
-			"strict_min_version": "52.0",
+			"strict_min_version": "53.0",
 			"update_url": "https://api.premid.app/firefox/updates"
 		}
 	}

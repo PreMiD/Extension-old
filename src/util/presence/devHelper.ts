@@ -1,13 +1,36 @@
+import * as aesjs from "aes-js";
+
 /**
  * @link https://docs.premid.app/dev/presence/class#presencedata-interface
  */
 interface PresenceData {
-	state?: string;
+	/**
+	 * Top row of the status
+	 */
 	details?: string;
+	/**
+	 * Bottom row of the status
+	 */
+	state?: string;
+	/**
+	 * epoch seconds for start - including will show time as "elapsed"
+	 */
 	startTimestamp?: number;
+	/**
+	 * epoch seconds for ending - including will show time as "remaining"
+	 */
 	endTimestamp?: number;
+	/**
+	 * name of the uploaded image for the large profile artwork
+	 */
 	largeImageKey?: string;
+	/**
+	 * name of the uploaded image for the small profile artwork
+	 */
 	smallImageKey?: string;
+	/**
+	 * tooltip for the smallImageKey
+	 */
 	smallImageText?: string;
 }
 
@@ -137,6 +160,10 @@ interface Metadata {
 	 * @link https://docs.premid.app/dev/presence/metadata#regular-expressions
 	 */
 	iframeRegExp?: RegExp;
+	/**
+	 * Defines whether `getLogs()` is used.
+	 */
+	readLogs?: boolean;
 	button?: boolean;
 	warning?: boolean;
 	/**
@@ -174,18 +201,21 @@ interface Metadata {
  * Useful tools for developing presences
  * @link https://docs.premid.app/en/dev/presence/class
  */
+// @ts-ignore
 class Presence {
 	metadata: Metadata;
 	_events: any = {};
 	private clientId: string;
 	private injectOnComplete: boolean;
 	private appMode: boolean;
-	private trayTitle: string = '';
+	private trayTitle: string = "";
 	private playback: boolean = true;
 	private internalPresence: PresenceData = {};
-	private port = chrome.runtime.connect({ name: 'devHelper' });
-	private genericStyle: string = 'font-weight: 800; padding: 2px 5px; color: white;';
-	private presenceStyle: string = '';
+	private port = chrome.runtime.connect({ name: "devHelper" });
+	private genericStyle: string =
+		"font-weight: 800; padding: 2px 5px; color: white;";
+	private presenceStyle: string = "";
+	private encryptionKey: Uint8Array;
 
 	/**
 	 * Create a new Presence
@@ -198,9 +228,11 @@ class Presence {
 		// @ts-ignore
 		this.metadata = PreMiD_Metadata;
 
-		this.presenceStyle = `background: ${this.metadata.color}; color: ${this.getFontColor(this.metadata.color)};`;
+		this.presenceStyle = `background: ${
+			this.metadata.color
+		}; color: ${this.getFontColor(this.metadata.color)};`;
 
-		window.addEventListener('PreMiD_TabPriority', (data: CustomEvent) => {
+		window.addEventListener("PreMiD_TabPriority", (data: CustomEvent) => {
 			if (!data.detail) this.clearActivity();
 		});
 	}
@@ -225,7 +257,7 @@ class Presence {
 
 		// Remove empty strings
 		for (let [k, v] of Object.entries(data)) {
-			if (typeof v === 'string' && !v) delete data[k];
+			if (typeof v === "string" && !v) delete data[k];
 		}
 
 		// Round decimal timestamps
@@ -252,7 +284,7 @@ class Presence {
 	 */
 	clearActivity() {
 		this.internalPresence = {};
-		this.trayTitle = '';
+		this.trayTitle = "";
 
 		const data = {
 			clientId: undefined,
@@ -273,7 +305,7 @@ class Presence {
 	 * @link https://docs.premid.app/dev/presence/class#settraytitlestring
 	 * @since 2.0-BETA3
 	 */
-	setTrayTitle(trayTitle: string = '') {
+	setTrayTitle(trayTitle: string = "") {
 		this.trayTitle = trayTitle;
 	}
 
@@ -285,19 +317,21 @@ class Presence {
 	 */
 	getStrings(strings: Object, language?: string) {
 		return new Promise<any>(resolve => {
-			let listener = function(detail: any) {
-				window.removeEventListener('PreMiD_ReceiveExtensionData', listener);
-
+			const listener = function(detail: any) {
+				window.removeEventListener("PreMiD_ReceiveExtensionData", listener);
 				resolve(detail.strings);
 			};
 
 			// TODO currently unhandled
-			this.port.postMessage({ action: 'getStrings', language, strings });
+			this.port.postMessage({ action: "getStrings", language, strings });
 
 			//* Receive data from PreMiD
-			window.addEventListener('PreMiD_ReceiveExtensionData', (detail: CustomEvent) => listener(detail.detail));
+			window.addEventListener(
+				"PreMiD_ReceiveExtensionData",
+				(detail: CustomEvent) => listener(detail.detail)
+			);
 
-			let pmdRED = new CustomEvent('PreMiD_RequestExtensionData', {
+			const pmdRED = new CustomEvent("PreMiD_RequestExtensionData", {
 				detail: {
 					strings: strings,
 					language: language ?? null
@@ -317,17 +351,17 @@ class Presence {
 	 */
 	getPageletiable(letiable: string) {
 		return new Promise<any>(resolve => {
-			let script = document.createElement('script'),
+			let script = document.createElement("script"),
 				_listener = (data: CustomEvent) => {
 					script.remove();
 					resolve(JSON.parse(data.detail));
 
-					window.removeEventListener('PreMiD_Pageletiable', _listener, true);
+					window.removeEventListener("PreMiD_Pageletiable", _listener, true);
 				};
 
-			window.addEventListener('PreMiD_Pageletiable', _listener);
+			window.addEventListener("PreMiD_Pageletiable", _listener);
 
-			script.id = 'PreMiD_Pageletiables';
+			script.id = "PreMiD_Pageletiables";
 			script.appendChild(
 				document.createTextNode(`
         var pmdPL = new CustomEvent("PreMiD_Pageletiable", {detail: (typeof window["${letiable}"] === "string") ? window["${letiable}"] : JSON.stringify(window["${letiable}"])});
@@ -335,8 +369,25 @@ class Presence {
       `)
 			);
 
-			(document.body || document.head || document.documentElement).appendChild(script);
+			(document.body || document.head || document.documentElement).appendChild(
+				script
+			);
 		});
+	}
+
+	/**
+	 * Returns an array of the past 100 logs, you can filter these logs with a RegExp.
+	 * @param regExp Filter of the logs
+	 */
+	async getLogs(regExp?: RegExp): Promise<Array<any>> {
+		let logs = (await this.getPageletiable("console")).logs;
+		if (regExp) {
+			logs = logs.filter(
+				l => typeof l === "string" && new RegExp(regExp).test(l)
+			);
+		}
+		if (logs == undefined) logs = [];
+		return logs;
 	}
 
 	/**
@@ -346,7 +397,8 @@ class Presence {
 	 * @since 2.1
 	 */
 	getExtensionVersion(onlyNumeric = true) {
-		if (onlyNumeric) return parseInt(chrome.runtime.getManifest().version.replace(/\D/g, ''));
+		if (onlyNumeric)
+			return parseInt(chrome.runtime.getManifest().version.replace(/\D/g, ""));
 		return chrome.runtime.getManifest().version;
 	}
 
@@ -358,18 +410,23 @@ class Presence {
 	 */
 	getSetting(setting: string) {
 		return new Promise<any>((resolve, reject) => {
-			chrome.storage.local.get(`pSettings_${this.metadata.service}`, settings => {
-				const settingValue = settings[`pSettings_${this.metadata.service}`].find(s => s.id === setting);
+			chrome.storage.local.get(
+				`pSettings_${this.metadata.service}`,
+				settings => {
+					const settingValue = settings[
+						`pSettings_${this.metadata.service}`
+					].find(s => s.id === setting);
 
-				const res =
-					settingValue !== undefined
-						? settingValue.value
-						: this.metadata.settings[setting]
-						? this.metadata.settings[setting].value
-						: undefined;
-				if (res !== undefined) resolve(res);
-				else reject(res);
-			});
+					const res =
+						settingValue !== undefined
+							? settingValue.value
+							: this.metadata.settings[setting]
+							? this.metadata.settings[setting].value
+							: undefined;
+					if (res !== undefined) resolve(res);
+					else reject(res);
+				}
+			);
 		});
 	}
 
@@ -381,23 +438,29 @@ class Presence {
 	 */
 	hideSetting(settings: string | Array<string>) {
 		return new Promise<void>((resolve, reject) => {
-			chrome.storage.local.get(`pSettings_${this.metadata.service}`, storageSettings => {
-				let errors = [];
+			chrome.storage.local.get(
+				`pSettings_${this.metadata.service}`,
+				storageSettings => {
+					const errors = [];
 
-				if (!Array.isArray(settings)) settings = [settings];
+					if (!Array.isArray(settings)) settings = [settings];
 
-				settings.forEach(setting => {
-					let settingToHide = storageSettings[`pSettings_${this.metadata.service}`].find(s => s.id === setting);
+					settings.forEach(setting => {
+						let settingToHide = storageSettings[
+							`pSettings_${this.metadata.service}`
+						].find(s => s.id === setting);
 
-					if (!settingToHide) errors.push(`Setting "${setting}" does not exist.`);
-					else {
-						settingToHide.hidden = true;
-					}
-				});
+						if (!settingToHide)
+							errors.push(`Setting "${setting}" does not exist.`);
+						else {
+							settingToHide.hidden = true;
+						}
+					});
 
-				chrome.storage.local.set(storageSettings, resolve);
-				if (errors.length > 0) reject(errors);
-			});
+					chrome.storage.local.set(storageSettings, resolve);
+					if (errors.length > 0) reject(errors);
+				}
+			);
 		});
 	}
 
@@ -409,23 +472,29 @@ class Presence {
 	 */
 	showSetting(settings: string | Array<string>) {
 		return new Promise<void>((resolve, reject) => {
-			chrome.storage.local.get(`pSettings_${this.metadata.service}`, storageSettings => {
-				let errors = [];
+			chrome.storage.local.get(
+				`pSettings_${this.metadata.service}`,
+				storageSettings => {
+					const errors = [];
 
-				if (!Array.isArray(settings)) settings = [settings];
+					if (!Array.isArray(settings)) settings = [settings];
 
-				settings.forEach(setting => {
-					let settingToShow = storageSettings[`pSettings_${this.metadata.service}`].find(s => s.id === setting);
+					settings.forEach(setting => {
+						let settingToShow = storageSettings[
+							`pSettings_${this.metadata.service}`
+						].find(s => s.id === setting);
 
-					if (!settingToShow) errors.push(`Setting "${setting}" does not exist.`);
-					else {
-						settingToShow.hidden = false;
-					}
-				});
+						if (!settingToShow)
+							errors.push(`Setting "${setting}" does not exist.`);
+						else {
+							settingToShow.hidden = false;
+						}
+					});
 
-				chrome.storage.local.set(storageSettings, resolve);
-				if (errors.length > 0) reject(errors);
-			});
+					chrome.storage.local.set(storageSettings, resolve);
+					if (errors.length > 0) reject(errors);
+				}
+			);
 		});
 	}
 
@@ -443,8 +512,8 @@ class Presence {
 	 * @param {Number} elementDuration Element duration seconds
 	 */
 	getTimestamps(elementTime: number, elementDuration: number) {
-		var startTime = Date.now();
-		var endTime = Math.floor(startTime / 1000) - elementTime + elementDuration;
+		const startTime = Date.now(),
+			endTime = Math.floor(startTime / 1000) - elementTime + elementDuration;
 		return [Math.floor(startTime / 1000), endTime];
 	}
 
@@ -454,11 +523,11 @@ class Presence {
 	 */
 	timestampFromFormat(format: string) {
 		return format
-			.split(':')
+			.split(":")
 			.map(time => {
 				return parseInt(time);
 			})
-			.reduce((prev, time) => 60 * prev + +time);
+			.reduce((prev, time) => 60 * prev + time);
 	}
 
 	/**
@@ -466,12 +535,12 @@ class Presence {
 	 * @param hex The hex string
 	 */
 	private hexToRGB(hex: string) {
-		var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+		const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
 		hex = hex.replace(shorthandRegex, (_, r, g, b) => {
 			return r + r + g + g + b + b;
 		});
 
-		var result = hex.match(/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i);
+		const result = hex.match(/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i);
 		return result
 			? {
 					r: parseInt(result[1], 16),
@@ -486,18 +555,16 @@ class Presence {
 	 * @param backgroundHex The hex string of the background
 	 */
 	private getFontColor(backgroundHex: string) {
-		const rgb = this.hexToRGB(backgroundHex);
+		const rgb = this.hexToRGB(backgroundHex),
+			r = rgb.r,
+			g = rgb.g,
+			b = rgb.b,
+			hsp = Math.sqrt(0.299 * (r * r) + 0.587 * (g * g) + 0.114 * (b * b));
 
-		const r = rgb.r;
-		const g = rgb.g;
-		const b = rgb.b;
-
-		const hsp = Math.sqrt(0.299 * (r * r) + 0.587 * (g * g) + 0.114 * (b * b));
-
-		if (hsp > 127.5) {
-			return 'white';
+		if (hsp < 127.5) {
+			return "white";
 		} else {
-			return 'black';
+			return "black";
 		}
 	}
 
@@ -508,10 +575,10 @@ class Presence {
 	info(message: string) {
 		console.log(
 			`%cPreMiD%c${this.metadata.service}%cINFO%c ${message}`,
-			this.genericStyle + 'border-radius: 25px 0 0 25px; background: #596cae;',
+			this.genericStyle + "border-radius: 25px 0 0 25px; background: #596cae;",
 			this.genericStyle + this.presenceStyle,
-			this.genericStyle + 'border-radius: 0 25px 25px 0; background: #5050ff;',
-			'color: unset;'
+			this.genericStyle + "border-radius: 0 25px 25px 0; background: #5050ff;",
+			"color: unset;"
 		);
 	}
 
@@ -522,10 +589,11 @@ class Presence {
 	success(message: string) {
 		console.log(
 			`%cPreMiD%c${this.metadata.service}%cSUCCESS%c ${message}`,
-			this.genericStyle + 'border-radius: 25px 0 0 25px; background: #596cae;',
+			this.genericStyle + "border-radius: 25px 0 0 25px; background: #596cae;",
 			this.genericStyle + this.presenceStyle,
-			this.genericStyle + 'border-radius: 0 25px 25px 0; background: #50ff50; color: black;',
-			'color: unset;'
+			this.genericStyle +
+				"border-radius: 0 25px 25px 0; background: #50ff50; color: black;",
+			"color: unset;"
 		);
 	}
 
@@ -536,10 +604,10 @@ class Presence {
 	error(message: string) {
 		console.error(
 			`%cPreMiD%c${this.metadata.service}%cERROR%c ${message}`,
-			this.genericStyle + 'border-radius: 25px 0 0 25px; background: #596cae;',
+			this.genericStyle + "border-radius: 25px 0 0 25px; background: #596cae;",
 			this.genericStyle + this.presenceStyle,
-			this.genericStyle + 'border-radius: 0 25px 25px 0; background: #ff5050;',
-			'color: unset;'
+			this.genericStyle + "border-radius: 0 25px 25px 0; background: #ff5050;",
+			"color: unset;"
 		);
 	}
 
@@ -557,11 +625,52 @@ class Presence {
 	 */
 	private sendData(data: Object) {
 		//* Send data to app
-		let pmdUP = new CustomEvent('PreMiD_UpdatePresence', {
-			detail: data
+		const pmdUP = new CustomEvent("PreMiD_UpdatePresence", {
+			detail: this.encryptData(JSON.stringify(data))
 		});
 
 		window.dispatchEvent(pmdUP);
+	}
+
+	/**
+	 * Generates a AES key from the app identifier
+	 */
+	private getEncryptionKey(): Uint8Array {
+		if (this.encryptionKey) {
+			return this.encryptionKey;
+		}
+
+		// @ts-ignore
+		const key: string = PreMiD_Identifier;
+		let keySize: number;
+
+		if (key.length >= 32) {
+			keySize = 32;
+		} else if (key.length >= 24) {
+			keySize = 24;
+		} else if (key.length >= 16) {
+			keySize = 16;
+		} else {
+			throw new Error("String is not long enough to create encryption key.");
+		}
+
+		this.encryptionKey = aesjs.utils.utf8.toBytes(key.substring(0, keySize));
+		return this.encryptionKey;
+	}
+
+	/**
+	 * Encrypts a string using AES algorithm
+	 * @param data String to be encrypted
+	 */
+	private encryptData(data: string): string {
+		const key = this.getEncryptionKey();
+
+		const aesCtr = new aesjs.ModeOfOperation.ctr(key);
+		const textBytes = aesjs.utils.utf8.toBytes(data);
+		const encryptedBytes = aesCtr.encrypt(textBytes);
+		const encryptedHex = aesjs.utils.hex.fromBytes(encryptedBytes);
+
+		return encryptedHex;
 	}
 
 	/**
@@ -570,20 +679,22 @@ class Presence {
 	 * @param callback Callback function for event
 	 * @link https://docs.premid.app/dev/presence/class#events
 	 */
-	on(eventName: 'UpdateData' | 'iFrameData', callback: Function) {
+	on(eventName: "UpdateData" | "iFrameData", callback: Function) {
 		this._events[eventName] = callback;
 
 		switch (eventName) {
-			case 'UpdateData':
-				document.addEventListener('PreMiD_UpdateData', () => {
+			case "UpdateData":
+				document.addEventListener("PreMiD_UpdateData", () => {
 					//* Run callback
-					if (this.injectOnComplete && document.readyState !== 'complete') return;
+					if (this.injectOnComplete && document.readyState !== "complete")
+						return;
 					this._events[eventName]();
 				});
 				return;
-			case 'iFrameData':
-				window.addEventListener('PreMiD_iFrameData', (data: CustomEvent) => {
-					if (this.injectOnComplete && document.readyState !== 'complete') return;
+			case "iFrameData":
+				window.addEventListener("PreMiD_iFrameData", (data: CustomEvent) => {
+					if (this.injectOnComplete && document.readyState !== "complete")
+						return;
 					this._events[eventName](data.detail);
 				});
 				return;
@@ -593,6 +704,11 @@ class Presence {
 		}
 	}
 }
+
+/**
+ * Minimum amount of time in ms between slide updates
+ */
+const MIN_SLIDE_TIME: number = 5000;
 
 /**
  * Represents a slideshow slide
@@ -613,8 +729,8 @@ class SlideshowSlide {
 	}
 
 	set interval(interval: number) {
-		if (interval <= 2000) {
-			interval = 2000;
+		if (interval <= MIN_SLIDE_TIME) {
+			interval = MIN_SLIDE_TIME;
 		}
 		this._interval = interval;
 	}
@@ -669,7 +785,7 @@ class Slideshow {
 			setTimeout(() => {
 				// necessary to keep 'this' bound
 				this.pollSlide();
-			}, 2000);
+			}, MIN_SLIDE_TIME);
 		}
 	}
 
@@ -711,7 +827,7 @@ class Slideshow {
 	 * @param interval Interval until next slide
 	 */
 	updateSlide(id: string, data: PresenceData = null, interval: number = null) {
-		for (var slide of this.slides) {
+		for (const slide of this.slides) {
 			if (slide.id === id) {
 				slide.updateData(data);
 				slide.updateInterval(interval);
@@ -740,6 +856,7 @@ class Slideshow {
  * Is used to gather information from iFrames
  * @link https://docs.premid.app/en/dev/presence/iframe
  */
+// @ts-ignore
 class iFrame {
 	_events: any = {};
 
@@ -749,7 +866,7 @@ class iFrame {
 	 * @link https://docs.premid.app/dev/presence/class#iframedata
 	 */
 	send(data: any) {
-		let pmdIFD = new CustomEvent('PreMiD_iFrameData', {
+		const pmdIFD = new CustomEvent("PreMiD_iFrameData", {
 			detail: data
 		});
 
@@ -763,13 +880,13 @@ class iFrame {
 	 */
 	getUrl() {
 		return new Promise<string>(async resolve => {
-			let _listener = (data: CustomEvent) => {
+			const _listener = (data: CustomEvent) => {
 				resolve(data.detail);
-				document.removeEventListener('PreMiD_iFrameURL', _listener, true);
+				document.removeEventListener("PreMiD_iFrameURL", _listener, true);
 			};
-			document.addEventListener('PreMiD_iFrameURL', _listener);
+			document.addEventListener("PreMiD_iFrameURL", _listener);
 
-			let pmdGIFU = new CustomEvent('PreMiD_GETiFrameURL');
+			const pmdGIFU = new CustomEvent("PreMiD_GETiFrameURL");
 
 			document.dispatchEvent(pmdGIFU);
 		});
@@ -781,12 +898,12 @@ class iFrame {
 	 * @param callback
 	 * @link https://docs.premid.app/dev/presence/class#updatedata
 	 */
-	on(eventName: 'UpdateData', callback: Function) {
+	on(eventName: "UpdateData", callback: Function) {
 		this._events[eventName] = callback;
 
 		switch (eventName) {
-			case 'UpdateData': {
-				document.addEventListener('PreMiD_UpdateData', () => {
+			case "UpdateData": {
+				document.addEventListener("PreMiD_UpdateData", () => {
 					//* Run callback
 					this._events[eventName]();
 				});
@@ -795,3 +912,12 @@ class iFrame {
 		}
 	}
 }
+
+// @ts-ignore
+window.Presence = Presence;
+
+// @ts-ignore
+window.iFrame = iFrame;
+
+// @ts-ignore
+window.Slideshow = Slideshow;

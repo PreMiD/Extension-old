@@ -1,17 +1,17 @@
 <template>
-  <div id="select" :class="active ? 'active' : null" @click="active = !active">
+  <div id="select" :class="active ? 'active' : null" @click="toggleActive">
+    <div id="wrapper" :style="{ maxHeight: selectHeight + 'px'}" ref="wrapper">
       <template v-if="$props.options && typeof $props.options[0] === 'object'">
-        <div id="wrapper">
           <p id="show" v-text="$props.options.find(l => l.value === (($props.selected && $props.selected !== true) ? $props.selected : DEFAULT_LOCALE)).name" />
-          <span v-for="o in $props.options" :key="o.value" v-text="o.name" @click="$emit('change', o.value)" />
-        </div>
+          <span v-for="o in $props.options.filter(o => o.value !== $props.selected)" :key="o.value" v-text="o.name" @click="$emit('change', o.value)" />
       </template>
       <template v-else>
-        <div id="wrapper">
-          <p id="show" v-text="$props.options[$props.selected]" />
-          <span v-for="(s, i) in $props.options" :key="i" v-text="s" @click="$emit('change',i)" />
-        </div>
+        <p id="show" v-text="$props.options[$props.selected]" />
+        <template v-for="(s, i) in $props.options">
+          <span v-if="s != $props.options[$props.selected]" :key="i" v-text="s" @click="$emit('change',i)" />
+        </template>
       </template>
+    </div>
   </div>
 </template>
 
@@ -19,11 +19,35 @@
 import { DEFAULT_LOCALE } from '../../../util/langManager';
 export default {
   props: ["options", "selected"],
+  events: ["active", "inactive"],
   data() {
     return {
       active: false,
-      DEFAULT_LOCALE: DEFAULT_LOCALE
+      DEFAULT_LOCALE: DEFAULT_LOCALE,
+      selectHeight: null
     };
+  },
+  methods: {
+    toggleActive() {
+      this.active = !this.active;
+
+      let eventType;
+      if (this.active) {
+        eventType = "active";
+      } else {
+        eventType = "inactive";
+      }
+
+      // let first redraw the element to the browser
+      setTimeout(() => {
+        this.$emit(eventType, eventType, this.$refs.wrapper);
+      }, 0);
+    }
+  },
+  mounted: function() {
+    let wrapper = this.$refs.wrapper,
+      clientRect = wrapper.getBoundingClientRect();
+      this.selectHeight = Math.max(85, window.innerHeight - (clientRect.y + 10));
   }
 };
 </script>
@@ -69,6 +93,8 @@ export default {
     min-height: 25px;
     min-width: 75px;
     padding: 5px;
+
+    overflow-y: auto;
   }
 
   span {
@@ -80,6 +106,8 @@ export default {
   }
 
   &.active {
+    position: relative;
+		z-index: 1;
     span {
       display: block;
     }

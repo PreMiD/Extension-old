@@ -1,9 +1,8 @@
-import axios from "axios";
+import { getStorage } from "./functions/asyncStorage";
 import clearActivity from "./functions/clearActivity";
+import graphql, { getPresenceMetadata } from "./functions/graphql";
 import injectPresence from "./functions/injectPresence";
 import tabHasPresence from "./functions/tabHasPresence";
-import { getStorage } from "./functions/asyncStorage";
-import { apiBase } from "../config";
 
 export let priorityTab: number = null;
 export let oldPresence: any = null;
@@ -37,7 +36,7 @@ export async function tabPriority(info: any = undefined) {
 		return;
 
 	//* Check if this website uses the PreMiD_Presence meta tag
-	let pmdMetaTag = await new Promise(resolve =>
+	let pmdMetaTag: string = await new Promise(resolve =>
 		chrome.tabs.executeScript(
 			activeTab.id,
 			{
@@ -65,7 +64,9 @@ export async function tabPriority(info: any = undefined) {
 		if (!p.enabled) return false;
 
 		if (typeof p.metadata.regExp !== "undefined") {
-			res = activeTab.url.match(new RegExp("^(https?:|file:[/]?)[/]{2}" + p.metadata.regExp));
+			res = activeTab.url.match(
+				new RegExp("^(https?:|file:[/]?)[/]{2}" + p.metadata.regExp)
+			);
 
 			if (res === null) return false;
 			else return res.length > 0;
@@ -82,39 +83,42 @@ export async function tabPriority(info: any = undefined) {
 
 	//* If PreMiD has no presence to inject here, inject one if pmdMetaTag has one
 	if (presence.length === 0 && pmdMetaTag) {
-		let { metadata } = (
-				await axios(`presences/${pmdMetaTag}`, {
-					baseURL: apiBase
-				})
-			).data,
+		const metadata = (await getPresenceMetadata(pmdMetaTag)).data.metadata,
 			prs: any = {
 				metadata: metadata,
-				presence: (
-					await axios(`presences/${pmdMetaTag}/presence.js`, {
-						baseURL: apiBase
-					})
-				).data,
+				presence: null,
 				enabled: true,
 				metaTag: true,
 				hidden: false
 			};
-		if (metadata.iframe)
-			prs.iframe = (
-				await axios(`presences/${pmdMetaTag}/iframe.js`, { baseURL: apiBase })
-			).data;
 
+		const presenceJsCode = (
+			await graphql(`
+			query {
+				presences(service: "${pmdMetaTag}") {
+					presenceJs
+					${metadata.iframe ? "iframeJs" : ""}
+				}
+			}
+		`)
+		).data.presences[0];
+		prs.presence = presenceJsCode.presenceJs;
+
+		if (metadata.iframe) {
+			prs.iframe = presenceJsCode.iframeJs;
+		}
 		presence = [prs];
 
 		chrome.storage.local.get("presences", data => {
-			let exPresence = data.presences.findIndex(
+			const exPresence = data.presences.findIndex(
 				p =>
 					p.metadata.service === prs.metadata.service &&
 					p.metaTag === prs.metaTag
 			);
 
 			if (exPresence > -1) {
-				const enabled = data.presences[exPresence].enabled;
-				let presence1 = prs;
+				const enabled = data.presences[exPresence].enabled,
+					presence1 = prs;
 				presence1.enabled = enabled;
 				presence1.hidden = false;
 				data.presences[exPresence] = presence1;
@@ -126,7 +130,7 @@ export async function tabPriority(info: any = undefined) {
 	//* Presence available for currUrl
 	if (presence.length > 0) {
 		//* Check if this tab already has a presence injected
-		let tabHasPrs = await tabHasPresence(activeTab.id);
+		const tabHasPrs = await tabHasPresence(activeTab.id);
 
 		//* If a tab is already prioritized, run 5 sec timeout
 		if (priorityTab) {
@@ -204,7 +208,7 @@ export function setPriorityTab(value: any) {
 
 function updatePopupVisibility() {
 	chrome.storage.local.get("presences", ({ presences }) => {
-		let presenceToShow = presences.findIndex(
+		const presenceToShow = presences.findIndex(
 				p =>
 					p.metaTag &&
 					p.hidden &&
@@ -226,7 +230,7 @@ function updatePopupVisibility() {
 
 export function hideMetaTagPresences() {
 	chrome.storage.local.get("presences", ({ presences }) => {
-		let presenceToHide = presences.findIndex(p => p.metaTag && !p.hidden);
+		const presenceToHide = presences.findIndex(p => p.metaTag && !p.hidden);
 
 		if (presenceToHide > -1) presences[presenceToHide].hidden = true;
 

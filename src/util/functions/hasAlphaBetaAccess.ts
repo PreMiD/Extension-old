@@ -1,6 +1,8 @@
 import axios from "axios";
+
+import { releaseType } from "../../config";
 import { getStorage } from "./asyncStorage";
-import { apiBase, releaseType } from "../../config";
+import graphqlRequest from "./graphql";
 
 export default async function hasAlphaBetaAccess() {
 	const { authorizedBetaAlpha } = await getStorage(
@@ -16,7 +18,7 @@ export default async function hasAlphaBetaAccess() {
 			// @ts-ignore
 			redirectURL = await browser.identity.getRedirectURL();
 
-		const allowedAccess = await new Promise(resolve =>
+		const allowedAccess = await new Promise<void | boolean>(resolve =>
 			chrome.identity.launchWebAuthFlow(
 				{
 					url: `https://discordapp.com/api/oauth2/authorize?response_type=token&client_id=503557087041683458&scope=identify&redirect_uri=${redirectURL}`,
@@ -31,24 +33,35 @@ export default async function hasAlphaBetaAccess() {
 					}
 
 					const accessToken = responseUrl
-						.match(/(&access_token=[\d\w]+)/g)[0]
-						.replace("&access_token=", "");
-
-					const dUser = (
-						await axios("https://discordapp.com/api/users/@me", {
-							headers: {
-								Authorization: `Bearer ${accessToken}`
+							.match(/(&access_token=[\d\w]+)/g)[0]
+							.replace("&access_token=", ""),
+						dUser = (
+							await axios("https://discordapp.com/api/users/@me", {
+								headers: {
+									Authorization: `Bearer ${accessToken}`
+								}
+							})
+						).data,
+						accessType = (
+							await graphqlRequest(`
+						query {
+							alphaBetaAccess(userId: "${dUser.id}") {
+								betaAccess
+								alphaAccess
 							}
-						})
-					).data;
+						}
+					`)
+						).data.alphaBetaAccess[0];
 
 					let allowedAccess: boolean;
-					if (releaseType === "BETA") {
-						allowedAccess = (await axios(apiBase + "betaAccess/" + dUser.id))
-							.data.access;
-					} else if (releaseType === "ALPHA")
-						allowedAccess = (await axios(apiBase + "alphaAccess/" + dUser.id))
-							.data.access;
+					switch (releaseType) {
+						case "BETA":
+							allowedAccess = accessType.betaAccess;
+							break;
+						case "ALPHA":
+							allowedAccess = accessType.alphaAccess;
+							break;
+					}
 
 					resolve(allowedAccess);
 				}

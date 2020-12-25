@@ -1,13 +1,13 @@
+import { releaseType } from "../../config";
 import addDefaultPresences from "../functions/addDefaultPresences";
 import clearActivity from "../functions/clearActivity";
 import consoleHeader from "../functions/consoleHeader";
 import hasAlphaBetaAccess from "../functions/hasAlphaBetaAccess";
 import initSettings from "../functions/initSettings";
+import { updateStrings } from "../langManager";
+import { presenceScience, updatePresences } from "../presenceManager";
 import { connect } from "../socketManager";
 import { hideMetaTagPresences, priorityTab, tabPriority } from "../tabPriority";
-import { releaseType } from "../../config";
-import { updatePresences } from "../presenceManager";
-import { updateStrings } from "../langManager";
 
 export async function start() {
 	await consoleHeader();
@@ -25,11 +25,13 @@ export async function start() {
 	await Promise.all([
 		initSettings(),
 		addDefaultPresences(),
-		updateStrings(),
-		updatePresences()
+		updatePresences(),
+		updateStrings(chrome.i18n.getUILanguage()),
+		presenceScience()
 	]);
-	setInterval(updateStrings, 15 * 60 * 1000);
-	setInterval(updatePresences, 15 * 60 * 1000);
+	setInterval(function() {
+		presenceScience();
+	}, 60 * 30 * 1000);
 	connect();
 }
 
@@ -62,3 +64,5 @@ chrome.windows.onFocusChanged.addListener(windowId => {
 	if (windowId === -1) return;
 	tabPriority();
 });
+
+updatePresences(), updateStrings(chrome.i18n.getUILanguage());
