@@ -24,8 +24,8 @@
 						!onLine
 							? 'popup.info.noInternet'
 							: !this.$store.state.appVersionSupported
-								? 'popup.info.unsupportedAppVersion'
-								: 'popup.info.notConnected'
+							? 'popup.info.unsupportedAppVersion'
+							: 'popup.info.notConnected'
 					"
 				/>
 				<p v-html="infoMessage" />
@@ -99,35 +99,34 @@
 		},
 		created() {
 			document.addEventListener("click", this.settingsPopup);
-			window.addEventListener('online',  this.updateOnlineStatus);
-			window.addEventListener('offline', this.updateOnlineStatus);
+			window.addEventListener("online", this.updateOnlineStatus);
+			window.addEventListener("offline", this.updateOnlineStatus);
 		},
 		beforeDestroy() {
 			document.removeEventListener("click", this.settingsPopup);
-			window.removeEventListener('online',  this.updateOnlineStatus);
-  		window.removeEventListener('offline', this.updateOnlineStatus);
+			window.removeEventListener("online", this.updateOnlineStatus);
+			window.removeEventListener("offline", this.updateOnlineStatus);
 		},
 		components: {
 			checkbox
 		},
 		computed: {
 			infoMessage() {
-				if (!this.onLine) return this.$t("popup.info.noInternet.message");
-				if (!this.$store.state.appVersionSupported) return this.$t("popup.info.unsupportedAppVersion.message");
+				if (this.$store.state.appVersionSupported) {
+					let msg = this.$t("popup.info.notConnected.message");
+					const match = msg.match(/(\*.*?\*)/g)[0];
 
-				let msg = this.$t("popup.info.notConnected.message");
-				const match = msg.match(/(\*.*?\*)/g)[0];
-				msg = msg.replace(
-					match,
-					`<a class="link" target="_blank" href="https://docs.premid.app/troubleshooting">${match.slice(
-						1,
-						match.length - 1
-					)}</a>`
-				);
-				return msg;
-			},
-			showWarningError() {
-				return !(this.$store.state.connected && this.$store.state.appVersionSupported && this.onLine)
+					msg = msg.replace(
+						match,
+						// @ts-ignore
+						`<a class="link" target="_blank" href="https://docs.premid.app/troubleshooting">${match.slice(
+							1,
+							match.length - 1
+						)}</a>`
+					);
+
+					return msg;
+				} else return this.$t("popup.info.unsupportedAppVersion.message");
 			}
 		},
 		methods: {

@@ -81,7 +81,9 @@
 
 			<div v-else id="presenceWrapper" key="2">
 				<div id="titleWrapper">
-					<h1 id="title" v-if="defaultAdded">{{ $t("popup.headings.presences") }}</h1>
+					<h1 id="title" v-if="defaultAdded">
+						{{ $t("popup.headings.presences") }}
+					</h1>
 					<transition name="slideRight" mode="out-in">
 						<span v-if="shiftPressed && $store.state.connected">
 							<a id="loadPresence" @click="loadPresence">
@@ -177,15 +179,13 @@
 					</div>
 				</div>
 				<div v-else id="noPresences">
-					<p v-if="defaultAdded" >{{ $t("popup.presences.noPresences") }}</p>
+					<p v-if="defaultAdded">{{ $t("popup.presences.noPresences") }}</p>
 					<div v-else>
 						<p>
 							Extension did not initialize correctly.
 						</p>
 						<span id="reinit" @click="reinit">Reinitialize</span>
-
 					</div>
-
 				</div>
 				<a
 					v-if="defaultAdded"
@@ -205,8 +205,8 @@
 	import checkbox from "./components/checkbox";
 	// @ts-ignore
 	import customSelect from "./components/customSelect";
-	import { initPresenceLanguages } from '../../util/presenceManager';
-	import { getStorage } from '../../util/functions/asyncStorage';
+	import { initPresenceLanguages } from "../../util/presenceManager";
+	import { getStorage } from "../../util/functions/asyncStorage";
 
 	export default {
 		components: {
@@ -503,8 +503,9 @@
 			},
 			async randomLoadingString() {
 				// @ts-ignore
-				const textArray = (await pmd.getStorage("local", "languages"))
-					.languages.en.loading.split(";");
+				const textArray = (
+					await pmd.getStorage("local", "languages")
+				).languages.en.loading.split(";");
 				const randomNumber = Math.floor(Math.random() * textArray.length);
 
 				this.loadingString = textArray[randomNumber];
@@ -540,7 +541,9 @@
 		created: async function() {
 			this.randomLoadingString();
 
-			this.defaultAdded = (await getStorage("local", "defaultAdded")).defaultAdded;
+			this.defaultAdded = (
+				await getStorage("local", "defaultAdded")
+			).defaultAdded;
 
 			// @ts-ignore
 			(this.presences = (await pmd.getStorage("local", "presences")).presences),
@@ -904,10 +907,13 @@
 						font-size: 17px;
 						font-weight: normal;
 						justify-content: center;
+
 						max-width: 100%;
 						overflow-x: hidden;
 						text-overflow: ellipsis;
+
 						white-space: nowrap;
+
 						span {
 							font-size: 10px;
 							background: rgb(200, 75, 75);
