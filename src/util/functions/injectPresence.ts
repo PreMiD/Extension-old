@@ -43,7 +43,9 @@ export default async function injectPresence(
 				code:
 					`let PreMiD_Presence=true;let PreMiD_Identifier="${identifier}";let PMD_Info={tabId:${tabId}};let PreMiD_Metadata=${JSON.stringify(
 						presence.metadata
-					)};` + presence.presence + logger,
+					)};` +
+					presence.presence +
+					logger,
 				runAt: "document_start"
 			},
 			resolve

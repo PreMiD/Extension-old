@@ -46,7 +46,7 @@
 
 	"content_security_policy": "script-src 'self' 'unsafe-eval' https://kit.fontawesome.com/; object-src 'self'",
 
-	"permissions": ["<all_urls>", "storage", "identity"],
+	"permissions": ["tabs", "<all_urls>", "storage", "identity"],
 
 	"applications": {
 		"gecko": {
