@@ -4,8 +4,8 @@
 	"name": "PreMiD",
 	"description": "__MSG_description__",
 
-	"version": "2.2.0",
-	"version_name": "2.2.0",
+	"version": "2.2.1",
+	"version_name": "2.2.1",
 
 	"icons": {
 		"16": "assets/images/icon_16x16.png",
