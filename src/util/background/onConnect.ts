@@ -1,7 +1,11 @@
-import { supportedAppVersion, socket } from "../socketManager";
-import setActivity from "../functions/setActivity";
-import isEquivalent from "../functions/isEquivalent";
+import { appVersion, socket, supportedAppVersion } from "../socketManager";
+
 import cpObj from "../functions/cpObj";
+import isEquivalent from "../functions/isEquivalent";
+import { platformType } from "../presenceManager";
+import setActivity from "../functions/setActivity";
+import { setStorage } from "../functions/asyncStorage";
+import { start } from "./generic";
 
 //* Some debug stuff to prevent timestamp jumping
 export let oldObject: any = null;
@@ -11,10 +15,21 @@ export function setOldObject(object: any) {
 	oldObject = object;
 }
 
+const formatNum = n =>
+	Array.from(String(n))
+		.reverse()
+		.map((a, i) => {
+			if (i % 1 == 0 && i > 0) return a + ".";
+			return a;
+		})
+		.reverse()
+		.join("");
+
 chrome.runtime.onConnect.addListener(function(port) {
 	handleTabs(port);
 	handlePopup(port);
 	handlePresence(port);
+	handleAppTs(port);
 });
 
 function handleTabs(port: chrome.runtime.Port) {
@@ -63,19 +78,28 @@ function handlePopup(port: chrome.runtime.Port) {
 	}
 }
 
-function handlePresence(port: chrome.runtime.Port) {
+async function handlePresence(port: chrome.runtime.Port) {
 	if (port.name === "contentScript") {
-		port.onMessage.addListener(msg => {
+		port.onMessage.addListener(async msg => {
 			if (
 				typeof msg.presence === "undefined" ||
 				typeof msg.presence.presenceData === "undefined"
 			)
 				return;
 
+			const platform: platformType = await new Promise(resolve =>
+				chrome.runtime.getPlatformInfo(info =>
+					resolve({ os: info.os, arch: info.arch })
+				)
+			);
+
 			if (typeof msg.presence.presenceData.largeImageKey !== "undefined")
-				msg.presence.presenceData.largeImageText = `${
-					chrome.runtime.getManifest().name
-				} v${chrome.runtime.getManifest().version_name}`;
+				msg.presence.presenceData.largeImageText =
+					`PreMiD ${platform.os === "linux" ? "🐧 " : ""}• v${formatNum(
+						appVersion
+					)}` +
+					"⁣   " +
+					`⁣⁣Extension • v${chrome.runtime.getManifest().version_name}`;
 
 			if (oldObject == null) {
 				oldObject = cpObj(msg.presence.presenceData);
@@ -86,11 +110,11 @@ function handlePresence(port: chrome.runtime.Port) {
 
 			//* Check differences and if there aren't any return
 
-			let check = cpObj(oldObject);
+			const check = cpObj(oldObject);
 			delete check.startTimestamp;
 			delete check.endTimestamp;
 
-			let check1 = cpObj(msg.presence.presenceData);
+			const check1 = cpObj(msg.presence.presenceData);
 			delete check1.startTimestamp;
 			delete check1.endTimestamp;
 
@@ -125,6 +149,34 @@ function handlePresence(port: chrome.runtime.Port) {
 
 			oldObject = cpObj(msg.presence.presenceData);
 			return;
+		});
+	}
+}
+
+function handleAppTs(port: chrome.runtime.Port) {
+	if (port.name === "app.ts") {
+		port.onMessage.addListener(async msg => {
+			if (msg.action === "reinit") {
+				await setStorage("local", {
+					defaultAdded: false
+				});
+
+				let success = false;
+
+				if (navigator.onLine) {
+					try {
+						await start();
+						success = true;
+					} catch (e) {
+						// error
+					}
+				}
+
+				port.postMessage({
+					action: "reinit",
+					success
+				});
+			}
 		});
 	}
 }

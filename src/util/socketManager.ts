@@ -1,14 +1,15 @@
 import * as socketIo from "socket.io-client";
-import { success, error, info } from "./debug";
-import { priorityTab } from "./tabPriority";
+
+import { requiredAppVersion } from "../config";
+import { oldActivity } from "./background/onConnect";
+import { error, info, success } from "./debug";
+import { getStorage } from "./functions/asyncStorage";
 import presenceDevManager from "./functions/presenceDevManager";
 import setActivity from "./functions/setActivity";
-import { getStorage } from "./functions/asyncStorage";
-import { oldActivity } from "./background/onConnect";
-import { requiredAppVersion } from "../config";
+import { priorityTab } from "./tabPriority";
 
 //* Create socket
-export let socket = socketIo.connect("http://localhost:3020", {
+export const socket = socketIo.connect("http://localhost:3020", {
 	autoConnect: false
 });
 
@@ -91,7 +92,8 @@ socket.on(
 		} | null
 	) => {
 		if (!user) return;
-		chrome.storage.local.set({ discordUser: user });
+		const { premium_type, ...newUser } = user;
+		chrome.storage.local.set({ discordUser: newUser });
 	}
 );
 

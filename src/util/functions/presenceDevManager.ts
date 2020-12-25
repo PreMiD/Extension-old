@@ -1,10 +1,11 @@
+import { error, info } from "../debug";
+import { initPresenceLanguages } from "../presenceManager";
+import { getStorage } from "./asyncStorage";
+
+// import { oldPresence, priorityTab } from "../tabPriority";
+//TODO RECODE
 // @ts-nocheck
 
-import { info, error } from "../debug";
-import { getStorage } from "./asyncStorage";
-import { priorityTab, oldPresence } from "../tabPriority";
-
-//TODO Finish and show in some way
 let errors = [];
 export default async function(files: any) {
 	errors = [];
@@ -47,36 +48,71 @@ export default async function(files: any) {
 	}
 	if (!presence) errors.push("No presence.js found.");
 
-	errors.map(err => error("presenceDevManager.ts", err));
+	errors.map(err => error("presenceDevManager.ts", err, true));
 
 	let presences: presenceStorage = (await getStorage("local", "presences"))
 		.presences;
 
 	presences = presences.filter(p => !p.tmp);
 
-	let addedPresence = presences.find(
+	const addedPresence = presences.find(
 		p => p.metadata.service === metadata.service
 	);
 	if (addedPresence) addedPresence.enabled = false;
 
-	let tmpPr: any = {
+	const tmpPr: any = {
 		enabled: true,
 		metadata: metadata,
-		presence: presence.contents,
+		presence: presence?.contents,
 		tmp: true
 	};
 
-	if (typeof metadata.iframe !== "undefined" && metadata.iframe)
+	if (typeof metadata?.iframe !== "undefined" && metadata?.iframe)
 		tmpPr.iframe = iframe.contents;
 
-	if (tmpPr.metadata.settings)
+	if (tmpPr.metadata.settings) {
 		chrome.storage.local.set({
 			[`pSettings_${tmpPr.metadata.service}`]: tmpPr.metadata.settings
 		});
+		initPresenceLanguages(tmpPr);
+	}
 
 	presences.push(tmpPr);
 
 	chrome.storage.local.set({ presences: presences });
 
-	if (oldPresence && priorityTab) chrome.tabs.reload(priorityTab);
+	// reload all tabs of any presence in development mode
+	for (let i = 0; i < presences.length; i++) {
+		if (presences[i].tmp) {
+			const updatedPresence = presences[i];
+
+			chrome.tabs.query(
+				{
+					windowType: "normal"
+				},
+				tabs => {
+					for (let j = 0; j < tabs.length; j++) {
+						let tabUrl = new URL(tabs[j].url);
+
+						if (
+							(typeof updatedPresence.metadata.url === "string" &&
+								updatedPresence.metadata.url === tabUrl.hostname) ||
+							(updatedPresence.metadata.url instanceof Array &&
+								updatedPresence.metadata.url.includes(tabUrl.hostname)) ||
+							(updatedPresence.metadata.regExp &&
+								new RegExp(updatedPresence.metadata.regExp).test(tabUrl.href))
+						) {
+							chrome.tabs.reload(tabs[j].id, { bypassCache: true }, () => {
+								console.info(
+									`Presence ${updatedPresence.metadata.service} updated, tab reloaded!`
+								);
+							});
+						}
+					}
+				}
+			);
+		}
+	}
+
+	// if (oldPresence && priorityTab) chrome.tabs.reload(priorityTab);
 }

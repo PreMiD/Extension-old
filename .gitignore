@@ -1,6 +1,11 @@
 node_modules/
+yarn-error.log
 
 dist/
 src/_locales
 
 *.js
+!/src/html/tabs/app.js
+!/src/html/tabs/components/*.js
+!/src/html/tabs/pages/*.js
+!/src/js/lib/*.js

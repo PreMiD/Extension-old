@@ -22,34 +22,57 @@
 					<h1>{{ $t("popup.headings.description") }}</h1>
 					<p v-html="presenceDescription" />
 				</div>
-				<div id="settings" class="container">
+				<div id="settings" class="container" ref="settingsContainer">
 					<h1>{{ $t("popup.headings.settings") }}</h1>
 					<div id="settingsContainer">
-						<div id="setting" v-for="(setting, i) in settingsFiltered" :key="i">
-							<span>
+						<div
+							id="setting"
+							v-for="(setting, i) in settingsFiltered"
+							:key="i"
+							:class="
+								typeof setting.value === 'number' ||
+								(setting.multiLanguage &&
+									setting.values &&
+									setting.values.length > 1)
+									? 'select'
+									: ''
+							"
+						>
+							<span :title="setting.title">
 								<i :class="setting.icon" />
 								{{ setting.title }}
 							</span>
 
-							<checkbox
-								v-if="typeof setting.value === 'boolean'"
-								:checked="setting.value"
-								@change="updatePresenceSetting(setting.id, $event)"
-							/>
-							<input
-								v-if="typeof setting.value === 'string'"
-								type="text"
-								:value="setting.value"
-								spellcheck="false"
-								@change="updatePresenceSetting(setting.id, $event.target.value)"
-								:ref="setting.id"
-								:placeholder="setting.placeholder"
-							/>
+							<template v-if="!setting.multiLanguage">
+								<checkbox
+									v-if="typeof setting.value === 'boolean'"
+									:checked="setting.value"
+									@change="updatePresenceSetting(setting.id, $event)"
+								/>
+								<input
+									v-if="typeof setting.value === 'string'"
+									type="text"
+									:value="setting.value"
+									spellcheck="false"
+									@change="
+										updatePresenceSetting(setting.id, $event.target.value)
+									"
+									:ref="setting.id"
+									:placeholder="setting.placeholder"
+								/>
+							</template>
 							<customSelect
-								v-if="typeof setting.value === 'number'"
+								v-if="
+									typeof setting.value === 'number' ||
+										(setting.multiLanguage &&
+											setting.values &&
+											setting.values.length > 1)
+								"
 								@change="updatePresenceSetting(setting.id, $event)"
 								:options="setting.values"
 								:selected="setting.value"
+								@active="selectToggle"
+								@inactive="selectToggle"
 							/>
 						</div>
 					</div>
@@ -58,7 +81,7 @@
 
 			<div v-else id="presenceWrapper" key="2">
 				<div id="titleWrapper">
-					<h1 id="title">{{ $t("popup.headings.presences") }}</h1>
+					<h1 id="title" v-if="defaultAdded">{{ $t("popup.headings.presences") }}</h1>
 					<transition name="slideRight" mode="out-in">
 						<span v-if="shiftPressed && $store.state.connected">
 							<a id="loadPresence" @click="loadPresence">
@@ -77,7 +100,7 @@
 								id="deletePresence"
 								class="fas fa-check-circle"
 								@click="showDelete = !showDelete"
-								style="grid-column-end:none;"
+								style="grid-column-end: none"
 							/>
 							<i
 								v-else
@@ -108,20 +131,33 @@
 						</span>
 					</div>
 				</transition>
-				<div id="presences" v-if="this.presences.length > 0">
+				<div v-if="loadingPresences" id="loader-container">
+					<div class="loader">
+						<img src="/assets/images/icon.svg" />
+						<p>{{ loadingString }}</p>
+					</div>
+				</div>
+				<div id="presences" v-else-if="this.filteredPresences.length > 0">
 					<div
 						id="presence"
 						v-for="(presence, i) in filteredPresences"
 						v-bind:key="`p${i}`"
 					>
-						<img :src="presence.metadata.logo" draggable="false" />
-						<h1>
-							{{ presence.metadata.service }}
-							<span v-if="presence.tmp">TMP</span>
+						<img
+							:src="presence.metadata.logo"
+							draggable="false"
+							:title="presence.metadata.service"
+						/>
+						<h1 :title="presence.metadata.service">
+							<span v-if="presence.tmp">TMP</span
+							>{{ presence.metadata.service }}
 						</h1>
 						<i
 							v-if="
-								!presence.noCog && presence.metadata.settings && !showDelete
+								!presence.noCog &&
+									presence.metadata.settings &&
+									presence.metadata.settings.length > 0 &&
+									!showDelete
 							"
 							class="fas fa-cog action"
 							id="settings"
@@ -140,8 +176,19 @@
 						</transition>
 					</div>
 				</div>
-				<p v-else id="noPresences">{{ $t("popup.presences.noPresences") }}</p>
+				<div v-else id="noPresences">
+					<p v-if="defaultAdded" >{{ $t("popup.presences.noPresences") }}</p>
+					<div v-else>
+						<p>
+							Extension did not initialize correctly.
+						</p>
+						<span id="reinit" @click="reinit">Reinitialize</span>
+
+					</div>
+
+				</div>
 				<a
+					v-if="defaultAdded"
 					id="presenceStoreBtn"
 					href="https://premid.app/store"
 					target="_blank"
@@ -158,6 +205,8 @@
 	import checkbox from "./components/checkbox";
 	// @ts-ignore
 	import customSelect from "./components/customSelect";
+	import { initPresenceLanguages } from '../../util/presenceManager';
+	import { getStorage } from '../../util/functions/asyncStorage';
 
 	export default {
 		components: {
@@ -214,8 +263,33 @@
 				inPresenceSettingsView: false,
 				pSettingsPresence: null,
 				pSettings: null,
-				presenceSettings: []
+				presenceSettings: [],
+				loadingPresences: true,
+				loadingString: "",
+				defaultAdded: false
 			};
+		},
+		watch: {
+			async presences(newValue, oldValue) {
+				if (oldValue.length > 0 && newValue.length > oldValue.length) {
+					let newPresences = newValue.filter(
+						p => !oldValue.find(o => o.metadata.service == p.metadata.service)
+					);
+
+					for (const newPresence of newPresences) {
+						initPresenceLanguages(newPresence);
+
+						if (newPresence.metadata.settings) {
+							newPresence.noCog = !(
+								newPresence.metadata.settings.findIndex(
+									s => s.multiLanguage && s.values.length > 1
+								) >= 0
+							);
+							this.$forceUpdate();
+						}
+					}
+				}
+			}
 		},
 		computed: {
 			filteredPresences() {
@@ -338,7 +412,7 @@
 					JSON.parse(JSON.stringify({ presences: this.presences }))
 				);
 			},
-			deletePresence(i: number) {
+			async deletePresence(i: number) {
 				const presenceToRemove = this.filteredPresences[i];
 				this.presences = this.presences.filter(
 					p =>
@@ -353,6 +427,17 @@
 				chrome.storage.local.set(
 					JSON.parse(JSON.stringify({ presences: this.presences }))
 				);
+
+				// @ts-ignore
+				const settings = await pmd.getStorage(
+					"local",
+					`pSettings_${presenceToRemove.metadata.service}`
+				);
+				if (settings) {
+					chrome.storage.local.remove(
+						`pSettings_${presenceToRemove.metadata.service}`
+					);
+				}
 			},
 
 			async togglePresenceSettings(i: number) {
@@ -365,9 +450,26 @@
 					`pSettings_${this.filteredPresences[i].metadata.service}`
 				);
 
-				this.pSettingsPresence.metadata.settings;
 				settings =
 					settings[`pSettings_${this.pSettingsPresence.metadata.service}`];
+
+				if (settings) {
+					let storageLngsSettingsIdx = settings.findIndex(
+						s => typeof s.multiLanguage !== "undefined"
+					);
+					let presenceLngsSettings = this.pSettingsPresence.metadata.settings.find(
+						s => typeof s.multiLanguage !== "undefined"
+					);
+
+					if (storageLngsSettingsIdx >= 0) {
+						if (presenceLngsSettings) {
+							let setting = settings[storageLngsSettingsIdx];
+							setting.multiLanguage = true;
+						} else {
+							settings.splice(storageLngsSettingsIdx, 1);
+						}
+					}
+				}
 
 				this.pSettings = settings
 					? settings
@@ -398,9 +500,48 @@
 						})
 					)
 				);
+			},
+			async randomLoadingString() {
+				// @ts-ignore
+				const textArray = (await pmd.getStorage("local", "languages"))
+					.languages.en.loading.split(";");
+				const randomNumber = Math.floor(Math.random() * textArray.length);
+
+				this.loadingString = textArray[randomNumber];
+			},
+			selectToggle(eventType, wrapper) {
+				if (eventType === "active") {
+					const diff =
+						wrapper.getBoundingClientRect().bottom -
+						this.$refs.settingsContainer.getBoundingClientRect().bottom;
+
+					if (diff > 0) {
+						this.$refs.settingsContainer.style.paddingBottom = diff + 8 + "px";
+					}
+				} else if (eventType === "inactive") {
+					this.$refs.settingsContainer.style.paddingBottom = null;
+				}
+			},
+			async reinit() {
+				this.loadingPresences = true;
+				const port = chrome.runtime.connect({ name: "app.ts" });
+
+				port.onMessage.addListener(msg => {
+					if (msg.success) {
+						location.reload();
+					} else {
+						this.loadingPresences = false;
+					}
+				});
+
+				port.postMessage({ action: "reinit" });
 			}
 		},
 		created: async function() {
+			this.randomLoadingString();
+
+			this.defaultAdded = (await getStorage("local", "defaultAdded")).defaultAdded;
+
 			// @ts-ignore
 			(this.presences = (await pmd.getStorage("local", "presences")).presences),
 				(this.presenceSettings = await Promise.all(
@@ -412,17 +553,19 @@
 								`pSettings_${p.metadata.service}`
 							);
 
-							if (
+							initPresenceLanguages(p);
+
+							return !(
 								presenceSettings[`pSettings_${p.metadata.service}`] &&
 								presenceSettings[`pSettings_${p.metadata.service}`].filter(
 									s => !s.hidden
 								).length === 0
-							)
-								return false;
-							else return true;
+							);
 						} else return false;
 					})
 				));
+
+			this.loadingPresences = false;
 
 			//* Presence hot reload
 			// @ts-ignore
@@ -437,6 +580,17 @@
 							`pSettings_${this.pSettingsPresence.metadata.service}`
 						].newValue;
 
+				this.presences
+					.filter(
+						p =>
+							p.metadata.settings &&
+							p.metadata.settings.find(s =>
+								Object.keys(s).includes("multiLanguage")
+							)
+					)
+					.forEach(async p => {
+						await initPresenceLanguages(p);
+					});
 				this.$forceUpdate();
 			});
 
@@ -454,13 +608,23 @@
 <style lang="scss" scoped>
 	@import "../../assets/scss/_variables.scss";
 	#mainWrapper {
+		* {
+			position: relative;
+		}
+
 		display: grid;
 
 		#presenceSettings {
-			* {
-				position: relative;
-				z-index: 1;
-			}
+			max-height: 470px;
+		}
+
+		#presenceWrapper {
+			max-height: 450px;
+		}
+
+		#presenceSettings {
+			overflow-y: scroll;
+			overflow-x: hidden;
 
 			#presenceInfo {
 				p {
@@ -550,6 +714,9 @@
 				span {
 					white-space: nowrap;
 					font-size: 14px;
+					max-width: 190px;
+					overflow: hidden;
+					text-overflow: ellipsis;
 
 					i {
 						text-align: center;
@@ -585,7 +752,6 @@
 			padding: 5px;
 			border-radius: 5px;
 
-			max-height: 450px;
 			overflow: auto;
 			overflow-x: hidden;
 
@@ -685,6 +851,37 @@
 				}
 			}
 
+			#loader-container {
+				text-align: center;
+				margin-bottom: 10px;
+
+				.loader {
+					img {
+						width: 50px;
+						height: 50px;
+
+						transform: translateX(10px);
+						animation: loaderAnimation 0.5s ease-out infinite;
+					}
+
+					p {
+						color: rgba(255, 255, 255, 1);
+						font-size: 1.2em;
+						font-weight: bold;
+					}
+
+					@keyframes loaderAnimation {
+						50% {
+							transform: translateX(-10px);
+						}
+
+						100% {
+							transform: translateX(10px);
+						}
+					}
+				}
+			}
+
 			#presences {
 				#presence {
 					margin: 7px 0;
@@ -707,16 +904,19 @@
 						font-size: 17px;
 						font-weight: normal;
 						justify-content: center;
-
+						max-width: 100%;
+						overflow-x: hidden;
+						text-overflow: ellipsis;
+						white-space: nowrap;
 						span {
 							font-size: 10px;
-
 							background: rgb(200, 75, 75);
-
 							vertical-align: middle;
 							padding: 2px 4px;
 							border-radius: 5px;
 							position: relative;
+							margin-right: 5px;
+							top: -2px;
 						}
 					}
 
@@ -748,6 +948,15 @@
 				margin-bottom: 5px;
 				font-weight: 600;
 				color: $greyple;
+
+				#reinit {
+					color: $blurple;
+					cursor: pointer;
+
+					&:hover {
+						text-decoration: underline;
+					}
+				}
 			}
 
 			#presenceStoreBtn {

@@ -1,8 +1,16 @@
-import { getStorage } from "./functions/asyncStorage";
+import { v4 as uuidv4 } from "uuid";
+
 import { error, success } from "./debug";
-import randomHex from "./functions/randomHex";
-import axios from "axios";
-import { apiBase } from "../config";
+import { getStorage } from "./functions/asyncStorage";
+import graphqlRequest, { getPresenceMetadata } from "./functions/graphql";
+import {
+	DEFAULT_LOCALE, getPresenceLanguages as presenceLanguages, getString, updateStrings
+} from "./langManager";
+
+export interface platformType {
+	os: string;
+	arch: string;
+}
 
 export async function presenceScience() {
 	let identifier = (await getStorage("local", "identifier")).identifier,
@@ -10,32 +18,30 @@ export async function presenceScience() {
 			.presences;
 
 	if (!identifier) {
-		identifier = randomHex();
+		identifier = uuidv4();
 		chrome.storage.local.set({ identifier: identifier });
 	}
 
-	const headers = new Headers();
-	headers.append("Content-Type", "application/json");
-
-	axios("science", {
-		baseURL: apiBase,
-		data: {
-			identifier: identifier,
-			presences: presences.filter(p => !p.tmp).map(p => p.metadata.service),
-			platform: await new Promise(resolve =>
-				chrome.runtime.getPlatformInfo(info =>
-					resolve({ os: info.os, arch: info.arch })
-				)
+	const platform: platformType = await new Promise(resolve =>
+			chrome.runtime.getPlatformInfo(info =>
+				resolve({ os: info.os, arch: info.arch })
 			)
-		},
-		method: "POST",
-		headers: headers
-	});
+		),
+		presencesArray = presences.filter(p => !p.tmp).map(p => p.metadata.service);
+
+	graphqlRequest(`
+	mutation {
+		addScience(identifier: "${identifier}", presences: ["${presencesArray
+		.toString()
+		.split(",")
+		.join(`", "`)}"], os: "${platform.os}", arch:"${platform.arch}") {
+			identifier
+		}
+	}
+	`);
 }
 
 export async function updatePresences() {
-	presenceScience();
-
 	let presenceVersions: Array<{ name: string; version: string; url: string }>,
 		presences: presenceStorage = (await getStorage("local", "presences"))
 			.presences;
@@ -44,8 +50,31 @@ export async function updatePresences() {
 
 	//* Catch fetch error
 	try {
-		presenceVersions = (await axios("presences/versions", { baseURL: apiBase }))
-			.data;
+		const graphqlResult = (
+			await graphqlRequest(`
+			query {
+  			presences {
+    			url
+    			metadata {
+      			service
+      			version
+    			}
+  			}
+			}
+		`)
+		).data;
+
+		const result = [];
+
+		graphqlResult.presences.forEach(element => {
+			result.push({
+				name: element.metadata.service,
+				url: element.url,
+				version: element.metadata.version
+			});
+		});
+
+		presenceVersions = result;
 	} catch (e) {
 		error("presenceManager.ts", `Error while updating presences: ${e.message}`);
 		return;
@@ -62,23 +91,67 @@ export async function updatePresences() {
 
 	Promise.all(
 		presencesToUpdate.map(async p => {
-			let presenceIndex = presences.findIndex(
+			const presenceIndex = presences.findIndex(
 				//@ts-ignore
 				p1 => p1.metadata.service === p.name && !p.tmp
 			);
 
-			const metadata = (
-				await axios(`presences/${p.name}`, { baseURL: apiBase })
-			).data.metadata;
+			const graphqlResult = (
+				await graphqlRequest(`
+			query {
+  			presences(service: "${p.name}") {
+    			presenceJs
+					iframeJs
+					metadata {
+						author {
+							name
+							id
+						}
+						contributors {
+							name
+							id
+						}
+						altnames
+						warning
+						readLogs
+						service
+						description
+						url
+						version
+						logo
+						thumbnail
+						color
+						tags
+						category
+						iframe
+						regExp
+						iframeRegExp
+						button
+						warning
+						settings {
+							id
+							title
+							icon
+							if {
+								propretyNames
+								patternProprties
+							}
+							placeholder
+							value
+							values
+							multiLanguage
+						}
+					}
+				}
+			}
+			`)
+			).data;
 
-			let files = (
-				await Promise.all([
-					(await axios(`${apiBase}presences/${p.name}/presence.js`)).data,
-					metadata.iframe
-						? (await axios(`${apiBase}presences/${p.name}/iframe.js`)).data
-						: undefined
-				])
-			).filter(f => f);
+			const metadata = graphqlResult.presences[0].metadata,
+				files = [
+					graphqlResult.presences[0].presenceJs,
+					metadata.iframe ? graphqlResult.presences[0].iframeJs : undefined
+				].filter(f => f);
 
 			presences[presenceIndex].metadata = metadata;
 			presences[presenceIndex].presence = files[0];
@@ -96,6 +169,10 @@ export async function updatePresences() {
 				)
 			);
 		});
+		presencesToUpdate.forEach(p => {
+			// not awaiting it, it could take a lot of time
+			initPresenceLanguages(p);
+		});
 	});
 }
 
@@ -112,7 +189,7 @@ export async function addPresence(name: string | Array<string>) {
 			return;
 		}
 	} else {
-		let res = name.filter(
+		const res = name.filter(
 			s => !presences.map(p => p.metadata.service).includes(s)
 		);
 
@@ -123,34 +200,51 @@ export async function addPresence(name: string | Array<string>) {
 	}
 
 	if (typeof name === "string") {
-		axios(`presences/${name}`, { baseURL: apiBase })
+		getPresenceMetadata(name)
 			.then(async ({ data }) => {
 				if (
 					typeof data.metadata.button !== "undefined" &&
 					!data.metadata.button
 				)
 					return;
+				const presenceAndIframe = (
+					await graphqlRequest(`
+						query {
+							presences(service: "${data.metadata.service}") {
+    					presenceJs
+    					iframeJs
+    					}
+						}
+						`)
+				).data.presences[0];
 
-				let res: any = {
+				const res: any = {
 					metadata: data.metadata,
-					presence: await (await fetch(`${data.url}presence.js`)).text(),
+					presence: presenceAndIframe.presenceJs,
 					enabled: true
 				};
 
 				if (typeof data.metadata.iframe !== "undefined" && data.metadata.iframe)
-					res.iframe = await (await fetch(`${data.url}iframe.js`)).text();
+					res.iframe = presenceAndIframe.iframeJs;
 
 				presences.push(res);
 				chrome.storage.local.set({ presences: presences });
+				presences.map(p => {
+					if (p.metadata.settings) {
+						chrome.storage.local.set({
+							[`pSettings_${p.metadata.service}`]: p.metadata.settings
+						});
+					}
+				});
 			})
 			.catch(() => {});
 	} else {
-		let presencesToAdd: any = (
+		const presencesToAdd: any = (
 			await Promise.all(
 				(
 					await Promise.all(
 						name.map(name => {
-							return axios(`presences/${name}`, { baseURL: apiBase });
+							return getPresenceMetadata(name);
 						})
 					)
 				).map(async ({ data }) => {
@@ -160,16 +254,27 @@ export async function addPresence(name: string | Array<string>) {
 					)
 						return;
 
-					let res: any = {
+					const presenceAndIframe = (
+						await graphqlRequest(`
+						query {
+							presences(service: "${data.metadata.service}") {
+    					presenceJs
+    					iframeJs
+    					}
+						}
+						`)
+					).data.presences[0];
+
+					const res: any = {
 						metadata: data.metadata,
-						presence: (await axios(`${data.url}presence.js`)).data,
+						presence: presenceAndIframe.presenceJs,
 						enabled: true
 					};
 					if (
 						typeof data.metadata.iframe !== "undefined" &&
 						data.metadata.iframe
 					)
-						res.iframe = (await axios(`${data.url}iframe.js`)).data;
+						res.iframe = presenceAndIframe.iframeJs;
 
 					return res;
 				})
@@ -177,7 +282,19 @@ export async function addPresence(name: string | Array<string>) {
 		).filter(p => typeof p !== "undefined");
 
 		chrome.storage.local.set({ presences: presences.concat(presencesToAdd) });
+		presences.concat(presencesToAdd).map(p => {
+			if (p.metadata.settings) {
+				chrome.storage.local.set({
+					[`pSettings_${p.metadata.service}`]: p.metadata.settings
+				});
+				//* Not awaiting it, it could take a lot of time
+				initPresenceLanguages(p);
+			}
+		});
 	}
+
+	updatePresences();
+	updateStrings(chrome.i18n.getUILanguage());
 }
 
 //* Only add these if is not background page
@@ -195,13 +312,15 @@ if (document.location.pathname !== "/_generated_background_page.html") {
 	window.addEventListener("PreMiD_RemovePresence", async function(
 		data: CustomEvent
 	) {
-		let { presences } = await getStorage("local", "presences");
+		const { presences } = await getStorage("local", "presences");
 
 		chrome.storage.local.set({
 			presences: (presences as presenceStorage).filter(
 				p => p.metadata.service !== data.detail
 			)
 		});
+		updatePresences();
+		updateStrings(chrome.i18n.getUILanguage());
 	});
 
 	window.addEventListener("PreMiD_GetPresenceList", sendBackPresences);
@@ -213,17 +332,129 @@ if (document.location.pathname !== "/_generated_background_page.html") {
 }
 
 async function sendBackPresences() {
-	let presences = (await getStorage("local", "presences"))
-			.presences as presenceStorage,
-		data = {
-			detail: presences.filter(p => !p.tmp).map(p => p.metadata.service)
-		};
+	const presences = (await getStorage("local", "presences"))
+		.presences as presenceStorage;
+	let data = {
+		detail: presences.filter(p => !p.tmp).map(p => p.metadata.service)
+	};
 
 	// @ts-ignore
 	if (typeof cloneInto === "function")
 		// @ts-ignore
 		data = cloneInto(data, document.defaultView);
 
-	let event = new CustomEvent("PreMiD_GetWebisteFallback", data);
+	const event = new CustomEvent("PreMiD_GetWebisteFallback", data);
 	window.dispatchEvent(event);
+}
+
+export async function initPresenceLanguages(p) {
+	if (p.metadata.settings) {
+		const lngSettingIdx = p.metadata.settings.findIndex(
+			s => typeof s.multiLanguage !== "undefined"
+		);
+
+		if (lngSettingIdx >= 0) {
+			const lngSetting = p.metadata.settings[lngSettingIdx],
+				languages = await presenceMultiLanguageLanguages(
+					lngSetting.multiLanguage,
+					p.metadata.service
+				);
+
+			if (Object.keys(languages).length > 1) {
+				await storeDefaultLanguageOfPresence(p, languages);
+			} else {
+				p.metadata.settings.splice(lngSettingIdx, 1);
+			}
+		}
+	}
+}
+
+async function getPresenceLanguages(serviceName) {
+	const values = [],
+		languages = await presenceLanguages(serviceName);
+
+	for (const language of languages) {
+		values.push({
+			name: await getString("name", language),
+			value: language
+		});
+	}
+
+	return values;
+}
+
+async function presenceMultiLanguageLanguages(multiLanguage, service) {
+	switch (typeof multiLanguage) {
+		case "boolean":
+			if (multiLanguage === true) return await getPresenceLanguages(service);
+			break;
+		case "string":
+			return await getPresenceLanguages(multiLanguage);
+			break;
+		case "object":
+			if (multiLanguage instanceof Array) {
+				let commonLngs = [];
+
+				for (const prefix of multiLanguage) {
+					if (typeof prefix === "string" && prefix.trim().length > 0) {
+						const lngs = await getPresenceLanguages(prefix);
+
+						// only load common languages
+						if (commonLngs.length === 0) {
+							commonLngs = lngs;
+						} else {
+							commonLngs = commonLngs.filter(
+								cl => lngs.findIndex(l => l === cl) >= 0
+							);
+						}
+					}
+				}
+
+				return commonLngs;
+			}
+			break;
+	}
+}
+
+async function storeDefaultLanguageOfPresence(p, languages) {
+	const lngSetting = p.metadata.settings.find(
+		s => typeof s.multiLanguage !== "undefined"
+	);
+
+	let presenceSettings = (
+		await getStorage("local", `pSettings_${p.metadata.service}`)
+	)[`pSettings_${p.metadata.service}`];
+
+	if (!presenceSettings && p.metadata.settings) {
+		presenceSettings = p.metadata.settings;
+	}
+
+	if (
+		!presenceSettings.find(
+			s => s.id === lngSetting.id && s.values && s.values.length > 0
+		)
+	) {
+		const uiLang = chrome.i18n.getUILanguage(),
+			preferredValue = languages.find(l => l.value === uiLang);
+
+		lngSetting.title = await getString("general.language", uiLang);
+		lngSetting.icon = "fas fa-language";
+		lngSetting.value = preferredValue ? preferredValue.value : DEFAULT_LOCALE;
+		lngSetting.values = languages;
+
+		const lngSettingIdx = presenceSettings.findIndex(
+			s => s.id === lngSetting.id
+		);
+		presenceSettings[lngSettingIdx] = lngSetting;
+
+		//* You may be wondering, why the fuck do you stringify and parse this? Guess what because Firefox sucks and breaks its storage
+		//@ts-ignore
+		chrome.storage.local.set(
+			JSON.parse(
+				JSON.stringify({
+					[`pSettings_${p.metadata.service}`]: presenceSettings
+				})
+			)
+		);
+	}
 }
