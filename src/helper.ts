@@ -4,8 +4,8 @@ import { apiBase as apibase } from "./config";
 import { getStorage as getstorage } from "./util/functions/asyncStorage";
 import { getString as getstring, getStrings as getstrings } from "./util/langManager";
 
-export let getString = getstring;
-export let getStrings = getstrings;
-export let getStorage = getstorage;
-export let axios = Axios;
-export let apiBase = apibase;
+export const getString = getstring;
+export const getStrings = getstrings;
+export const getStorage = getstorage;
+export const axios = Axios;
+export const apiBase = apibase;
