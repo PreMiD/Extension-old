@@ -45,6 +45,6 @@
 		"vuex": "^3.5.1",
 		"webpack": "^5.1.3",
 		"webpack-cli": "^4.1.0",
-		"webpack-merge": "^5.2.0"
+		"webpack-merge": "^6.0.1"
 	}
 }
